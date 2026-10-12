@@ -54,8 +54,8 @@ export function createApiProxy(config: () => ProxyConfig | undefined, fetcher: t
       const bodyLimit = incoming.pathname === "/api/admin/company-images" && request.method === "POST" ? COMPANY_MULTIPART_MAX_BYTES : MAX_BODY_BYTES
       if (!/^\/api(?:\/[a-zA-Z0-9._~-]+)*\/?$/.test(incoming.pathname))
         throw new ProxyFailure(404, "NOT_FOUND", "The requested resource was not found.")
-      const target = new URL(settings.apiOrigin)
-      target.pathname = incoming.pathname
+      // Keep the binding's base path and the API's existing /api prefix.
+      const target = new URL(incoming.pathname.slice(1), `${settings.apiOrigin}/`)
       target.search = incoming.search
       const headers = new Headers()
       // An allowlist strips browser-supplied gateway, client-IP, forwarding and hop headers.

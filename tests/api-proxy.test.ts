@@ -158,3 +158,30 @@ test("production proxy requires explicit upstream, secret and verified ingress s
     { API_BASE_URL: "http://api.example" }, { API_GATEWAY_SECRET: "bad" }, { API_INGRESS_IP_HEADER: "" },
     { API_INGRESS_IP_HEADER: "x-gethired-client-ip" }]) assert.throws(() => readProxyConfig({ ...env, ...patch }))
 })
+
+test("service binding wins over the legacy origin and preserves its base path", async () => {
+  const env = {
+    API_SERVICE_URL: "http://api.internal/service/api/",
+    API_BASE_URL: "https://old-api.example",
+    API_GATEWAY_SECRET: config.gatewaySecret,
+    NODE_ENV: "production",
+    API_INGRESS_IP_HEADER: "x-ingress-client-ip",
+  }
+  const settings = readProxyConfig(env)!
+  assert.equal(settings.apiOrigin, "http://api.internal/service/api")
+  let called = false
+  const proxy = createApiProxy(() => settings, (async (input, init) => {
+    called = true
+    assert.equal(String(input), "http://api.internal/service/api/api/auth/me?check=1")
+    assert.equal(new Headers(init?.headers).get("x-gethired-gateway"), config.gatewaySecret)
+    return json({})
+  }) as typeof fetch)
+  const response = await proxy(new Request("https://front.example/api/auth/me?check=1", {
+    headers: { "x-ingress-client-ip": "192.0.2.1" },
+  }))
+  assert.equal(response.status, 200)
+  assert.equal(called, true)
+  for (const value of ["", "not-a-url", "ftp://api.internal", "https://user:secret@api.internal", "https://api.internal?token=secret"]) {
+    assert.throws(() => readProxyConfig({ ...env, API_SERVICE_URL: value }))
+  }
+})

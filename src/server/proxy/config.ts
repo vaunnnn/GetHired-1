@@ -8,13 +8,16 @@ export interface ProxyConfig {
 
 export function readProxyConfig(env: Readonly<Record<string, string | undefined>>): ProxyConfig | undefined {
   // Unconfigured frontend builds and demo screens remain usable; /api fails closed.
-  if (!env.API_BASE_URL) return undefined
+  const boundUrl = env.API_SERVICE_URL
+  const baseUrl = boundUrl ?? env.API_BASE_URL
+  const variable = boundUrl !== undefined ? "API_SERVICE_URL" : "API_BASE_URL"
+  if (baseUrl === undefined) return undefined
   let upstream: URL
-  try { upstream = new URL(env.API_BASE_URL) } catch { throw new Error("API_BASE_URL must be an HTTP(S) origin.") }
+  try { upstream = new URL(baseUrl) } catch { throw new Error(`${variable} must be an HTTP(S) URL.`) }
   if (!["http:", "https:"].includes(upstream.protocol) || upstream.username || upstream.password ||
-    upstream.pathname !== "/" || upstream.search || upstream.hash ||
-    (env.NODE_ENV === "production" && upstream.protocol !== "https:" && env.API_ALLOW_PRIVATE_HTTP !== "true"))
-    throw new Error("API_BASE_URL must be an origin; production HTTP requires explicit private-network configuration.")
+    (!boundUrl && upstream.pathname !== "/") || upstream.search || upstream.hash ||
+    (!boundUrl && env.NODE_ENV === "production" && upstream.protocol !== "https:" && env.API_ALLOW_PRIVATE_HTTP !== "true"))
+    throw new Error(`${variable} is invalid; manually configured production HTTP requires explicit private-network configuration.`)
   if (!/^[a-f0-9]{64}$/i.test(env.API_GATEWAY_SECRET ?? ""))
     throw new Error("API_GATEWAY_SECRET must be 32 random bytes encoded as 64 hex characters.")
   const trustedIpHeader = env.API_INGRESS_IP_HEADER?.toLowerCase() || undefined
@@ -23,7 +26,7 @@ export function readProxyConfig(env: Readonly<Record<string, string | undefined>
     throw new Error("API_INGRESS_IP_HEADER must name an ingress-owned, single-IP header.")
   if (env.NODE_ENV === "production" && !trustedIpHeader)
     throw new Error("API_INGRESS_IP_HEADER requires a verified production ingress configuration.")
-  return { apiOrigin: upstream.origin, gatewaySecret: env.API_GATEWAY_SECRET!, trustedIpHeader,
+  return { apiOrigin: upstream.href.replace(/\/$/, ""), gatewaySecret: env.API_GATEWAY_SECRET!, trustedIpHeader,
     production: env.NODE_ENV === "production", timeoutMs: 25000 }
 }
 
