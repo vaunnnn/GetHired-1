@@ -1,0 +1,25 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "gethired-staging-api": {
+      "root": ".",
+      "framework": "nextjs",
+      "installCommand": "npm ci --include=dev",
+      "buildCommand": "npm run build",
+      "bindings": [
+        { "type": "service", "service": "api", "format": "url", "env": "API_SERVICE_URL" }
+      ]
+    },
+    "api": {
+      "root": "apps/api",
+      "framework": "express",
+      "entrypoint": "src/vercel.ts",
+      "installCommand": "npm ci --include=dev --prefix ../..",
+      "buildCommand": "npm run build:api --prefix ../..",
+      "devCommand": "npm run build --workspace @gethired/contracts --prefix ../.. && node --import tsx src/server.ts"
+    }
+  },
+  "rewrites": [
+    { "source": "/(.*)", "destination": { "service": "gethired-staging-api" } }
+  ]
+}

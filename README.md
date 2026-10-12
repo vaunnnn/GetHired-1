@@ -1,5 +1,8 @@
 # GetHired
 
+For a single Vercel project with Next.js and an internal Express service, see
+the [Vercel services deployment guide](docs/vercel-services.md).
+
 ## Developer Setup Guide
 
 Follow these steps to get the project up and running on your local machine.
