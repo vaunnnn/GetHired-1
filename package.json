@@ -13,6 +13,7 @@
     "build:api": "npm run build --workspace @gethired/contracts && npm run build --workspace @gethired/api",
     "start:api": "npm run start --workspace @gethired/api",
     "test:http": "node tests/backend-http-smoke.mjs",
+    "test:browser": "node tests/session-browser-smoke.mjs",
     "start": "next start",
     "format": "oxfmt",
     "typecheck": "npm run build --workspace @gethired/contracts && tsc --noEmit && npm run typecheck --workspace @gethired/api",

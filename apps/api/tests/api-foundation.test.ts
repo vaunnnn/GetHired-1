@@ -185,7 +185,7 @@ test("protected routes fail closed without an access implementation", async () =
   const handlers = createApiRoute(
     {
       route: "/api/private",
-      access: { kind: "protected", permission: "example:read" },
+      access: { kind: "protected", permission: "companies:read" },
       methods: {
         GET: {
           body: "none",
@@ -215,7 +215,7 @@ test("access denial precedes parsing and business work; a broken logger preserve
   const handlers = createApiRoute(
     {
       route: "/api/private",
-      access: { kind: "protected" },
+      access: { kind: "protected", permission: "session:read" },
       methods: {
         POST: {
           body: "json",
@@ -246,7 +246,7 @@ test("verified actor and async params reach the handler and only the actor ID en
   const handlers = createApiRoute(
     {
       route: "/api/example/[id]",
-      access: { kind: "protected", permission: "example:read" },
+      access: { kind: "protected", permission: "companies:read" },
       methods: {
         GET: {
           body: "none",
@@ -260,7 +260,7 @@ test("verified actor and async params reach the handler and only the actor ID en
         entries.push(entry)
       },
       enforceAccess: async (_request, policy) => {
-        assert.equal(policy.permission, "example:read")
+        assert.equal(policy.permission, "companies:read")
         return { id: actorId }
       },
     },

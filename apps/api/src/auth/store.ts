@@ -1,5 +1,6 @@
 import { Pool, type QueryResultRow } from "pg"
 import { ApiError } from "../api/errors.js"
+import { transaction as runTransaction } from "../db/transaction.js"
 import type { AuthConfig } from "./config.js"
 import {
   sessionPolicy,
@@ -76,27 +77,7 @@ export function createAuthStore(pool: SqlPool): AuthStore {
   async function transaction<T>(
     work: (client: SqlClient) => Promise<T>,
   ): Promise<T> {
-    let client: SqlClient | undefined
-    try {
-      client = await pool.connect()
-      await client.query("begin")
-      await client.query("set local lock_timeout = '5s'")
-      const result = await work(client)
-      await client.query("commit")
-      return result
-    } catch (error) {
-      if (client)
-        try {
-          await client.query("rollback")
-        } catch {
-          /* Preserve safe failure. */
-        }
-      throw error instanceof ApiError
-        ? error
-        : new ApiError("SERVICE_UNAVAILABLE")
-    } finally {
-      client?.release()
-    }
+    return runTransaction(pool, work)
   }
   async function revoke(client: SqlClient, sessionId: string) {
     await client.query(

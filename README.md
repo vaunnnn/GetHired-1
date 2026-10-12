@@ -25,7 +25,7 @@ Ensure you have the following installed:
    ```
 
 3. **Configure the server:**
-   Copy `.env.example` to `.env.local` and `apps/api/.env.example` to `apps/api/.env.local`; merge settings if files already exist. Generate one random `API_GATEWAY_SECRET` and set the same value in both files. Keep `AUTH_ENABLED=false` in the API environment until connecting Supabase. Follow the [separate API setup guide](docs/backend-b1-extraction.md#local-setup). The frontend remains a prototype; authentication endpoints fail closed until enabled and configured.
+   Copy `.env.example` to `.env.local` and `apps/api/.env.example` to `apps/api/.env.local`; merge settings if files already exist. Generate one random `API_GATEWAY_SECRET` and set the same value in both files. Keep `AUTH_ENABLED=false` in the API environment until connecting Supabase. Follow the [separate API setup guide](docs/backend-b1-extraction.md#local-setup). Login/profile/logout and protected workspaces use the API; authentication fails closed until enabled and configured. Business screens still use prototype data. Apply the [B3 migration and deployment steps](docs/backend-b3-integration.md) before deploying this revision.
 
 4. **Start the API and frontend in separate terminals:**
    ```bash
@@ -53,11 +53,12 @@ Ensure you have the following installed:
 | `npm run typecheck` | Checks TypeScript types |
 | `npm test` | Runs API, JWT/CSRF, embedded PostgreSQL, and proxy tests |
 | `npm run test:http` | After both builds, verifies temporary local production API/frontend services |
+| `npm run test:browser` | After the frontend build, checks session UI and cross-tab refresh in headless Chrome with a local test fixture |
 
 ### Tech Stack
 
 - **Framework:** Next.js 16 (App Router)
-- **Backend:** Separate Node.js + Express 5 API; Supabase Auth/PostgreSQL adapters (live setup pending)
+- **Backend:** Separate Node.js + Express 5 API; Supabase Auth/PostgreSQL adapters with verified staging connectivity; B3 deployment pending
 - **UI Library:** React 19
 - **Styling:** Tailwind CSS v4
 - **Language:** TypeScript

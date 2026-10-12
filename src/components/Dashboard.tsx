@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useSession } from "./SessionProvider";
 import CompanyCard from "./CompanyCard";
 import CategoryCard, { CategoryIcon } from "./CategoryCard";
 import {
@@ -18,14 +18,12 @@ import {
 
 type DashView = "home" | "explore" | "interview";
 
-interface Props {
-  onLogout?: () => void;
-}
-
 interface ProfileData {
   name: string;
   studentId: string;
   course: string;
+  email: string;
+  yearLevel: string;
 }
 
 /* ═══════════════════════════════ ICON SYSTEM ════════════════════════ */
@@ -281,13 +279,14 @@ function ProfileModal({
   onClose,
 }: {
   profile: ProfileData;
-  onSave?: (p: ProfileData) => void;
   onClose: () => void;
 }) {
   const fields = [
     { label: "Full Name", value: profile.name },
     { label: "Student ID", value: profile.studentId },
     { label: "Course", value: profile.course },
+    { label: "Email", value: profile.email },
+    { label: "Year Level", value: profile.yearLevel },
   ];
 
   return (
@@ -389,6 +388,7 @@ function HomeView({
   onToggleSave: (id: number) => void;
   onViewMore: (c: Company) => void;
 }) {
+  const { user } = useSession();
   const saved = companies.filter((c) => c.saved);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -407,7 +407,7 @@ function HomeView({
     <div>
       <div className="mb-6">
         <h1 className="text-[#302929] text-[48px] leading-tight tracking-[-1px]" style={{ fontFamily: "'DM Serif Display', serif" }}>
-          Welcome, Ishie!
+          Welcome, {user.student?.firstName || user.displayName}!
         </h1>
         <p className="text-gray-400 text-[14px] mt-1">
           {saved.length > 0
@@ -1168,19 +1168,20 @@ function InterviewView() {
 }
 
 /* ═══════════════════════════════ DASHBOARD SHELL ════════════════════ */
-export default function Dashboard({ onLogout }: Props = {}) {
-  const router = useRouter();
-  const handleLogout = onLogout ?? (() => router.push("/"));
+export default function Dashboard() {
+  const { user, logout: handleLogout } = useSession();
   const [view, setView] = useState<DashView>("home");
   const [companies, setCompanies] = useState(initialCompanies);
   const [collapsed, setCollapsed] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [profile, setProfile] = useState<ProfileData>({
-    name: "Ishie Boo",
-    studentId: "21100123",
-    course: "BS Information Technology",
-  });
+  const profile: ProfileData = {
+    name: user.displayName,
+    studentId: user.student?.studentNumber ?? "",
+    course: user.student?.course ?? "",
+    email: user.email,
+    yearLevel: user.student?.yearLevel ?? "",
+  };
 
   const toggleSave = (id: number) => {
     setCompanies((prev) => prev.map((c) => (c.id === id ? { ...c, saved: !c.saved } : c)));
@@ -1347,7 +1348,6 @@ export default function Dashboard({ onLogout }: Props = {}) {
       {profileOpen && (
         <ProfileModal
           profile={profile}
-          onSave={setProfile}
           onClose={() => setProfileOpen(false)}
         />
       )}

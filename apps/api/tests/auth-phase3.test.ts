@@ -797,7 +797,7 @@ test("Phase 3 database and authentication lifecycle", async (t) => {
       const route = createApiRoute(
         {
           route: "/api/auth/test",
-          access: { kind: "protected" },
+          access: { kind: "protected", permission: "session:read" },
           methods: {
             POST: {
               body: "json",

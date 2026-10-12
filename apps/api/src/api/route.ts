@@ -5,6 +5,7 @@ import { parseBody, readLimitedBody, type BodyFormat } from "./body.js"
 import { ApiError, type ApiErrorCode } from "./errors.js"
 import { errorResponse, successResponse, type ApiResult } from "./responses.js"
 import type { Principal } from "../auth/types.js"
+import { assertPermission, isPermission, type Permission } from "../authorization/policy.js"
 
 export const HTTP_METHODS = [
   "GET",
@@ -18,7 +19,7 @@ export const HTTP_METHODS = [
 type HttpMethod = typeof HTTP_METHODS[number]
 export type AccessPolicy = { kind: "public" } | {
   kind: "protected"
-  permission?: string
+  permission: Permission
 }
 type Params = Record<string, string | string[] | undefined>
 type RouteContext = { params: Promise<Params> }
@@ -72,7 +73,12 @@ export function createApiRoute(
   ) {
     throw new Error("API logging requires a static route template.")
   }
+  if (definition.access.kind === "protected" && !isPermission(definition.access.permission))
+    throw new Error("Protected routes require a known explicit permission.")
   const allow = HTTP_METHODS.filter((method) => definition.methods[method])
+  if (allow.length && definition.access.kind === "public" &&
+    /^\/api\/(?:admin|me|companies|categories)(?:\/|$)/.test(definition.route))
+    throw new Error("Business routes require an explicit protected permission.")
 
   const dispatch = async (
     request: Request,
@@ -106,9 +112,6 @@ export function createApiRoute(
         if (dependencies.enforceAccess)
           actor = await dependencies.enforceAccess(request, definition.access)
         else {
-          // Permission mapping remains Phase 4 work; never silently ignore a permission.
-          if (definition.access.permission)
-            throw new ApiError("SERVICE_UNAVAILABLE")
           const { getAuthService } = await import("../auth/runtime.js")
           const auth = await getAuthService().authenticate(request)
           actor = { id: auth.id, auth }
@@ -122,6 +125,7 @@ export function createApiRoute(
           actor = null
           throw new ApiError("SERVICE_UNAVAILABLE")
         }
+        if (actor.auth) assertPermission(actor.auth, definition.access.permission)
       }
       const body = parseBody(request, bytes, endpoint.body)
       response = successResponse(

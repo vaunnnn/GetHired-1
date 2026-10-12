@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useSession } from "./SessionProvider";
 import CompanyCard from "./CompanyCard";
 import CategoryCard, { CategoryIcon } from "./CategoryCard";
 import {
@@ -491,7 +491,7 @@ function ImageCropperModal({
 
 /* ═══════════════════════════════ MAIN ADMIN COMPONENT ═════════════════ */
 export default function AdminDashboard() {
-  const router = useRouter();
+  const { user, logout } = useSession();
 
   const [activeTab, setActiveTab] = useState<AdminTab>("companies");
   const [collapsed, setCollapsed] = useState(false);
@@ -1022,7 +1022,7 @@ export default function AdminDashboard() {
           {/* Centered Logout */}
           <div className="px-2 flex justify-center">
             <button
-              onClick={() => router.push("/login")}
+              onClick={logout}
               title={collapsed ? "Log out" : undefined}
               className="flex items-center justify-center gap-2 py-3 rounded-[24px] text-[13.5px] font-medium text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all w-full cursor-pointer"
             >
@@ -1057,10 +1057,11 @@ export default function AdminDashboard() {
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <div className="flex items-center gap-2 bg-white border border-slate-200/90 rounded-full pl-1.5 pr-3 sm:pr-4 py-1.5 shadow-2xs">
               <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#0066FF] text-white font-bold text-[12px] sm:text-[13px] flex items-center justify-center">
-                A
+                {user.displayName.slice(0, 1).toUpperCase()}
               </div>
               <div className="text-left leading-tight hidden sm:block">
-                <div className="text-[12.5px] font-semibold text-[#0F172A]">Administrator</div>
+                <div className="text-[12.5px] font-semibold text-[#0F172A]">{user.displayName}</div>
+                <div className="text-[11px] text-slate-500">{user.email}</div>
               </div>
             </div>
           </div>
@@ -1488,7 +1489,7 @@ export default function AdminDashboard() {
         ))}
         <button
           type="button"
-          onClick={() => router.push("/login")}
+          onClick={logout}
           className="flex flex-col items-center justify-center gap-1 py-1 px-3 rounded-2xl text-[11px] font-medium text-slate-400 hover:text-red-500 transition-all cursor-pointer"
         >
           <div className="p-1">

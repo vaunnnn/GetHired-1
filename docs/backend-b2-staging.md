@@ -1,8 +1,8 @@
 # B2 staging foundation
 
 Status: repository foundation implemented; user reports hosted preflight and both
-migrations and database login creation succeeded. Service configuration and live
-acceptance remain pending.
+migrations and database login creation succeeded. Live service connectivity was
+verified on 2026-10-12; full hosted acceptance remains pending (see section 5).
 Frontend host confirmed: Vercel. API host: Render. Database and identity: Supabase.
 
 Staging is an isolated test environment, with synthetic accounts and separate secrets
@@ -10,7 +10,8 @@ from eventual production. A Supabase project supplies PostgreSQL and Auth; a Ren
 web service runs `apps/api`; Vercel runs Next.js and the existing same-origin proxy.
 On 2026-10-05 the user reported creating Supabase and Render resources and successfully
 running the preflight and both migrations in Supabase's SQL editor. This is user-reported
-setup evidence; runtime connectivity and hosted acceptance have not yet been verified.
+setup evidence. Runtime connectivity was subsequently verified; full hosted
+acceptance has not yet been completed.
 
 | Resource | URL/status |
 | --- | --- |
@@ -139,6 +140,27 @@ the Node/Express/pg type definitions needed during compilation; otherwise npm om
 them in production. For services created manually, update the Build Command in
 Render's dashboard as well as this repository's Blueprint.
 
+### Database TLS certificate trust
+
+If readiness reports `stage: connect`, `reason: database_tls_failed`, the TLS
+handshake failed before database login. One possible cause is a missing trusted
+Supabase root certificate. Download the project's server root certificate from
+Supabase Database Settings. In Render's Environment section, add a Secret File
+named `supabase-ca.crt` containing the complete PEM certificate, including its
+BEGIN/END CERTIFICATE lines. Set `NODE_EXTRA_CA_CERTS=/etc/secrets/supabase-ca.crt`
+and redeploy. Apply the same setting and file to the maintenance service when created.
+
+Node reads this variable at process startup and extends its default trusted roots;
+the current pg configuration sets `rejectUnauthorized: true` without overriding
+`ca`, so no application change is needed. Keep TLS verification enabled and retain
+the existing DATABASE_URL without SSL query parameters. If the same diagnostic
+persists, verify the certificate file, expiry, hostname and deployed startup logs
+before assuming the database credentials are wrong.
+
+References: [Supabase SSL](https://supabase.com/docs/guides/platform/ssl-enforcement),
+[Render secret files](https://render.com/docs/configure-environment-variables),
+[Node extra CA certificates](https://nodejs.org/api/cli.html#node_extra_ca_certsfile).
+
 Import the same repository in Vercel as Next.js with repository root and
 `npm run build`. Select Node 22.x. Scope these server-only variables to staging:
 
@@ -157,9 +179,19 @@ assumes traffic enters Vercel directly. Verify the deployed header cannot be spo
 before recording ingress acceptance; custom upstream proxies need a separate review.
 Use one stable staging URL: a different preview origin will fail the exact-origin check.
 
-## 5. Live acceptance record (all pending)
+## 5. Live acceptance record (partial)
 
-The screens still use mock login until B3. Exercise the API via a browser test client
+On 2026-10-12 direct HTTP checks confirmed Render live/ready 200, direct auth
+without gateway 403, Vercel readiness 200, CSRF bootstrap 200 with a Secure,
+HttpOnly, SameSite=Lax, Path=/ browser cookie and no Domain, and unauthenticated
+me 401. Initial Vercel requests returned 503 while Render was slow to respond;
+retries passed. This verifies service connectivity, required schema/runtime reads
+and gateway rejection, not credential login or the remaining checks below.
+
+B3 is now implemented locally; see [integration and deployment](backend-b3-integration.md).
+The following checklist remains the full hosted acceptance target.
+
+The deployed B2 screens use mock login until B3 is deployed. Exercise the API via a browser test client
 on the Vercel staging origin: first GET `/api/auth/csrf`, retain browser cookies and
 send `X-CSRF-Token` on mutations, then login → me → refresh → logout. Do not log tokens,
 passwords or cookies. Record deployment revisions, timestamps and pass/fail evidence.

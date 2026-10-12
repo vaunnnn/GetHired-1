@@ -24,7 +24,7 @@ export function createRoutes() {
   }))
   routes.set("/api/auth/me", createApiRoute({
     route: "/api/auth/me",
-    access: { kind: "protected" },
+    access: { kind: "protected", permission: "session:read" },
     methods: { GET: { body: "none", handle: ({ actor }) => {
       if (!actor?.auth) throw new ApiError("UNAUTHENTICATED")
       return getAuthService().me(actor.auth)
