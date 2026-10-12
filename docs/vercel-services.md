@@ -5,6 +5,11 @@ Use Node.js 22.x. The root `vercel.json` builds Next.js and Express independentl
 including their shared contracts workspace. Allow the API service to access files
 outside `apps/api` so its build can use the root lockfile and `packages/contracts`.
 
+The API install uses npm's workspace discovery to locate the root lockfile.
+Do not add `--prefix ../..`: the install can already run from the repository root,
+which makes that relative prefix point outside the checkout. Build and development
+commands select packages by workspace name instead of assuming a working directory.
+
 ## Routing and bindings
 
 - `gethired-staging-api` is the Next.js frontend, despite its retained suggested name.
