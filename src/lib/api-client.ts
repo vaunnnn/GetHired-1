@@ -1,4 +1,4 @@
-import type { CurrentUser, LoginInput } from "@gethired/contracts";
+import type { CurrentUser, LoginInput, ApiSuccess } from "@gethired/contracts";
 
 export class ApiClientError extends Error {
   constructor(
@@ -39,7 +39,7 @@ function notifySessionChange() {
 export function createApiClient({ fetcher = fetch, lock = browserLock, notify = notifySessionChange }: ClientOptions = {}) {
   let refreshing: Promise<CurrentUser> | undefined;
 
-  async function send<T>(path: string, method = "GET", body?: unknown, csrf?: string): Promise<T> {
+  async function send<T>(path: string, method = "GET", body?: unknown, csrf?: string, full = false): Promise<T> {
     if (!/^\/api\/[a-zA-Z0-9/_~-]+(?:\?[^#]*)?$/.test(path)) throw new Error("Use a same-origin API path.");
     let response: Response;
     let envelope;
@@ -47,9 +47,9 @@ export function createApiClient({ fetcher = fetch, lock = browserLock, notify = 
       response = await fetcher(path, {
         method, credentials: "same-origin", cache: "no-store", redirect: "error",
         signal: AbortSignal.timeout(30000),
-        headers: { Accept: "application/json", ...(body === undefined ? {} : { "Content-Type": "application/json" }),
+        headers: { Accept: "application/json", ...(body === undefined || body instanceof FormData ? {} : { "Content-Type": "application/json" }),
           ...(csrf ? { "X-CSRF-Token": csrf } : {}) },
-        ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+        ...(body === undefined ? {} : { body: body instanceof FormData ? body : JSON.stringify(body) }),
       });
       envelope = await response.json();
     } catch { throw unavailable(); }
@@ -59,7 +59,7 @@ export function createApiClient({ fetcher = fetch, lock = browserLock, notify = 
         envelope.error.fieldErrors, envelope.requestId);
     }
     if (!envelope || !("data" in envelope) || typeof envelope.requestId !== "string") throw unavailable();
-    return envelope.data as T;
+    return (full ? envelope : envelope.data) as T;
   }
 
   async function csrf() {
@@ -88,6 +88,13 @@ export function createApiClient({ fetcher = fetch, lock = browserLock, notify = 
 
   return {
     refresh,
+    async list<T>(path: string): Promise<ApiSuccess<T[]>> {
+      try { return await send<ApiSuccess<T[]>>(path, "GET", undefined, undefined, true); }
+      catch (error) {
+        if (isSessionError(error)) { await refresh(); return send<ApiSuccess<T[]>>(path, "GET", undefined, undefined, true); }
+        throw error;
+      }
+    },
     async get<T>(path: string): Promise<T> {
       try { return await send<T>(path); }
       catch (error) {

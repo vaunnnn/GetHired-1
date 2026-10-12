@@ -8,7 +8,7 @@ import { getServerConfig } from "./config.js"
 import { logRequest } from "./logging/request.js"
 import { createRoutes } from "./routes.js"
 import { CLIENT_IP_HEADER, GATEWAY_HEADER, type TransportConfig } from "./http/config.js"
-import { readIncomingBody, sendWebResponse } from "./http/transport.js"
+import { readIncomingBody, sendWebResponse, incomingUploadStream } from "./http/transport.js"
 
 export default function createApp(transport: TransportConfig) {
   const app = express()
@@ -25,8 +25,10 @@ export default function createApp(transport: TransportConfig) {
       if (!request.originalUrl.startsWith("/") || request.originalUrl.startsWith("//"))
         throw new ApiError("NOT_FOUND")
       const url = new URL(request.originalUrl, "http://api.internal")
-      const handler = routes.get(url.pathname) ?? missing
-      if (routes.has(url.pathname)) route = url.pathname
+      const match = url.pathname.match(/^(\/api\/(?:admin\/companies|companies|me\/bookmarks))\/([^/]+)$/)
+      const template = match ? `${match[1]}/[companyId]` : url.pathname
+      const handler = routes.get(template) ?? missing
+      if (routes.has(template)) route = template
       const isProbe = ["/api/health/live", "/api/health/ready"].includes(url.pathname) && request.method === "GET"
       if (!isProbe) {
         const provided = request.headers[GATEWAY_HEADER]
@@ -39,8 +41,8 @@ export default function createApp(transport: TransportConfig) {
       }
       // These methods are forbidden by the Web Request constructor.
       if (["TRACE", "TRACK", "CONNECT"].includes(request.method)) {
-        if (!routes.has(url.pathname)) throw new ApiError("NOT_FOUND")
-        throw new ApiError("METHOD_NOT_ALLOWED", { allow: [url.pathname.match(/\/(login|logout|refresh)$/) ? "POST" : "GET"] })
+        if (!routes.has(template)) throw new ApiError("NOT_FOUND")
+        throw new ApiError("METHOD_NOT_ALLOWED", { allow: handler.allowedMethods })
       }
       const headers = new Headers()
       for (const [name, value] of Object.entries(request.headers)) {
@@ -48,8 +50,9 @@ export default function createApp(transport: TransportConfig) {
         for (const item of Array.isArray(value) ? value : [value]) headers.append(name, item)
       }
       const supported = handler.allowedMethods.some((method) => method === request.method)
+      const upload = supported && url.pathname === "/api/admin/company-images" && request.method === "POST"
       if (!supported) response.shouldKeepAlive = false
-      const bytes = supported
+      const bytes = supported && !upload
         ? await readIncomingBody(request, response, getServerConfig().maxBodyBytes, transport.bodyTimeoutMs)
         : new Uint8Array()
       const noBody = ["GET", "HEAD"].includes(request.method)
@@ -57,10 +60,14 @@ export default function createApp(transport: TransportConfig) {
       const webRequest = new Request(url, {
         method: request.method,
         headers,
-        ...(noBody ? {} : { body: bytes }),
-      })
+        ...(noBody ? {} : upload ? { body: incomingUploadStream(request, response), duplex: "half" } : { body: bytes }),
+      } as RequestInit)
       // Every exported dispatcher consults the actual request method, including OPTIONS/HEAD.
-      await sendWebResponse(await handler.GET(webRequest), response)
+      const result = await handler.GET(webRequest, { params: Promise.resolve(match ? { companyId: match[2] } : {}) })
+      if (upload && !request.readableEnded) {
+        await webRequest.body?.cancel().catch(() => {})
+      }
+      await sendWebResponse(result, response)
     } catch (error) {
       const safeError = error instanceof ApiError ? error : new ApiError("INTERNAL_ERROR")
       const requestId = randomUUID()

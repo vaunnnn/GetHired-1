@@ -1,20 +1,23 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useSession } from "./SessionProvider";
 import CompanyCard from "./CompanyCard";
 import CategoryCard, { CategoryIcon } from "./CategoryCard";
 import {
-  companies as initialCompanies,
   interviewCategories,
   interviewQuestions,
   codingChallenges,
-  Company,
   InterviewQuestion,
   getCategoryPipeline,
   CODING_IDS,
   NON_TECHNICAL_IDS,
 } from "../data";
+
+import { apiClient } from "@/lib/api-client";
+import { companyView, type Company } from "@/lib/companies";
+import { COMPANY_NICHES, COMPANY_SPECIALIZATIONS, type Company as CompanyDto, type Bookmark } from "@gethired/contracts";
+import CompanyResults, { useCompanyPage } from "./CompanyResults";
 
 type DashView = "home" | "explore" | "interview";
 
@@ -112,7 +115,7 @@ function CompanyModal({
 }: {
   company: Company;
   onClose: () => void;
-  onToggleSave: (id: number) => void;
+  onToggleSave: (id: string) => void;
   onPractice: () => void;
 }) {
   return (
@@ -211,7 +214,7 @@ function CompanyModal({
 
                 {/* Website */}
                 <a
-                  href={`https://${company.website}`}
+                  href={company.website || undefined}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 bg-gray-50 rounded-[16px] px-4 py-3 hover:bg-[#dfe9ff] transition-colors group"
@@ -380,12 +383,16 @@ function ProfileModal({
 
 /* ═══════════════════════════════ HOME VIEW ══════════════════════════ */
 function HomeView({
+  totalSaved,
+  totalCompanies,
   companies,
   onToggleSave,
   onViewMore,
 }: {
   companies: Company[];
-  onToggleSave: (id: number) => void;
+  totalSaved?: number;
+  totalCompanies: number;
+  onToggleSave: (id: string) => void;
   onViewMore: (c: Company) => void;
 }) {
   const { user } = useSession();
@@ -419,8 +426,8 @@ function HomeView({
       {/* Quick stats — always first */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4 mb-8 sm:mb-10">
         {[
-          { label: "Industry Partners",    value: companies.length,           Icon: <BuildingIcon size={20} /> },
-          { label: "Saved Companies",      value: saved.length,               Icon: <BookmarkIcon filled={true} size={20} /> },
+          { label: "Industry Partners",    value: totalCompanies,           Icon: <BuildingIcon size={20} /> },
+          { label: "Saved Companies",      value: totalSaved ?? saved.length,               Icon: <BookmarkIcon filled={true} size={20} /> },
           { label: "Interview Categories", value: interviewCategories.length, Icon: <MicIcon size={20} /> },
         ].map((s) => (
           <div key={s.label} className="bg-[#dfe9ff] rounded-[22px] p-5 flex items-center gap-4">
@@ -502,23 +509,7 @@ function HomeView({
 }
 
 /* ═══════════════════════════════ TECH NICHES ════════════════════════ */
-const NICHES: { label: string; match: (c: Company) => boolean }[] = [
-  { label: "All",                match: () => true },
-  { label: "Web Development",    match: (c) => c.specializations.some((s) => /web/i.test(s)) },
-  { label: "Mobile Development", match: (c) => c.specializations.some((s) => /mobile/i.test(s)) },
-  { label: "Data Science",       match: (c) => c.specializations.some((s) => /data|analytics|machine learning/i.test(s)) },
-  { label: "Cybersecurity",      match: (c) => c.industry === "Cybersecurity" || c.specializations.some((s) => /security|penetration|threat/i.test(s)) },
-  { label: "Cloud & DevOps",     match: (c) => c.specializations.some((s) => /cloud/i.test(s)) },
-  { label: "AI / ML",            match: (c) => c.specializations.some((s) => /ai|ml|machine|automation/i.test(s)) },
-  { label: "UI/UX Design",       match: (c) => c.specializations.some((s) => /ui|ux|design/i.test(s)) },
-  { label: "IT Consulting",      match: (c) => c.industry === "IT Consulting" },
-  { label: "BPO",                match: (c) => c.industry === "BPO" },
-  { label: "Telecommunications", match: (c) => c.industry === "Telecommunications" },
-  { label: "Banking / FinTech",  match: (c) => c.industry === "Banking / FinTech" || c.specializations.some((s) => /fintech|blockchain/i.test(s)) },
-  { label: "Software Dev",       match: (c) => c.industry === "Software Development" },
-  { label: "Network Engineering",match: (c) => c.specializations.some((s) => /network/i.test(s)) },
-  { label: "IT Support",         match: (c) => c.specializations.some((s) => /helpdesk|support|it support/i.test(s)) },
-];
+const NICHES = Object.keys(COMPANY_NICHES).map(label => ({ label }));
 
 /* ═══════════════════════════════ FILTER MODAL ═══════════════════════ */
 interface ActiveFilters { specializations: string[]; }
@@ -534,7 +525,7 @@ function FilterModal({
   onApply: (f: ActiveFilters) => void;
   onClose: () => void;
 }) {
-  const allSpecs = Array.from(new Set(companies.flatMap((c) => c.specializations))).sort();
+  const allSpecs = COMPANY_SPECIALIZATIONS;
   const [draft, setDraft] = useState<ActiveFilters>({ ...filters, specializations: [...filters.specializations] });
 
   const toggleSpec = (s: string) =>
@@ -611,12 +602,12 @@ function FilterModal({
 
 /* ═══════════════════════════════ EXPLORE VIEW ═══════════════════════ */
 function ExploreView({
-  companies,
+  savedIds,
   onToggleSave,
   onViewMore,
 }: {
-  companies: Company[];
-  onToggleSave: (id: number) => void;
+  savedIds: ReadonlySet<string>;
+  onToggleSave: (id: string) => void;
   onViewMore: (c: Company) => void;
 }) {
   const [search, setSearch]           = useState("");
@@ -626,21 +617,10 @@ function ExploreView({
 
   const filterCount = activeFilters.specializations.length;
 
-  const nicheMatch = NICHES.find((n) => n.label === activeNiche)?.match ?? (() => true);
-
-  const filtered = companies.filter((c) => {
-    const q = search.toLowerCase();
-    const matchSearch =
-      !q ||
-      c.name.toLowerCase().includes(q) ||
-      c.industry.toLowerCase().includes(q) ||
-      c.specializations.some((s) => s.toLowerCase().includes(q)) ||
-      c.location.toLowerCase().includes(q);
-    const matchNiche = nicheMatch(c);
-    const matchSpec  = activeFilters.specializations.length === 0 ||
-      c.specializations.some((s) => activeFilters.specializations.includes(s));
-    return matchSearch && matchNiche && matchSpec;
-  });
+  const query = new URLSearchParams({ q: search, niche: activeNiche });
+  activeFilters.specializations.forEach(spec => query.append("specialization", spec));
+  const results = useCompanyPage<CompanyDto>("/api/companies", query.toString());
+  const filtered = results.data.map(c => companyView(c, savedIds.has(c.id)));
 
   const clearAll = () => { setSearch(""); setActiveNiche("All"); setActiveFilters({ specializations: [] }); };
 
@@ -704,7 +684,7 @@ function ExploreView({
 
       {/* Result count + clear */}
       <div className="flex items-center justify-between mb-4">
-        <p className="text-[12px] text-gray-300">{filtered.length} {filtered.length === 1 ? "company" : "companies"} found</p>
+        <p className="text-[12px] text-gray-300">{results.meta.total} {results.meta.total === 1 ? "company" : "companies"} found</p>
         {(search || activeNiche !== "All" || filterCount > 0) && (
           <button onClick={clearAll} className="text-[12px] text-[#0073ff] hover:underline">
             Clear all
@@ -712,6 +692,7 @@ function ExploreView({
         )}
       </div>
 
+      <CompanyResults {...results} />
       {filtered.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {filtered.map((c) => (
@@ -721,14 +702,14 @@ function ExploreView({
       ) : (
         <div className="text-center py-20 text-gray-300 flex flex-col items-center gap-3">
           <SearchIcon />
-          <p className="text-[15px]">No companies match your filters.</p>
+          <p className="text-[15px]">{results.loading ? "Loading…" : results.error ? "Companies are unavailable." : "No companies match your filters."}</p>
           <button onClick={clearAll} className="mt-1 text-[13px] text-[#0073ff]">Clear all filters</button>
         </div>
       )}
 
       {filterOpen && (
         <FilterModal
-          companies={companies}
+          companies={filtered}
           filters={activeFilters}
           onApply={setActiveFilters}
           onClose={() => setFilterOpen(false)}
@@ -1171,7 +1152,27 @@ function InterviewView() {
 export default function Dashboard() {
   const { user, logout: handleLogout } = useSession();
   const [view, setView] = useState<DashView>("home");
-  const [companies, setCompanies] = useState(initialCompanies);
+  const [revision, setRevision] = useState(0);
+  const bookmarks = useCompanyPage<Bookmark>("/api/me/bookmarks", "", revision);
+  const partners = useCompanyPage<CompanyDto>("/api/companies", "pageSize=1", revision);
+  const companies = bookmarks.data.map(b => companyView(b.company, true));
+  const [bookmarkError, setBookmarkError] = useState("");
+  const savingBookmark = useRef(false);
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    let cancelled = false;
+    // Read all bookmark IDs so Explore never mistakes an off-page save for an unsaved company.
+    void (async () => {
+      const ids = new Set<string>();
+      for (let page = 1; ; page++) {
+        const result = await apiClient.list<Bookmark>(`/api/me/bookmarks?page=${page}&pageSize=100`);
+        result.data.forEach(b => ids.add(b.companyId));
+        if (page * result.meta!.pageSize >= result.meta!.total) break;
+      }
+      if (!cancelled) setSavedIds(ids);
+    })().catch(error => { if (!cancelled) setBookmarkError(error.message); });
+    return () => { cancelled = true; };
+  }, [revision]);
   const [collapsed, setCollapsed] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -1183,11 +1184,21 @@ export default function Dashboard() {
     yearLevel: user.student?.yearLevel ?? "",
   };
 
-  const toggleSave = (id: number) => {
-    setCompanies((prev) => prev.map((c) => (c.id === id ? { ...c, saved: !c.saved } : c)));
-    if (selectedCompany?.id === id) {
-      setSelectedCompany((prev) => prev ? { ...prev, saved: !prev.saved } : null);
-    }
+  const toggleSave = async (id: string) => {
+    if (savingBookmark.current) return;
+    savingBookmark.current = true;
+    setBookmarkError("");
+    const saved = savedIds.has(id);
+    try {
+      await apiClient.mutate(`/api/me/bookmarks/${id}`, saved ? "DELETE" : "PUT", saved ? undefined : {});
+      setSavedIds(previous => { const next = new Set(previous); saved ? next.delete(id) : next.add(id); return next; });
+      setRevision(n => n + 1);
+    } catch (error) { setBookmarkError(error instanceof Error ? error.message : "Unable to update bookmark."); }
+    finally { savingBookmark.current = false; }
+  };
+  const viewCompany = async (company: Company) => {
+    try { setSelectedCompany(companyView(await apiClient.get<CompanyDto>(`/api/companies/${company.id}`), savedIds.has(company.id))); }
+    catch (error) { setBookmarkError(error instanceof Error ? error.message : "Company unavailable."); }
   };
 
   const navItems: { id: DashView; label: string; Icon: () => React.ReactElement }[] = [
@@ -1301,8 +1312,10 @@ export default function Dashboard() {
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 sm:px-7 pb-24 md:pb-7">
-          {view === "home"      && <HomeView companies={companies} onToggleSave={toggleSave} onViewMore={setSelectedCompany} />}
-          {view === "explore"   && <ExploreView companies={companies} onToggleSave={toggleSave} onViewMore={setSelectedCompany} />}
+          {bookmarkError && <p role="alert" className="text-red-600 py-3">{bookmarkError}</p>}
+          {view === "home" && <CompanyResults {...bookmarks} reload={() => { bookmarks.reload(); setRevision(n => n + 1); }} />}
+          {view === "home" && !bookmarks.loading && !bookmarks.error && <HomeView totalCompanies={partners.meta.total} totalSaved={bookmarks.meta.total} companies={companies} onToggleSave={toggleSave} onViewMore={viewCompany} />}
+          {view === "explore"   && <ExploreView savedIds={savedIds} onToggleSave={toggleSave} onViewMore={viewCompany} />}
           {view === "interview" && <InterviewView />}
         </div>
       </div>
@@ -1338,7 +1351,7 @@ export default function Dashboard() {
 
       {selectedCompany && (
         <CompanyModal
-          company={companies.find((c) => c.id === selectedCompany.id) ?? selectedCompany}
+          company={{ ...selectedCompany, saved: savedIds.has(selectedCompany.id) }}
           onClose={() => setSelectedCompany(null)}
           onToggleSave={toggleSave}
           onPractice={() => { setSelectedCompany(null); setView("interview"); }}

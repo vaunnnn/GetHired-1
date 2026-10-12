@@ -28,6 +28,10 @@ services:
         sync: false
       - key: SUPABASE_PUBLISHABLE_KEY
         sync: false
+      - key: SUPABASE_STORAGE_SECRET_KEY
+        sync: false
+      - key: COMPANY_IMAGE_BUCKET
+        value: company-images
       - key: DATABASE_URL
         sync: false
   - type: cron
@@ -44,3 +48,23 @@ services:
         value: production
       - key: MAINTENANCE_DATABASE_URL
         sync: false
+  - type: cron
+    name: gethired-staging-company-image-cleanup
+    runtime: node
+    plan: starter
+    region: singapore
+    schedule: "15 * * * *"
+    autoDeployTrigger: off
+    buildCommand: npm ci --include=dev && npm run build:api
+    startCommand: npm run cleanup:company-images --workspace @gethired/api
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MAINTENANCE_DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_STORAGE_SECRET_KEY
+        sync: false
+      - key: COMPANY_IMAGE_BUCKET
+        value: company-images

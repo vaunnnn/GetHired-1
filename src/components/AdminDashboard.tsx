@@ -5,18 +5,21 @@ import { useSession } from "./SessionProvider";
 import CompanyCard from "./CompanyCard";
 import CategoryCard, { CategoryIcon } from "./CategoryCard";
 import {
-  companies as defaultCompanies,
   interviewCategories as defaultCategories,
   interviewQuestions as defaultQuestions,
   codingChallenges as defaultChallenges,
   initialStudents,
-  Company,
   Student,
   InterviewCategory,
   InterviewQuestion,
   generateDefaultPassword,
   getCategoryPipeline,
 } from "../data";
+
+import { apiClient } from "@/lib/api-client";
+import { companyView, type Company } from "@/lib/companies";
+import { COMPANY_SPECIALIZATIONS, type Company as CompanyDto, type CompanyInput } from "@gethired/contracts";
+import CompanyResults, { useCompanyPage } from "./CompanyResults";
 
 type AdminTab = "companies" | "students" | "interviews";
 
@@ -295,30 +298,7 @@ function FormSelect({
 }
 
 /* Available specialization tags */
-const ALL_SPECIALIZATIONS = [
-  "Software Dev",
-  "Full-Stack",
-  "Frontend Dev",
-  "React / Node.js",
-  "Mobile & Web",
-  "UI/UX Design",
-  "Enterprise Dev",
-  "Cloud / DevOps",
-  "Supply Chain Systems",
-  "Python",
-  "Data Analytics",
-  "Machine Learning",
-  "Network Security",
-  "Penetration Testing",
-  "Threat Analysis",
-  "Customer Support",
-  "Technical Support",
-  "Voice & Non-Voice",
-  "Database Admin",
-  "Network Engineering",
-  "Software QA",
-  "Game Dev",
-];
+const ALL_SPECIALIZATIONS = COMPANY_SPECIALIZATIONS;
 
 /* ═══════════════════════════════ IMAGE CROPPER MODAL ═════════════════ */
 function ImageCropperModal({
@@ -497,9 +477,19 @@ export default function AdminDashboard() {
   const [collapsed, setCollapsed] = useState(false);
 
   // States for Companies
-  const [companies, setCompanies] = useState<Company[]>(defaultCompanies);
+
   const [companySearch, setCompanySearch] = useState("");
   const [selectedNiche, setSelectedNiche] = useState<string>("All");
+  const [companyStatus, setCompanyStatus] = useState("all");
+  const [companyRevision, setCompanyRevision] = useState(0);
+  const query = new URLSearchParams({ q: companySearch });
+  if (companyStatus !== "all") query.set("status", companyStatus);
+  if (selectedNiche !== "All") query.set("specialization", selectedNiche);
+  const companyResults = useCompanyPage<CompanyDto>("/api/admin/companies", query.toString(), companyRevision);
+  const companies = companyResults.data.map(c => companyView(c));
+  const [companyError, setCompanyError] = useState("");
+  const [companyBusy, setCompanyBusy] = useState(false);
+  const companyLock = useRef(false);
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
   const [cropModalSrc, setCropModalSrc] = useState<string | null>(null);
@@ -627,14 +617,19 @@ export default function AdminDashboard() {
     });
   };
 
-  const handleConfirmAction = () => {
+  const handleConfirmAction = async () => {
     if (!confirmModal) return;
     const { type, target, id, idx } = confirmModal;
 
     if (target === "company") {
-      setCompanies((prev) =>
-        prev.map((c) => (c.id === id ? { ...c, deactivated: type === "deactivate" } : c))
-      );
+      if (companyLock.current) return;
+      companyLock.current = true;
+      setCompanyError("");
+      try {
+        await apiClient.mutate(`/api/admin/companies/${id}`, "PATCH", { status: type === "deactivate" ? "inactive" : "active" });
+        setCompanyRevision(n => n + 1);
+      } catch (error) { setCompanyError(error instanceof Error ? error.message : "Unable to update company."); }
+      finally { companyLock.current = false; }
     } else if (target === "category") {
       setCategories((prev) =>
         prev.map((cat) => (cat.id === id ? { ...cat, deactivated: type === "deactivate" } : cat))
@@ -656,6 +651,7 @@ export default function AdminDashboard() {
 
   /* ── Company Actions ── */
   const handleOpenAddCompany = () => {
+    setCompanyError("");
     setEditingCompany(null);
     setCompForm({
       name: "",
@@ -675,60 +671,54 @@ export default function AdminDashboard() {
   };
 
   const handleOpenEditCompany = (c: Company) => {
+    setCompanyError("");
     setEditingCompany(c);
     setCompForm({ ...c });
     setIsCompanyModalOpen(true);
   };
 
-  const handleDeleteCompany = (id: number) => {
-    if (confirm("Are you sure you want to remove this industry partner?")) {
-      setCompanies((prev) => prev.filter((c) => c.id !== id));
-    }
-  };
-
-  const handleSaveCompany = (e: React.FormEvent) => {
+  const handleSaveCompany = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!compForm.name) return;
-
-    if (editingCompany) {
-      setCompanies((prev) =>
-        prev.map((c) => (c.id === editingCompany.id ? ({ ...c, ...compForm } as Company) : c))
-      );
-    } else {
-      const newCompany: Company = {
-        id: Date.now(),
-        name: compForm.name || "New Partner",
-        industry: compForm.industry || "Information Technology",
-        type: compForm.type || "Enterprise",
-        specializations: compForm.specializations || ["Software Dev"],
-        location: compForm.location || "Cebu City",
-        slots: Number(compForm.slots) || 4,
-        description: compForm.description || "",
-        image:
-          compForm.image ||
-          "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=260&fit=crop&auto=format",
-        saved: false,
-        website: compForm.website || "",
-        email: compForm.email || "",
-        phone: compForm.phone || "",
-        hours: compForm.hours || "Mon – Fri, 8:00 AM – 5:00 PM",
+    if (companyLock.current) return;
+    companyLock.current = true; setCompanyBusy(true); setCompanyError("");
+    try {
+      const input: CompanyInput = {
+        name: compForm.name ?? "", industry: compForm.industry ?? "", type: compForm.type ?? "",
+        location: compForm.location ?? "", slots: Number(compForm.slots ?? 0), description: compForm.description ?? "",
+        specializations: compForm.specializations ?? [], website: compForm.website ?? "", email: compForm.email ?? "",
+        phone: compForm.phone ?? "", hours: compForm.hours ?? "",
       };
-      setCompanies((prev) => [newCompany, ...prev]);
-    }
-    setIsCompanyModalOpen(false);
+      if (compForm.image?.startsWith("data:")) {
+        const blob = await (await fetch(compForm.image)).blob();
+        const form = new FormData(); form.append("file", blob, "company.jpg");
+        const upload = await apiClient.mutate<{ imageId: string }>("/api/admin/company-images", "POST", form);
+        input.imageId = upload.imageId;
+      } else if (!compForm.image) input.imageId = null;
+      await apiClient.mutate(editingCompany ? `/api/admin/companies/${editingCompany.id}` : "/api/admin/companies", editingCompany ? "PATCH" : "POST", input);
+      setCompanyRevision(n => n + 1); setIsCompanyModalOpen(false);
+    } catch (error) { setCompanyError(error instanceof Error ? error.message : "Unable to save company."); }
+    finally { companyLock.current = false; setCompanyBusy(false); }
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > 2 * 1024 * 1024 || !["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setCompanyError("Choose a JPEG, PNG or WebP image up to 2 MiB."); return;
+    }
     const reader = new FileReader();
     reader.onload = () => {
-      if (typeof reader.result === "string") {
-        setCropModalSrc(reader.result);
-      }
+      if (typeof reader.result !== "string") return;
+      const data = reader.result;
+      const image = new Image();
+      image.onload = () => {
+        if (image.width > 4096 || image.height > 4096) { setCompanyError("Images must be at most 4096 pixels per side."); return; }
+        setCompanyError(""); setCropModalSrc(data);
+      };
+      image.onerror = () => setCompanyError("Unable to read this image.");
+      image.src = data;
     };
-    reader.readAsDataURL(file);
-    e.target.value = "";
+    reader.readAsDataURL(file); e.target.value = "";
   };
 
   const toggleSpec = (spec: string) => {
@@ -912,23 +902,7 @@ export default function AdminDashboard() {
   };
 
   /* Filtered Data */
-  const filteredCompanies = companies.filter((c) => {
-    const matchesSearch =
-      c.name.toLowerCase().includes(companySearch.toLowerCase()) ||
-      c.location.toLowerCase().includes(companySearch.toLowerCase()) ||
-      c.specializations.some((s) => s.toLowerCase().includes(companySearch.toLowerCase()));
-    const matchesNiche =
-      selectedNiche === "All" ||
-      c.specializations.some(
-        (s) =>
-          s.toLowerCase() === selectedNiche.toLowerCase() ||
-          s.toLowerCase().includes(selectedNiche.toLowerCase()) ||
-          selectedNiche.toLowerCase().includes(s.toLowerCase())
-      ) ||
-      c.industry.toLowerCase().includes(selectedNiche.toLowerCase()) ||
-      selectedNiche.toLowerCase().includes(c.industry.toLowerCase());
-    return matchesSearch && matchesNiche;
-  });
+  const filteredCompanies = companies;
 
   const filteredStudents = students.filter((s) => {
     const matchesSearch =
@@ -983,7 +957,7 @@ export default function AdminDashboard() {
           {/* Navigation items */}
           <nav className={`flex flex-col gap-1.5 flex-1 ${collapsed ? "px-0" : "px-2"}`}>
             {[
-              { id: "companies",  label: "Companies",  badge: companies.length, Icon: BuildingIcon },
+              { id: "companies",  label: "Companies",  badge: companyResults.meta.total, Icon: BuildingIcon },
               { id: "students",   label: "Students",   badge: students.length,  Icon: UsersIcon },
               { id: "interviews", label: "Interviews", badge: categories.length, Icon: MicIcon },
             ].map(({ id, label, badge, Icon }) => (
@@ -1112,10 +1086,15 @@ export default function AdminDashboard() {
               {/* Metrics Summary */}
               <div className="flex items-center justify-between mb-4 text-[13px] text-slate-500 font-medium">
                 <div>
-                  Showing <span className="font-bold text-[#0F172A]">{filteredCompanies.length}</span> accredited industry partners
+                  Showing <span className="font-bold text-[#0F172A]">{companyResults.meta.total}</span> accredited industry partners
                 </div>
               </div>
 
+              {companyError && <p role="alert" className="text-red-600">{companyError}</p>}
+              <CompanyResults {...companyResults} />
+              <label className="text-sm">Status <select aria-label="Company status" value={companyStatus} onChange={e => setCompanyStatus(e.target.value)} className="border rounded-lg p-2 mb-3">
+                <option value="all">All</option><option value="active">Active</option><option value="inactive">Inactive</option>
+              </select></label>
               {/* Companies Grid using shared CompanyCard component */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                 {filteredCompanies.map((c) => (
@@ -1132,7 +1111,7 @@ export default function AdminDashboard() {
 
               {filteredCompanies.length === 0 && (
                 <div className="bg-white rounded-[28px] p-12 text-center text-slate-400 text-[14px] border border-slate-200/80">
-                  No industry partners match your query.
+                  {companyResults.loading ? "Loading industry partners…" : companyResults.error ? "Industry partners are unavailable." : "No industry partners match your query."}
                 </div>
               )}
             </div>
@@ -1461,7 +1440,7 @@ export default function AdminDashboard() {
       {/* ═══ Mobile Bottom Admin Navigation Bar ═══ */}
       <nav aria-label="Admin Mobile Navigation" className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-2 py-1.5 flex items-center justify-around shadow-lg">
         {[
-          { id: "companies",  label: "Companies",  badge: companies.length, Icon: BuildingIcon },
+          { id: "companies",  label: "Companies",  badge: companyResults.meta.total, Icon: BuildingIcon },
           { id: "students",   label: "Students",   badge: students.length,  Icon: UsersIcon },
           { id: "interviews", label: "Interviews", badge: categories.length, Icon: MicIcon },
         ].map(({ id, label, badge, Icon }) => (
@@ -1519,6 +1498,14 @@ export default function AdminDashboard() {
             </div>
 
             <form onSubmit={handleSaveCompany} className="space-y-4">
+              {companyError && <p role="alert" className="text-red-600">{companyError}</p>}
+              <fieldset disabled={companyBusy} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                {(["type", "phone", "hours"] as const).map(field => <label key={field} className="text-sm capitalize">{field}
+                  <input aria-label={field} value={compForm[field] ?? ""} onChange={e => setCompForm({ ...compForm, [field]: e.target.value })} className="w-full border rounded-xl p-2" />
+                </label>)}
+                <label className="text-sm">Slots<input aria-label="Slots" type="number" min={0} max={100000} step={1} required value={compForm.slots ?? 0} onChange={e => setCompForm({ ...compForm, slots: Number(e.target.value) })} className="w-full border rounded-xl p-2" /></label>
+              </div>
               {/* Cover photo upload / preview & Crop action */}
               <div>
                 <label className="block text-[12.5px] font-semibold text-slate-700 mb-2">
@@ -1539,13 +1526,14 @@ export default function AdminDashboard() {
                           <span>Change Photo</span>
                           <input
                             type="file"
-                            accept="image/*"
+                            accept="image/jpeg,image/png,image/webp"
                             onChange={handleFileUpload}
                             className="hidden"
                           />
                         </label>
                         <button
                           type="button"
+                          disabled={!compForm.image?.startsWith("data:")}
                           onClick={() => setCropModalSrc(compForm.image || null)}
                           className="px-3 py-1.5 bg-white rounded-full text-[12px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50 flex items-center gap-1.5 cursor-pointer transition-colors active:scale-95"
                         >
@@ -1562,20 +1550,13 @@ export default function AdminDashboard() {
                         </button>
                       </div>
                     </div>
-                    <input
-                      type="text"
-                      placeholder="Or enter Image URL"
-                      value={compForm.image}
-                      onChange={(e) => setCompForm({ ...compForm, image: e.target.value })}
-                      className="w-full text-[12px] px-3.5 py-2 border border-slate-200 rounded-xl outline-none focus:border-[#0066FF] text-slate-700"
-                    />
                   </div>
                 ) : (
                   <div className="space-y-2">
                     <label className="relative rounded-2xl border-2 border-dashed border-slate-200 hover:border-[#0066FF]/60 bg-slate-50/70 hover:bg-blue-50/30 aspect-[600/220] sm:aspect-[600/200] flex flex-col items-center justify-center p-4 cursor-pointer transition-all group">
                       <input
                         type="file"
-                        accept="image/*"
+                        accept="image/jpeg,image/png,image/webp"
                         onChange={handleFileUpload}
                         className="hidden"
                       />
@@ -1589,13 +1570,6 @@ export default function AdminDashboard() {
                         Click to browse file <span className="hidden sm:inline">(600×260 recommended)</span>
                       </p>
                     </label>
-                    <input
-                      type="text"
-                      placeholder="Or enter Image URL"
-                      value={compForm.image || ""}
-                      onChange={(e) => setCompForm({ ...compForm, image: e.target.value })}
-                      className="w-full text-[12px] px-3.5 py-2 border border-slate-200 rounded-xl outline-none focus:border-[#0066FF] placeholder:text-slate-400 text-slate-700"
-                    />
                   </div>
                 )}
               </div>
@@ -1607,6 +1581,7 @@ export default function AdminDashboard() {
                     type="text"
                     required
                     value={compForm.name}
+                    aria-label="Company name"
                     onChange={(e) => setCompForm({ ...compForm, name: e.target.value })}
                     className="w-full border border-slate-200 rounded-xl px-3.5 py-2 text-[13.5px] outline-none focus:border-[#0066FF]"
                   />
@@ -1701,9 +1676,10 @@ export default function AdminDashboard() {
                   type="submit"
                   className="flex-1 py-3 bg-[#0066FF] hover:bg-[#0052cc] text-white text-[13.5px] font-semibold rounded-full shadow-md shadow-blue-500/20 transition-all cursor-pointer"
                 >
-                  Save Partner
+                  {companyBusy ? "Saving…" : "Save Partner"}
                 </button>
               </div>
+            </fieldset>
             </form>
           </div>
         </div>

@@ -10,6 +10,11 @@ import { createReadinessProbe } from "../health.js"
 let service: ReturnType<typeof createAuthService> | undefined
 let pool: ReturnType<typeof createDatabasePool> | undefined
 let probe: ReturnType<typeof createReadinessProbe> | undefined
+export function getDatabasePool() {
+  const config = getAuthConfig()
+  if (!config.enabled) throw new ApiError("SERVICE_UNAVAILABLE")
+  return pool ??= createDatabasePool(config)
+}
 export async function checkReadiness() {
   const config = getAuthConfig()
   if (!config.enabled) throw new ApiError("SERVICE_UNAVAILABLE")

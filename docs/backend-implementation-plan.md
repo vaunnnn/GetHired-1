@@ -1,7 +1,7 @@
 # GetHired backend implementation plan
 
 **Date:** 2026-10-01  
-**Status:** B0 decisions and B1 extraction are implemented. B2 live connectivity was verified on 2026-10-12 (Vercel proxy, Render readiness and Supabase schema/runtime access); full hosted acceptance remains outstanding. B3 authorization, feature foundations and frontend session integration are implemented and locally tested; its new migration and application deployment remain pending. See [B3 integration and deployment](backend-b3-integration.md), [B2 staging](backend-b2-staging.md), [B1 extraction](backend-b1-extraction.md), and [B0 contract](backend-b0-contract.md). B4-B8 remain pending.
+**Status:** B0 decisions and B1 extraction are implemented. B2 live connectivity was verified on 2026-10-12; full hosted acceptance remains outstanding. B3 authorization/session integration and B4 companies, uploads, bookmarks, and dashboard integration are implemented and locally tested. Their migrations, B4 Storage setup, deployment, and hosted acceptance remain pending. See [B4 integration and deployment](backend-b4-integration.md), [B3 integration](backend-b3-integration.md), [B2 staging](backend-b2-staging.md), [B1 extraction](backend-b1-extraction.md), and [B0 contract](backend-b0-contract.md). B5-B8 remain pending.
 **Confirmed for this plan:** a separate Node.js API deployed to Render, retaining Supabase PostgreSQL and Supabase Auth, with student self-registration as well as administrator invitations. Students activate after verifying an eight-digit student ID email at `@usc.edu.ph`; administrator approval is not required.
 
 This extends the [middleware implementation plan](api-middleware-implementation-plan.md). Backend phases below use **B0–B8** so they cannot be confused with middleware phases 1–7. The completed middleware work is the starting point; moving it requires adaptation and verification, not rebuilding authentication from scratch.
@@ -14,8 +14,8 @@ This extends the [middleware implementation plan](api-middleware-implementation-
 | Middleware phase 2 | Request wrapper, JSON responses/errors, request IDs, limits, logs, configuration | Port behavior into the standalone HTTP service |
 | Middleware phase 3 | Five auth routes, Supabase adapter, JWT verification, cookies/CSRF, persistent sessions, shared login counters | Move into Node.js, retaining Supabase as identity issuer |
 | Database | [Auth migration](../supabase/migrations/202609290001_phase3_auth.sql) exists; hosted setup was deferred | Verify and apply to development Supabase; add incremental migrations |
-| Frontend | B3 live login/profile/logout, server-protected pages; signup/recovery unavailable; business features still use mock data | Deploy B3, then integrate business APIs in B4-B7 |
-| Business API | Company/student/category/question/bookmark/interview routes are absent | Implement through B3–B7 |
+| Frontend | Live sessions, company management/browsing and bookmarks; signup/recovery unavailable; other business features still use mock data | Deploy B3/B4, then integrate B5-B7 |
+| Business API | Companies, image uploads and own bookmarks implemented; student/category/question/interview routes pending | Continue B5-B7 |
 | Remaining middleware | Authorization, general schemas, feature audit coverage, integration | Build alongside each feature; complete release checks in B8 |
 
 Auth endpoint and B3 session flows have local test evidence. Live readiness and proxy connectivity passed; **hosted credential login and full acceptance remain unverified**. `AUTH_ENABLED=false` currently fails closed with `503`; it does not enable demo authentication.
@@ -278,6 +278,8 @@ Each phase produces a reviewable increment with acceptance checks. These are fut
 **Done when:** changing local storage cannot grant access, role/ownership denials are consistent, refresh works across tabs, and the login/profile/logout UI uses live state. Public signup/recovery controls remain explicitly unavailable until B5 rather than simulating success.
 
 ### B4 — Companies, uploads, and bookmarks
+
+**Implementation status:** complete locally; migration/Storage setup and hosted acceptance pending. See [B4 delivery and operations](backend-b4-integration.md).
 
 **Depends on:** B3.
 

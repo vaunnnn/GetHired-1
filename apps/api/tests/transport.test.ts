@@ -63,6 +63,18 @@ test("only GET health probes bypass gateway authentication", async () => {
   await expectError(await call("/api/auth/me", { headers: { "x-gethired-client-ip": "127.0.0.1, 8.8.8.8" } }), 403, "FORBIDDEN")
 })
 
+test("B4 dynamic routes preserve method contracts and uploads require CSRF/session before parsing", async () => {
+  const id = "00000000-0000-0000-0000-000000000000"
+  await expectError(await call(`/api/companies/${id}`), 401, "UNAUTHENTICATED")
+  const response = await call(`/api/admin/companies/${id}`, { method: "GET" })
+  await expectError(response, 405, "METHOD_NOT_ALLOWED")
+  assert.equal(response.headers.get("allow"), "PATCH")
+  const body = new FormData(); body.append("file", new Blob([new Uint8Array(100000)], { type: "image/png" }), "test.png")
+  await expectError(await call("/api/admin/company-images", { method: "POST", body }), 403, "CSRF_FAILED")
+  const headers = new Headers(await browser()); headers.delete("content-type")
+  await expectError(await call("/api/admin/company-images", { method: "POST", headers, body }), 401, "UNAUTHENTICATED")
+})
+
 test("real HTTP preserves cookie bootstrap, CSRF, validation and anonymous logout", async () => {
   const headers = await browser()
   await expectError(await call("/api/auth/me", { headers: { Cookie: "role=admin" } }), 401, "UNAUTHENTICATED")

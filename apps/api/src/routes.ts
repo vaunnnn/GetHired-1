@@ -1,9 +1,10 @@
 import { createApiRoute } from "./api/route.js"
 import { ApiError } from "./api/errors.js"
+import { companyRoutes } from "./modules/companies/routes.js"
 import { getAuthService, checkReadiness } from "./auth/runtime.js"
 
 export function createRoutes() {
-  const routes = new Map<string, ReturnType<typeof createApiRoute>>()
+  const routes = companyRoutes()
   routes.set("/api/health/ready", createApiRoute({
     route: "/api/health/ready",
     access: { kind: "public" },

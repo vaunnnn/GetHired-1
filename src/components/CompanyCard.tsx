@@ -1,15 +1,15 @@
 "use client";
 
 import React from "react";
-import { Company } from "@/data";
+import type { Company } from "@/lib/companies";
 
 export interface CompanyCardProps {
   company: Company;
   isAdmin?: boolean;
-  onToggleSave?: (id: number) => void;
+  onToggleSave?: (id: string) => void;
   onViewMore?: (c: Company) => void;
   onEdit?: (c: Company) => void;
-  onDelete?: (id: number) => void;
+  onDelete?: (id: string) => void;
   onDeactivate?: (c: Company) => void;
   onReactivate?: (c: Company) => void;
 }

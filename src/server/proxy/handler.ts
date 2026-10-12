@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto"
 import { isIP } from "node:net"
 import type { ApiFailure } from "@gethired/contracts"
+import { COMPANY_MULTIPART_MAX_BYTES } from "@gethired/contracts"
 import type { ProxyConfig } from "./config"
 
 const MAX_BODY_BYTES = 64 * 1024
@@ -50,6 +51,7 @@ export function createApiProxy(config: () => ProxyConfig | undefined, fetcher: t
       const settings = config()
       if (!settings) throw unavailable()
       const incoming = new URL(request.url)
+      const bodyLimit = incoming.pathname === "/api/admin/company-images" && request.method === "POST" ? COMPANY_MULTIPART_MAX_BYTES : MAX_BODY_BYTES
       if (!/^\/api(?:\/[a-zA-Z0-9._~-]+)*\/?$/.test(incoming.pathname))
         throw new ProxyFailure(404, "NOT_FOUND", "The requested resource was not found.")
       const target = new URL(settings.apiOrigin)
@@ -72,11 +74,11 @@ export function createApiProxy(config: () => ProxyConfig | undefined, fetcher: t
       const signal = AbortSignal.any([request.signal, controller.signal])
       try {
         const length = request.headers.get("content-length")
-        if (length && /^\d+$/.test(length) && Number(length) > MAX_BODY_BYTES) {
+        if (length && /^\d+$/.test(length) && Number(length) > bodyLimit) {
           void request.body?.cancel().catch(() => {})
           throw new ProxyFailure(413, "PAYLOAD_TOO_LARGE", "The request body exceeds the size limit.")
         }
-        const bytes = await readBytes(request.body, MAX_BODY_BYTES, signal)
+        const bytes = await readBytes(request.body, bodyLimit, signal)
         const noBody = ["GET", "HEAD"].includes(request.method)
         if (noBody && bytes.length) throw new ProxyFailure(400, "VALIDATION_ERROR", "Check the highlighted fields.")
         const upstream = await fetcher(target, {

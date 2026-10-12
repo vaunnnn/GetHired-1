@@ -1,6 +1,6 @@
 import { ApiError } from "./errors.js"
 
-export type BodyFormat = "none" | "json"
+export type BodyFormat = "none" | "json" | "image"
 
 /** Count actual streamed bytes; Content-Length is only an early rejection hint. */
 export async function readLimitedBody(

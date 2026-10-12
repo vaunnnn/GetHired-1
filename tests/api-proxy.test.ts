@@ -18,6 +18,25 @@ function json(data: unknown = {}, status = 200, initial: HeadersInit = {}) {
 const fetcher = (handler: (request: Request) => Promise<Response> | Response): typeof fetch =>
   async (input, init) => handler(new Request(input, init))
 
+test("only the image POST route permits bounded multipart bodies above the JSON limit", async () => {
+  let calls = 0
+  const handle = createApiProxy(() => config, fetcher(async request => {
+    calls++
+    assert.match(request.headers.get("content-type")!, /^multipart\/form-data; boundary=/)
+    const form = await request.formData()
+    assert.equal((form.get("file") as File).size, 100000)
+    return json({ imageId: "test" }, 201)
+  }))
+  const request = (path: string, size = 100000) => {
+    const body = new FormData(); body.append("file", new Blob([new Uint8Array(size)], { type: "image/png" }), "image.png")
+    return new Request(`https://frontend.example${path}`, { method: "POST", body })
+  }
+  assert.equal((await handle(request("/api/admin/company-images"))).status, 201)
+  assert.equal((await handle(request("/api/admin/companies"))).status, 413)
+  assert.equal((await handle(request("/api/admin/company-images", 2 * 1024 * 1024 + 16384))).status, 413)
+  assert.equal(calls, 1)
+})
+
 test("proxy preserves origin, CSRF, body, query and individual cookies while stripping forged headers", async () => {
   const handle = createApiProxy(() => config, fetcher(async (request) => {
     assert.equal(request.url, "https://api.example/api/auth/login?next=%2Fdashboard")

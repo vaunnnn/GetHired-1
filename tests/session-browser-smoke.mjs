@@ -15,6 +15,10 @@ const children = [], sockets = []
 const gateway = randomBytes(32).toString("hex")
 const sessions = new Map()
 let expired = false, outage = false, refreshes = 0, lastRemember
+const companyId = randomUUID(), savedCompanies = new Set()
+let company = { id: companyId, name: "B4 Browser Partner", industry: "Software Development", type: "Services", specializations: ["Web Development"],
+  location: "Cebu City", slots: 0, description: "Browser acceptance fixture", website: "https://example.test/", email: "team@example.test",
+  phone: "", hours: "Weekdays", image: "/getHiredLogo.png", status: "active" }
 const users = {
   student: { id: randomUUID(), role: "student", displayName: "Browser Test Student", email: "21100123@usc.edu.ph",
     student: { studentNumber: "21100123", firstName: "Browser", lastName: "Student", course: "BSCS", yearLevel: "4" } },
@@ -50,6 +54,26 @@ const fixture = createServer(async (req, res) => {
     sessions.delete(id)
     res.setHeader("Set-Cookie", "b3-test-session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0")
     return finish(200, { loggedOut: true })
+  }
+  const url = new URL(req.url, "http://fixture")
+  if (/^\/api\/(companies|admin\/companies|me\/bookmarks)/.test(url.pathname)) {
+    if (!role || expired) return finish(401, null, "UNAUTHENTICATED")
+    if (url.pathname.startsWith("/api/admin/") && role !== "admin" || url.pathname.startsWith("/api/me/") && role !== "student") return finish(403, null, "FORBIDDEN")
+    if (url.pathname === `/api/admin/companies/${companyId}` && req.method === "PATCH") {
+      let body = ""; for await (const chunk of req) body += chunk
+      company = { ...company, ...JSON.parse(body) }; return finish(200, company)
+    }
+    if (url.pathname === `/api/me/bookmarks/${companyId}`) {
+      if (req.method === "DELETE") { savedCompanies.delete(companyId); return finish(200, { removed: true }) }
+      savedCompanies.add(companyId); return finish(200, { companyId, createdAt: new Date().toISOString(), company })
+    }
+    if (url.pathname === `/api/companies/${companyId}`) return company.status === "active" ? finish(200, company) : finish(404, null, "NOT_FOUND")
+    let rows = company.status === "active" || role === "admin" ? [company] : []
+    const q = url.searchParams.get("q") ?? ""
+    if (q) rows = rows.filter(c => c.name.toLowerCase().includes(q.toLowerCase()))
+    if (url.pathname === "/api/me/bookmarks") rows = rows.filter(c => savedCompanies.has(c.id)).map(c => ({ companyId: c.id, createdAt: new Date().toISOString(), company: c }))
+    res.statusCode = 200
+    return res.end(JSON.stringify({ data: rows, meta: { page: Number(url.searchParams.get("page") ?? 1), pageSize: Number(url.searchParams.get("pageSize") ?? 20), total: rows.length }, requestId: randomUUID() }))
   }
   finish(404, null, "NOT_FOUND")
 })
@@ -130,6 +154,13 @@ try {
   await login("21100123")
   await until(() => first.evaluate("location.pathname === '/dashboard' && document.body.innerText.includes('Welcome, Browser!') && !document.querySelector('[role=status]')"), "student login")
   assert.equal(lastRemember, false)
+  await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Explore').click()")
+  await until(() => first.evaluate("document.body.innerText.includes('B4 Browser Partner')"), "live companies")
+  await first.evaluate("document.querySelector('button[title=\"Save Company\"]').click()")
+  await until(() => first.evaluate("!!document.querySelector('button[title=Unsave]')"), "persist bookmark")
+  assert.ok(savedCompanies.has(companyId))
+  await first.navigate(`${base}/dashboard`)
+  await until(() => first.evaluate("document.body.innerText.includes('B4 Browser Partner')"), "bookmark survives reload")
   const studentCookie = [...sessions.keys()][0]
   const wrongRole = await fetch(`${base}/admin`, { headers: { ...ingress, cookie: `b3-test-session=${studentCookie}` } })
   const denied = await wrongRole.text()
@@ -150,14 +181,33 @@ try {
   await until(() => second.evaluate("location.pathname === '/login'"), "other tab logout")
   await login("admin@example.test")
   await until(() => first.evaluate("location.pathname === '/admin' && document.body.innerText.includes('Browser Test Admin') && !document.querySelector('[role=status]')"), "admin login")
+  await until(() => first.evaluate("!!document.querySelector('button[title=\"Edit Company\"]')"), "admin company list")
+  await first.evaluate("document.querySelector('button[title=\"Edit Company\"]').click()")
+  await first.evaluate(`(() => { const input=document.querySelector('input[aria-label="Company name"]'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,'B4 Updated Partner'); input.dispatchEvent(new Event('input',{bubbles:true})); })()`)
+  await first.evaluate("document.querySelector('input[aria-label=\"Company name\"]').closest('form').requestSubmit()")
+  await until(() => first.evaluate("!document.querySelector('input[aria-label=\"Company name\"]') && document.body.innerText.includes('B4 Updated Partner')"), "admin edit saved")
+  assert.equal(company.name, "B4 Updated Partner")
+  await first.evaluate("document.querySelector('button[title=\"Deactivate Company\"]').click()")
+  await first.evaluate("[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Yes, Deactivate').click()")
+  await until(() => first.evaluate("!!document.querySelector('button[title=\"Reactivate Company\"]')"), "company deactivated")
+  assert.equal(company.status, "inactive")
+  await first.evaluate("document.querySelector('button[title=\"Reactivate Company\"]').click()")
+  await first.evaluate("[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Yes, Reactivate').click()")
+  await until(() => first.evaluate("!!document.querySelector('button[title=\"Edit Company\"]')"), "company reactivated")
   outage = true
   await first.navigate(`${base}/admin`)
   await until(() => first.evaluate("document.body.innerText.includes('Unable to load your workspace')"), "outage view")
   assert.equal(await first.evaluate("location.pathname"), "/admin")
   outage = false
+  await first.navigate(`${base}/admin`)
+  await until(() => first.evaluate("document.body.innerText.includes('Browser Test Admin')"), "admin recovers")
+  await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Log out').click()")
+  await until(() => first.evaluate("!!document.querySelector('#identifier')"), "admin logout")
+  await login("21100123")
+  await until(() => first.evaluate("document.body.innerText.includes('B4 Updated Partner')"), "admin change visible to student after login/refetch")
   await first.navigate(`${base}/signup`)
   await until(() => first.evaluate("document.body.innerText.includes('Registration is not available yet')"), "signup unavailable")
-  console.log("B3 browser smoke passed: page protection, forged identity denial, invalid/valid login, live profile, role denial, cross-tab refresh, logout propagation, outage view, and unavailable signup.")
+  console.log("B3/B4 browser smoke passed: session protection, cross-tab refresh/logout, company browsing, bookmark persistence across reload, administrator edits/status, and outage handling. Uses an isolated HTTP fixture, not hosted Supabase.")
 } finally {
   for (const ws of sockets) ws.close()
   for (const child of children.reverse()) if (child.exitCode === null) child.kill()

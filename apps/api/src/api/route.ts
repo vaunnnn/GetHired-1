@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto"
+import { parseImage } from "../modules/companies/images.js"
 import { getServerConfig, type ServerConfig } from "../config.js"
 import { logRequest, type RequestLogger } from "../logging/request.js"
 import { parseBody, readLimitedBody, type BodyFormat } from "./body.js"
@@ -99,7 +100,7 @@ export function createApiRoute(
           ? new ApiError("METHOD_NOT_ALLOWED", { allow })
           : new ApiError("NOT_FOUND")
       }
-      const bytes = await readLimitedBody(request, config.maxBodyBytes)
+      const bytes = endpoint.body === "image" ? undefined : await readLimitedBody(request, config.maxBodyBytes)
       if (!["GET", "HEAD", "OPTIONS"].includes(request.method)) {
         if (dependencies.enforceBrowserProtection)
           await dependencies.enforceBrowserProtection(request)
@@ -127,7 +128,7 @@ export function createApiRoute(
         }
         if (actor.auth) assertPermission(actor.auth, definition.access.permission)
       }
-      const body = parseBody(request, bytes, endpoint.body)
+      const body = endpoint.body === "image" ? await parseImage(request) : parseBody(request, bytes!, endpoint.body)
       response = successResponse(
         await endpoint.handle({
           request,

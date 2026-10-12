@@ -8,16 +8,20 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
     "typecheck": "tsc -p tsconfig.test.json --noEmit",
-    "test": "node --import tsx --test tests/*.test.ts"
+    "test": "node --import tsx --test tests/*.test.ts",
+    "cleanup:company-images": "node dist/jobs/company-images.js"
   },
   "dependencies": {
     "@gethired/contracts": "*",
+    "busboy": "^1.6.0",
     "express": "^5.2.1",
     "jose": "^6.2.12",
-    "pg": "^8.23.0"
+    "pg": "^8.23.0",
+    "sharp": "^0.35.5"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.8",
+    "@types/busboy": "^1.5.5",
     "@types/express": "^5.0.0",
     "@types/node": "^22.0.0",
     "@types/pg": "^8.23.1",
