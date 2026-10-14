@@ -15,6 +15,8 @@ const children = [], sockets = []
 const gateway = randomBytes(32).toString("hex")
 const sessions = new Map()
 let expired = false, outage = false, refreshes = 0, lastRemember
+const onboardingRequests = [], registry = new Map()
+let invitations = 0
 const companyId = randomUUID(), savedCompanies = new Set()
 let company = { id: companyId, name: "B4 Browser Partner", industry: "Software Development", type: "Services", specializations: ["Web Development"],
   location: "Cebu City", slots: 0, description: "Browser acceptance fixture", website: "https://example.test/", email: "team@example.test",
@@ -56,6 +58,34 @@ const fixture = createServer(async (req, res) => {
     return finish(200, { loggedOut: true })
   }
   const url = new URL(req.url, "http://fixture")
+  if (/^\/api\/auth\/(signup|password-reset|invitations)/.test(url.pathname)) {
+    let raw = ""; for await (const chunk of req) raw += chunk
+    const body = JSON.parse(raw); onboardingRequests.push({ path: url.pathname, body })
+    if (["/api/auth/signup", "/api/auth/signup/resend", "/api/auth/password-reset/request"].includes(url.pathname))
+      return finish(202, { message: "Check your email for your code.", challengeId: randomUUID() })
+    if (url.pathname.endsWith("/verify")) {
+      if (body.code !== "123456") return finish(400, null, "INVALID_VERIFICATION_CODE")
+      return finish(200, url.pathname.includes("signup") ? { accountReady: true, status: "active" } : { verified: true })
+    }
+    if (url.pathname === "/api/auth/password-reset/complete") { sessions.clear(); return finish(200, { passwordUpdated: true }) }
+    return finish(200, { accountReady: true })
+  }
+  if (url.pathname.startsWith("/api/admin/students")) {
+    if (role !== "admin") return finish(role ? 403 : 401, null, role ? "FORBIDDEN" : "UNAUTHENTICATED")
+    if (req.method === "GET") {
+      res.statusCode = 200
+      return res.end(JSON.stringify({ data: [...registry.values()], meta: { page: 1, pageSize: 20, total: registry.size }, requestId: randomUUID() }))
+    }
+    let raw = ""; for await (const chunk of req) raw += chunk
+    const body = JSON.parse(raw)
+    if (url.pathname.endsWith("/invitations")) { invitations++; return finish(202, { message: "Invitation queued." }) }
+    if (req.method === "POST") {
+      const student = { ...body, id: randomUUID(), studentNumber: body.email.split("@")[0], status: "pending" }
+      registry.set(student.id, student); return finish(201, student)
+    }
+    const id = url.pathname.split("/").at(-1), student = { ...registry.get(id), ...body }
+    registry.set(id, student); return finish(200, student)
+  }
   if (/^\/api\/(companies|admin\/companies|me\/bookmarks)/.test(url.pathname)) {
     if (!role || expired) return finish(401, null, "UNAUTHENTICATED")
     if (url.pathname.startsWith("/api/admin/") && role !== "admin" || url.pathname.startsWith("/api/me/") && role !== "student") return finish(403, null, "FORBIDDEN")
@@ -141,6 +171,12 @@ try {
   await until(() => first.evaluate("location.pathname === '/login' && !!document.querySelector('#identifier')"), "forged local storage denied")
 
   async function login(identifier, password = "test-only") {
+    // A server-rendered input can exist before React attaches its handlers.
+    await until(async () => {
+      await first.evaluate("document.querySelector('button[aria-label=\"Show password\"]')?.click()")
+      return first.evaluate("document.querySelector('#password')?.type === 'text'")
+    }, "login hydration")
+    await first.evaluate("document.querySelector('button[aria-label=\"Hide password\"]').click()")
     await first.evaluate(`(() => {
       const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
       for (const [id, value] of ${JSON.stringify([["identifier", identifier], ["password", password]])}) {
@@ -194,6 +230,26 @@ try {
   await first.evaluate("document.querySelector('button[title=\"Reactivate Company\"]').click()")
   await first.evaluate("[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Yes, Reactivate').click()")
   await until(() => first.evaluate("!!document.querySelector('button[title=\"Edit Company\"]')"), "company reactivated")
+  await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Students').click()")
+  await until(() => first.evaluate("document.body.innerText.includes('No students match your search.')"), "live student registry")
+  assert.equal(await first.evaluate("document.body.innerText.includes('Generated Default Password')"), false)
+  await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Add student').click()")
+  async function fill(fields) {
+    await first.evaluate(`(() => { const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+      for (const [name,value] of ${JSON.stringify(Object.entries(fields))}) { const input = document.querySelector('input[name="'+name+'"]'); setter.call(input,value); input.dispatchEvent(new Event('input',{bubbles:true})); }
+    })()`)
+  }
+  await fill({ firstName: "Registry", lastName: "Student", email: "87654321@usc.edu.ph" })
+  await first.evaluate("document.querySelector('[role=dialog] form').requestSubmit()")
+  await until(() => first.evaluate("!document.querySelector('[role=dialog]') && document.body.innerText.includes('Registry Student')"), "registry student saved")
+  assert.equal(registry.size, 1)
+  await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Send invitation').click()")
+  await until(() => invitations === 1, "invitation requested")
+  await until(() => first.evaluate("[...document.querySelectorAll('button')].some(b => b.textContent.trim() === 'Edit' && !b.disabled)"), "registry reload after invitation")
+  await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Edit').click()")
+  await fill({ firstName: "Updated" })
+  await first.evaluate("document.querySelector('[role=dialog] form').requestSubmit()")
+  await until(() => first.evaluate("!document.querySelector('[role=dialog]') && document.body.innerText.includes('Updated Student')"), "registry edit saved")
   outage = true
   await first.navigate(`${base}/admin`)
   await until(() => first.evaluate("document.body.innerText.includes('Unable to load your workspace')"), "outage view")
@@ -206,8 +262,30 @@ try {
   await login("21100123")
   await until(() => first.evaluate("document.body.innerText.includes('B4 Updated Partner')"), "admin change visible to student after login/refetch")
   await first.navigate(`${base}/signup`)
-  await until(() => first.evaluate("document.body.innerText.includes('Registration is not available yet')"), "signup unavailable")
-  console.log("B3/B4 browser smoke passed: session protection, cross-tab refresh/logout, company browsing, bookmark persistence across reload, administrator edits/status, and outage handling. Uses an isolated HTTP fixture, not hosted Supabase.")
+  await until(() => first.evaluate("Object.keys(document.querySelector('input[name=firstName]') ?? {}).some(k => k.startsWith('__reactProps$'))"), "signup form hydrated")
+  await fill({ firstName: "Signup", lastName: "Student", email: "12345678@usc.edu.ph", newPassword: "browser chosen password" })
+  await first.evaluate("document.querySelector('form').requestSubmit()")
+  await until(() => first.evaluate("!!document.querySelector('input[name=code]')"), "signup code form")
+  await fill({ code: "999999" }); await first.evaluate("document.querySelector('form').requestSubmit()")
+  await until(() => first.evaluate("document.querySelector('[role=alert]')?.textContent.includes('INVALID_VERIFICATION_CODE')"), "wrong signup code displayed")
+  await fill({ code: "123456" }); await first.evaluate("document.querySelector('form').requestSubmit()")
+  await until(() => first.evaluate("document.body.innerText.includes('Your account is active.')"), "signup verified")
+  assert.equal(onboardingRequests.find(r => r.path === "/api/auth/signup").body.course, "BS Computer Science")
+  assert.equal(onboardingRequests.filter(r => r.path === "/api/auth/signup/verify").at(-1).body.newPassword, "browser chosen password")
+  await first.navigate(`${base}/password-reset`)
+  await until(() => first.evaluate("Object.keys(document.querySelector('input[name=email]') ?? {}).some(k => k.startsWith('__reactProps$'))"), "recovery form hydrated")
+  await fill({ email: "12345678@usc.edu.ph" }); await first.evaluate("document.querySelector('form').requestSubmit()")
+  await until(() => first.evaluate("!!document.querySelector('input[name=code]')"), "recovery code")
+  await fill({ code: "123456" }); await first.evaluate("document.querySelector('form').requestSubmit()")
+  await until(() => first.evaluate("!!document.querySelector('input[name=newPassword]')"), "new password form")
+  await fill({ newPassword: "browser reset password" }); await first.evaluate("document.querySelector('form').requestSubmit()")
+  await until(() => first.evaluate("document.body.innerText.includes('all devices have been signed out')"), "recovery complete")
+  await first.navigate(`${base}/invite#token_hash=${"a".repeat(56)}`)
+  await until(() => first.evaluate("!!document.querySelector('input[name=newPassword]') && location.hash === ''"), "invitation fragment removed")
+  await fill({ newPassword: "browser invite password" }); await first.evaluate("document.querySelector('form').requestSubmit()")
+  await until(() => first.evaluate("document.body.innerText.includes('Your account is active.')"), "invitation accepted")
+  assert.equal(onboardingRequests.at(-1).body.tokenHash, "a".repeat(56))
+  console.log("B3/B4/B5 browser smoke passed: sessions, companies/bookmarks, registry CRUD/invitations, signup verification/errors, recovery, invitation fragment handling, and outage recovery. Uses isolated HTTP fixtures; hosted Supabase remains unverified.")
 } finally {
   for (const ws of sockets) ws.close()
   for (const child of children.reverse()) if (child.exitCode === null) child.kill()

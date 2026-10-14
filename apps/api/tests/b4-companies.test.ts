@@ -127,6 +127,7 @@ test("B4 persists companies and private bookmarks, audits atomically and retries
       create table auth.refresh_tokens(session_id uuid references auth.sessions(id) on delete cascade, revoked boolean);`)
     for (const name of ["202609290001_phase3_auth.sql", "202610050001_b2_operations.sql", "202610120001_b3_feature_foundation.sql", "202610120002_b4_companies.sql"])
       await db.exec(await readFile(new URL(`../../../supabase/migrations/${name}`, import.meta.url), "utf8"))
+    await db.exec("alter table gethired_private.accounts add column credentials_blocked boolean not null default false; alter table gethired_private.accounts add column credential_version integer not null default 0")
     const client = { query: async (sql: string, values?: unknown[]) => { const result = await db.query(sql, values); return { rows: result.rows, rowCount: result.affectedRows ?? 0 } }, release() {} } as SqlClient
     const pool: SqlPool = { connect: async () => client }
     const actor = async (role: "student" | "admin"): Promise<Principal> => {
@@ -135,7 +136,7 @@ test("B4 persists companies and private bookmarks, audits atomically and retries
       await db.query("insert into auth.users values ($1, now(), null)", [authId])
       await db.query("insert into auth.sessions values ($1,$2,null)", [sessionId, authId])
       await db.query("insert into auth.refresh_tokens values ($1,false)", [sessionId])
-      await db.query("insert into gethired_private.accounts values ($1,$2,$3,'Test',$4,'active')", [id, authId, `${id}@example.test`, role])
+      await db.query("insert into gethired_private.accounts(id,auth_user_id,email,display_name,role,status) values ($1,$2,$3,'Test',$4,'active')", [id, authId, `${id}@example.test`, role])
       if (role === "student") await db.query("insert into gethired_private.student_profiles(account_id,student_number,first_name,last_name,course,year_level) values ($1,$2,'Test','Student','BS IT','4th Year')", [id, id.replace(/\D/g, "").slice(0,8).padEnd(8,"0")])
       await db.exec("set role gethired_runtime")
       return createAuthStore(pool).createSession({ userId: authId, sessionId }, false)

@@ -19,7 +19,8 @@ if (!validConnection(connectionString)) {
   try {
     const result = await pool.query(`select
       gethired_private.process_provider_cleanup(100) as cleaned,
-      gethired_private.prune_auth_limits(1000) as pruned`)
+      gethired_private.prune_auth_limits(1000) as pruned,
+      gethired_private.prune_onboarding(1000) as onboarding_pruned`)
     console.log(JSON.stringify({ event: "maintenance_completed", ...result.rows[0] }))
   } catch {
     console.error("Maintenance failed; retry on the next scheduled run.")

@@ -107,6 +107,7 @@ test("every Phase 1 error code has the contracted status and safe envelope", asy
     INVALID_JSON: 400,
     VALIDATION_ERROR: 400,
     INVALID_RECOVERY_CODE: 400,
+    INVALID_VERIFICATION_CODE: 400,
     UNAUTHENTICATED: 401,
     SESSION_EXPIRED: 401,
     INVALID_CREDENTIALS: 401,

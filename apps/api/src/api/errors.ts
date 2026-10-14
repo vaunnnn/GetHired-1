@@ -2,6 +2,7 @@ export const API_ERRORS = {
   INVALID_JSON: [400, "Send a valid JSON object."],
   VALIDATION_ERROR: [400, "Check the highlighted fields."],
   INVALID_RECOVERY_CODE: [400, "The recovery code is invalid or has expired."],
+  INVALID_VERIFICATION_CODE: [400, "The verification code is invalid or has expired."],
   UNAUTHENTICATED: [401, "Sign in to continue."],
   SESSION_EXPIRED: [401, "Your session has expired. Sign in again."],
   INVALID_CREDENTIALS: [401, "The sign-in details are invalid."],

@@ -1,10 +1,12 @@
 import { createApiRoute } from "./api/route.js"
 import { ApiError } from "./api/errors.js"
 import { companyRoutes } from "./modules/companies/routes.js"
+import { onboardingRoutes } from "./modules/onboarding/routes.js"
 import { getAuthService, checkReadiness } from "./auth/runtime.js"
 
 export function createRoutes() {
   const routes = companyRoutes()
+  for (const [path, handler] of onboardingRoutes()) routes.set(path, handler)
   routes.set("/api/health/ready", createApiRoute({
     route: "/api/health/ready",
     access: { kind: "public" },

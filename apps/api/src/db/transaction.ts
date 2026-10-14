@@ -26,9 +26,9 @@ export async function authorizedTransaction<T>(pool: SqlPool, actor: Principal, 
   work: (client: SqlClient, actor: Principal) => Promise<T>): Promise<T> {
   return transaction(pool, async client => {
     await client.query("select gethired_private.lock_account($1)", [actor.id])
-    const accounts = await client.query("select id, auth_user_id, role, status from gethired_private.accounts where id = $1", [actor.id])
+    const accounts = await client.query("select id, auth_user_id, role, status, credentials_blocked from gethired_private.accounts where id = $1", [actor.id])
     const account = accounts.rows[0]
-    if (!account || account.status !== "active" || account.auth_user_id !== actor.identity.userId || account.role !== actor.user.role)
+    if (!account || account.status !== "active" || account.credentials_blocked || account.auth_user_id !== actor.identity.userId || account.role !== actor.user.role)
       throw new ApiError("SESSION_EXPIRED")
     const sessions = await client.query("select * from gethired_private.sessions where id = $1 and account_id = $2 for update", [actor.session.id, actor.id])
     const session = sessions.rows[0]

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { apiClient } from "@/lib/api-client";
 
 interface Props {
@@ -241,14 +242,12 @@ export default function Login({ onBack }: Props = {}) {
                   <span>Remember me</span>
                 </button>
 
-                <button
-                  type="button"
-                  disabled
-                  title="Password reset is not available yet."
+                <Link
+                  href="/password-reset"
                   className="text-[13.5px] font-medium text-[#0066FF] hover:text-[#0052cc] hover:underline cursor-pointer"
                 >
-                  Password reset unavailable
-                </button>
+                  Forgot password?
+                </Link>
               </div>
 
               {/* Submit CTA Button */}
@@ -295,7 +294,7 @@ export default function Login({ onBack }: Props = {}) {
               <div className="text-center pt-2">
                 <p className="text-[13.5px] text-slate-500">
                   Don&apos;t have an account?{" "}
-                  <span>Registration is not available yet.</span>
+                  <Link href="/signup" className="font-medium text-blue-600 hover:underline">Create an account</Link>
                 </p>
               </div>
             </form>

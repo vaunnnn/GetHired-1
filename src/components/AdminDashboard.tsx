@@ -2,17 +2,15 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { useSession } from "./SessionProvider";
+import StudentRegistry from "./StudentRegistry";
 import CompanyCard from "./CompanyCard";
 import CategoryCard, { CategoryIcon } from "./CategoryCard";
 import {
   interviewCategories as defaultCategories,
   interviewQuestions as defaultQuestions,
   codingChallenges as defaultChallenges,
-  initialStudents,
-  Student,
   InterviewCategory,
   InterviewQuestion,
-  generateDefaultPassword,
   getCategoryPipeline,
 } from "../data";
 
@@ -510,24 +508,6 @@ export default function AdminDashboard() {
     specializations: ["Software Dev"],
   });
 
-  // States for Students
-  const [students, setStudents] = useState<Student[]>(initialStudents);
-  const [studentSearch, setStudentSearch] = useState("");
-  const [selectedCourseFilter, setSelectedCourseFilter] = useState("All");
-  const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
-  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
-
-  // Student Form state
-  const [studForm, setStudForm] = useState({
-    id: "",
-    firstName: "",
-    lastName: "",
-    course: "BS Information Technology",
-    yearLevel: "4th Year",
-    email: "",
-  });
-
   // States for Interview Categories & Questions
   const [categories, setCategories] = useState<InterviewCategory[]>(defaultCategories);
   const [questionsMap, setQuestionsMap] = useState<Record<string, InterviewQuestion[]>>(defaultQuestions);
@@ -608,15 +588,6 @@ export default function AdminDashboard() {
     });
   };
 
-  const handleRequestDeleteStudent = (s: Student) => {
-    setConfirmModal({
-      type: "delete",
-      target: "student",
-      id: s.id,
-      name: `${s.firstName} ${s.lastName}`,
-    });
-  };
-
   const handleConfirmAction = async () => {
     if (!confirmModal) return;
     const { type, target, id, idx } = confirmModal;
@@ -642,8 +613,6 @@ export default function AdminDashboard() {
         }
         return { ...prev, [selectedCategoryForQuestions.id]: list };
       });
-    } else if (target === "student" && id) {
-      setStudents((prev) => prev.filter((s) => s.id !== id));
     }
 
     setConfirmModal(null);
@@ -728,75 +697,6 @@ export default function AdminDashboard() {
     } else {
       setCompForm({ ...compForm, specializations: [...current, spec] });
     }
-  };
-
-  /* ── Student Actions ── */
-  const handleOpenAddStudent = () => {
-    setEditingStudent(null);
-    setStudForm({
-      id: `24100${Math.floor(Math.random() * 800 + 100)}`,
-      firstName: "",
-      lastName: "",
-      course: "BS Information Technology",
-      yearLevel: "4th Year",
-      email: "",
-    });
-    setIsStudentModalOpen(true);
-  };
-
-  const handleOpenEditStudent = (s: Student) => {
-    setEditingStudent(s);
-    setStudForm({
-      id: s.id,
-      firstName: s.firstName,
-      lastName: s.lastName,
-      course: s.course,
-      yearLevel: s.yearLevel,
-      email: s.email,
-    });
-    setIsStudentModalOpen(true);
-  };
-
-
-  const handleSaveStudent = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!studForm.id || !studForm.firstName || !studForm.lastName) return;
-
-    const defaultPwd = generateDefaultPassword(studForm.id, studForm.firstName);
-    const emailComputed = studForm.email || `${studForm.id.trim()}@usc.edu.ph`;
-
-    if (editingStudent) {
-      setStudents((prev) =>
-        prev.map((s) =>
-          s.id === editingStudent.id
-            ? {
-                ...s,
-                ...studForm,
-                email: emailComputed,
-                defaultPassword: generateDefaultPassword(studForm.id, studForm.firstName),
-              }
-            : s
-        )
-      );
-    } else {
-      const newStudent: Student = {
-        id: studForm.id,
-        firstName: studForm.firstName,
-        lastName: studForm.lastName,
-        course: studForm.course,
-        yearLevel: studForm.yearLevel,
-        email: emailComputed,
-        defaultPassword: defaultPwd,
-      };
-      setStudents((prev) => [newStudent, ...prev]);
-    }
-    setIsStudentModalOpen(false);
-  };
-
-  const handleCopyPassword = (pwd: string, id: string) => {
-    navigator.clipboard.writeText(pwd);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
   };
 
   /* ── Interview Actions ── */
@@ -904,22 +804,6 @@ export default function AdminDashboard() {
   /* Filtered Data */
   const filteredCompanies = companies;
 
-  const filteredStudents = students.filter((s) => {
-    const matchesSearch =
-      s.id.toLowerCase().includes(studentSearch.toLowerCase()) ||
-      `${s.firstName} ${s.lastName}`.toLowerCase().includes(studentSearch.toLowerCase()) ||
-      s.email.toLowerCase().includes(studentSearch.toLowerCase());
-    const matchesCourse = selectedCourseFilter === "All" || s.course === selectedCourseFilter;
-    return matchesSearch && matchesCourse;
-  });
-  const uniqueCourses = [
-    "All",
-    "BS Computer Science",
-    "BS Information Technology",
-    "BS Information Systems",
-    "BS Data Science",
-  ];
-
   return (
     <div className="h-screen flex bg-[#f5f7ff] overflow-hidden text-slate-800" style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif" }}>
 
@@ -958,7 +842,7 @@ export default function AdminDashboard() {
           <nav className={`flex flex-col gap-1.5 flex-1 ${collapsed ? "px-0" : "px-2"}`}>
             {[
               { id: "companies",  label: "Companies",  badge: companyResults.meta.total, Icon: BuildingIcon },
-              { id: "students",   label: "Students",   badge: students.length,  Icon: UsersIcon },
+              { id: "students",   label: "Students",   badge: undefined,  Icon: UsersIcon },
               { id: "interviews", label: "Interviews", badge: categories.length, Icon: MicIcon },
             ].map(({ id, label, badge, Icon }) => (
               <button
@@ -1118,149 +1002,8 @@ export default function AdminDashboard() {
           )}
 
           {/* ════════════════════ TAB 2: STUDENTS ════════════════════ */}
-          {activeTab === "students" && (
-            <div className="flex flex-col flex-1 min-h-0">
-              {/* Notice Banner about Password Formula */}
-              <div className="mb-4 p-4 bg-blue-50/80 border border-blue-100 rounded-[26px] flex items-start gap-3 shrink-0">
-                <div className="w-7 h-7 rounded-full bg-[#0066FF] text-white flex items-center justify-center shrink-0 mt-0.5">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                  </svg>
-                </div>
-                <div className="text-[12.5px] text-blue-900 leading-relaxed">
-                  <span className="font-bold">Student Credential Policy:</span> All DCISM student accounts have their default password pre-filled as{" "}
-                  <code className="bg-blue-100/80 px-2 py-0.5 rounded-full text-[11.5px] font-mono font-semibold text-[#0066FF]">
-                    idnumber_firstname
-                  </code>{" "}
-                  (e.g., <code className="bg-blue-100/80 px-2 py-0.5 rounded-full text-[11.5px] font-mono text-[#0066FF]">21100123_ishie</code>). Students can independently update their password at any time via the Forgot Password prompt on the login screen.
-                </div>
-              </div>
+          {activeTab === "students" && <StudentRegistry />}
 
-              {/* Filters and Add Student Button */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 shrink-0">
-                <div className="flex flex-wrap items-center gap-3 flex-1 max-w-2xl">
-                  {/* Search student */}
-                  <div className="relative flex-1 min-w-[240px]">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
-                      <SearchIcon size={16} />
-                    </span>
-                    <input
-                      type="text"
-                      placeholder="Search by ID, name, or email..."
-                      value={studentSearch}
-                      onChange={(e) => setStudentSearch(e.target.value)}
-                      className="w-full bg-white border border-slate-200 rounded-full pl-10 pr-4 py-2 text-[13.5px] outline-none focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF]/10 transition-all"
-                    />
-                  </div>
-
-                  {/* Course filter dropdown */}
-                  <AdminFilterDropdown
-                    value={selectedCourseFilter}
-                    options={uniqueCourses}
-                    onChange={setSelectedCourseFilter}
-                    label="Degree Program / Course"
-                  />
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handleOpenAddStudent}
-                  className="inline-flex items-center gap-2 bg-[#0066FF] hover:bg-[#0052cc] text-white text-[13.5px] font-semibold px-5 py-2 rounded-full shadow-sm hover:shadow-md transition-all cursor-pointer active:scale-98 shrink-0"
-                >
-                  <PlusIcon size={16} />
-                  <span>Add Student</span>
-                </button>
-              </div>
-
-              {/* Minimalist Student Table List */}
-              <div className="bg-white rounded-[32px] border border-slate-200/80 shadow-2xs overflow-hidden flex flex-col flex-1 min-h-0">
-                <div className="px-6 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
-                  <div className="text-[13px] font-bold uppercase tracking-wider text-slate-500">
-                    Enrolled Students ({filteredStudents.length})
-                  </div>
-                  <div className="text-[12px] text-slate-400">
-                    DCISM Official Registry
-                  </div>
-                </div>
-
-                <div className="overflow-x-auto overflow-y-auto flex-1 min-h-0">
-                  <table className="w-full min-w-[720px] text-left border-collapse text-[13.5px]">
-                    <thead className="sticky top-0 z-10 bg-slate-50 border-b border-slate-200/80 shadow-2xs">
-                      <tr className="text-slate-400 text-[11.5px] uppercase font-bold tracking-wider">
-                        <th className="py-3.5 px-6">Student ID</th>
-                        <th className="py-3.5 px-6">Full Name</th>
-                        <th className="py-3.5 px-6">Course & Year</th>
-                        <th className="py-3.5 px-6">Generated Default Password</th>
-                        <th className="py-3.5 px-6 text-right">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {filteredStudents.map((s) => (
-                        <tr key={s.id} className="hover:bg-slate-50/60 transition-colors">
-                          <td className="py-4 px-6 font-mono font-bold text-[#0F172A]">
-                            {s.id}
-                          </td>
-                          <td className="py-4 px-6">
-                            <div className="font-semibold text-[#0F172A]">{s.firstName} {s.lastName}</div>
-                            <div className="text-[11.5px] text-slate-400">{s.email}</div>
-                          </td>
-                          <td className="py-4 px-6">
-                            <div className="font-medium text-slate-700">{s.course}</div>
-                            <div className="text-[11.5px] text-slate-400">{s.yearLevel}</div>
-                          </td>
-                          <td className="py-4 px-6">
-                            <div className="flex items-center gap-2">
-                              <code className="bg-slate-100 px-3 py-1 rounded-full text-[11.5px] font-mono text-slate-700 select-all">
-                                {s.defaultPassword}
-                              </code>
-                              <button
-                                type="button"
-                                onClick={() => handleCopyPassword(s.defaultPassword, s.id)}
-                                className="text-slate-400 hover:text-[#0066FF] transition-colors p-1 cursor-pointer"
-                                title="Copy default password"
-                              >
-                                {copiedId === s.id ? <CheckIcon size={14} /> : <CopyIcon size={13} />}
-                              </button>
-                            </div>
-                          </td>
-                          <td className="py-4 px-6 text-right">
-                            <div className="flex items-center justify-end gap-1.5">
-                              <button
-                                type="button"
-                                onClick={() => handleOpenEditStudent(s)}
-                                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-blue-50 text-slate-600 hover:text-[#0066FF] flex items-center justify-center transition-colors cursor-pointer"
-                                title="Edit Student"
-                              >
-                                <EditIcon size={14} />
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleRequestDeleteStudent(s)}
-                                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 flex items-center justify-center transition-colors cursor-pointer"
-                                title="Delete Student"
-                              >
-                                <TrashIcon size={14} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-
-                      {filteredStudents.length === 0 && (
-                        <tr>
-                          <td colSpan={6} className="text-center py-12 text-slate-400">
-                            No students match your query.
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ════════════════════ TAB 3: INTERVIEWS ════════════════════ */}
           {activeTab === "interviews" && (
             <div>
               {/* If a category is selected to manage its questions */}
@@ -1441,7 +1184,7 @@ export default function AdminDashboard() {
       <nav aria-label="Admin Mobile Navigation" className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-2 py-1.5 flex items-center justify-around shadow-lg">
         {[
           { id: "companies",  label: "Companies",  badge: companyResults.meta.total, Icon: BuildingIcon },
-          { id: "students",   label: "Students",   badge: students.length,  Icon: UsersIcon },
+          { id: "students",   label: "Students",   badge: undefined,  Icon: UsersIcon },
           { id: "interviews", label: "Interviews", badge: categories.length, Icon: MicIcon },
         ].map(({ id, label, badge, Icon }) => (
           <button
@@ -1692,119 +1435,6 @@ export default function AdminDashboard() {
           onApply={(cropped) => setCompForm({ ...compForm, image: cropped })}
           onClose={() => setCropModalSrc(null)}
         />
-      )}
-
-      {/* ── Add / Edit Student Modal ── */}
-      {isStudentModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/40 backdrop-blur-xs overflow-y-auto">
-          <div className="bg-white rounded-[28px] sm:rounded-[32px] w-full max-w-[500px] p-5 sm:p-7 shadow-2xl border border-slate-100 my-auto max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="text-[20px] font-bold text-[#0F172A]" style={{ fontFamily: "'DM Serif Display', serif" }}>
-                {editingStudent ? "Edit Student Record" : "Enroll Student to DCISM Database"}
-              </h3>
-              <button
-                type="button"
-                onClick={() => setIsStudentModalOpen(false)}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer"
-              >
-                <XIcon />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveStudent} className="space-y-4">
-              <div>
-                <label className="block text-[12.5px] font-semibold text-slate-700 mb-1">Student ID (8 Digits, e.g. 21100123)</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. 21100123"
-                  value={studForm.id}
-                  onChange={(e) => setStudForm({ ...studForm, id: e.target.value })}
-                  className="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-[13.5px] font-mono outline-none focus:border-[#0066FF]"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div>
-                  <label className="block text-[12.5px] font-semibold text-slate-700 mb-1">First Name</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Ishie"
-                    value={studForm.firstName}
-                    onChange={(e) => setStudForm({ ...studForm, firstName: e.target.value })}
-                    className="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-[13.5px] outline-none focus:border-[#0066FF]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[12.5px] font-semibold text-slate-700 mb-1">Last Name</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Boo"
-                    value={studForm.lastName}
-                    onChange={(e) => setStudForm({ ...studForm, lastName: e.target.value })}
-                    className="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-[13.5px] outline-none focus:border-[#0066FF]"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[12.5px] font-semibold text-slate-700 mb-1">Degree Program</label>
-                <FormSelect
-                  value={studForm.course || "BS Information Technology"}
-                  options={[
-                    "BS Computer Science",
-                    "BS Information Technology",
-                    "BS Information Systems",
-                    "BS Data Science",
-                  ]}
-                  onChange={(val) => setStudForm({ ...studForm, course: val })}
-                />
-              </div>
-
-              <div>
-                <label className="block text-[12.5px] font-semibold text-slate-700 mb-1">Year Level</label>
-                <FormSelect
-                  value={studForm.yearLevel || "4th Year"}
-                  options={["1st Year", "2nd Year", "3rd Year", "4th Year"]}
-                  onChange={(val) => setStudForm({ ...studForm, yearLevel: val })}
-                />
-              </div>
-
-              {/* Password Formula Box */}
-              <div className="p-3.5 bg-blue-50/70 border border-blue-100 rounded-xl">
-                <div className="text-[11.5px] font-semibold text-blue-800 mb-1">
-                  Default Pre-filled Password:
-                </div>
-                <code className="text-[13px] font-mono font-bold text-[#0066FF]">
-                  {studForm.id && studForm.firstName
-                    ? generateDefaultPassword(studForm.id, studForm.firstName)
-                    : "idnumber_firstname"}
-                </code>
-                <div className="text-[11px] text-slate-400 mt-1">
-                  Students can change this password upon login via Forgot Password.
-                </div>
-              </div>
-
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setIsStudentModalOpen(false)}
-                  className="flex-1 py-3 border border-slate-200 text-slate-600 text-[13.5px] font-semibold rounded-full hover:bg-slate-50 transition-all cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-3 bg-[#0066FF] hover:bg-[#0052cc] text-white text-[13.5px] font-semibold rounded-full shadow-md shadow-blue-500/20 transition-all cursor-pointer"
-                >
-                  Save Student
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
       )}
 
       {/* ── Add / Edit Category Modal ── */}

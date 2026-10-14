@@ -25,7 +25,8 @@ export interface SqlPool {
 }
 export interface AuthStore {
   resolveIdentifier(identifier: string): Promise<string | null>
-  createSession(identity: Identity, rememberMe: boolean): Promise<Principal>
+  credentialVersion(email: string): Promise<number | null>
+  createSession(identity: Identity, rememberMe: boolean, expectedVersion?: number): Promise<Principal>
   withSession<T>(
     sessionId: string,
     identity: Identity | null,
@@ -107,7 +108,11 @@ export function createAuthStore(pool: SqlPool): AuthStore {
         )
         return result.rows[0]?.email ?? null
       }),
-    createSession: (identity, rememberMe) =>
+    credentialVersion: (email) => transaction(async client => {
+      const row = (await client.query("select credential_version from gethired_private.accounts where lower(email) = lower($1) and status = 'active' and not credentials_blocked", [email])).rows[0]
+      return row ? Number(row.credential_version) : null
+    }),
+    createSession: (identity, rememberMe, expectedVersion) =>
       transaction(async (client) => {
         await client.query(
           "select gethired_private.lock_account(id) from gethired_private.accounts where auth_user_id = $1",
@@ -118,7 +123,9 @@ export function createAuthStore(pool: SqlPool): AuthStore {
           [identity.userId],
         )
         const account = result.rows[0]
-        if (!account || account.status !== "active")
+        if (!account || account.status !== "active" || account.credentials_blocked)
+          throw new ApiError("INVALID_CREDENTIALS")
+        if (expectedVersion !== undefined && Number(account.credential_version) !== expectedVersion)
           throw new ApiError("INVALID_CREDENTIALS")
         const projection = user(account)
         await live(client, identity)
@@ -152,7 +159,7 @@ export function createAuthStore(pool: SqlPool): AuthStore {
           [sessionId],
         )
         const account = accounts.rows[0]
-        if (!account || account.status !== "active")
+        if (!account || account.status !== "active" || account.credentials_blocked)
           throw new ApiError("SESSION_EXPIRED")
         const rows = await client.query(
           "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",

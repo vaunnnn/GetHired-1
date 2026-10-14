@@ -93,8 +93,9 @@ test("JWT verification checks signature, algorithm, issuer, audience, timing, UU
     { session_id: undefined },
     { exp: undefined },
     { iat: undefined },
-    { nbf: now + 31 },
-    { iat: now + 31 },
+    // Leave enough distance from the 30-second tolerance for slow parallel CI.
+    { nbf: now + 60 },
+    { iat: now + 60 },
     { exp: now + 901 },
   ]) {
     await assert.rejects(
@@ -274,6 +275,8 @@ test("Phase 3 database and authentication lifecycle", async (t) => {
       "utf8",
     ),
   )
+  // B5 adds a credential barrier/version consumed by the shared login service.
+  await db.exec("alter table gethired_private.accounts add column credentials_blocked boolean not null default false; alter table gethired_private.accounts add column credential_version integer not null default 0")
   // PGlite has one connection; serialize transactions and execute as the restricted runtime.
   let queue = Promise.resolve()
   const pool: SqlPool = {

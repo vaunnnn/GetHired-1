@@ -2,7 +2,8 @@
 -- Read-only: resolves the exact columns used by the provider bridge/cleanup.
 begin read only;
 set local statement_timeout = '5s';
-select u.id, u.email_confirmed_at, u.banned_until,
+select u.id, u.email, u.email_confirmed_at, u.banned_until,
+       u.confirmation_token, u.recovery_token, u.confirmation_sent_at, u.recovery_sent_at,
        s.id, s.user_id, s.not_after, r.session_id, r.revoked
 from auth.users u join auth.sessions s on s.user_id = u.id
 join auth.refresh_tokens r on r.session_id = s.id where false;

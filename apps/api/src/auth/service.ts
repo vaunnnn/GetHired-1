@@ -76,6 +76,7 @@ export function createAuthService({
         throw new ApiError("SERVICE_UNAVAILABLE")
       await store.consumeLimit(limitKey("ip", rawIp), 30, 900)
       const resolved = await store.resolveIdentifier(input.identifier)
+      const credentialVersion = resolved ? await store.credentialVersion(resolved) : null
       const key = limitKey(
         "identifier",
         (resolved ?? input.identifier).toLowerCase(),
@@ -92,12 +93,12 @@ export function createAuthService({
       try {
         const identity = await verify(tokens.accessToken)
         if (
-          !resolved ||
+          !resolved || credentialVersion === null ||
           !tokens.emailVerified ||
           tokens.userId !== identity.userId
         )
           throw new ApiError("INVALID_CREDENTIALS")
-        principal = await store.createSession(identity, input.rememberMe)
+        principal = await store.createSession(identity, input.rememberMe, credentialVersion)
       } catch (error) {
         // No application session is created for an unprovisioned or inactive account.
         try {

@@ -39,9 +39,9 @@ Student self-registration supplements administrator invitations. Verification of
 | --- | --- | --- |
 | `POST /api/auth/signup` | `{ firstName, lastName, email, course, yearLevel, password }` | `202 { message, challengeId }` |
 | `POST /api/auth/signup/resend` | `{ challengeId }` | `202 { message, challengeId }` |
-| `POST /api/auth/signup/verify` | `{ challengeId, code }` | `200 { accountReady: true, status: "active" }`, then fresh login |
+| `POST /api/auth/signup/verify` | `{ challengeId, code, newPassword }` | `200 { accountReady: true, status: "active" }`, then fresh login |
 
-These endpoints are planned, not implemented in B1. Missing/invalid/expired signup proof uses the planned `400 INVALID_VERIFICATION_CODE`; challenge state never reveals account existence before ownership proof. Existing/unknown signup requests use the same public response shape.
+These endpoints were delivered locally in B5; see [implementation and deployment](backend-b5-onboarding.md). B5 adds `newPassword` to verification, resubmitted from browser memory after ownership proof, because repeated unverified Supabase signup does not replace the original password. Missing/invalid/expired signup proof uses `400 INVALID_VERIFICATION_CODE`; challenge state never reveals account existence before ownership proof. Existing/unknown signup requests use the same public response shape.
 
 ```mermaid
 stateDiagram-v2
