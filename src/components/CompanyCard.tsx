@@ -12,6 +12,8 @@ export interface CompanyCardProps {
   onDelete?: (id: string) => void;
   onDeactivate?: (c: Company) => void;
   onReactivate?: (c: Company) => void;
+  isComparing?: boolean;
+  onToggleCompare?: (c: Company) => void;
 }
 
 const PowerIcon = ({ size = 13 }: { size?: number }) => (
@@ -102,6 +104,8 @@ export default function CompanyCard({
   onDelete,
   onDeactivate,
   onReactivate,
+  isComparing = false,
+  onToggleCompare,
 }: CompanyCardProps) {
   const handleCardClick = () => {
     if (onViewMore) {
@@ -236,7 +240,7 @@ export default function CompanyCard({
         </p>
 
         <div className="mt-3 flex flex-wrap gap-1">
-          {company.specializations.slice(0, 2).map((s) => (
+          {company.specializations.slice(0, 2).map((s: string) => (
             <span
               key={s}
               className="text-[10px] text-[#0073ff] bg-[#dfe9ff] px-2 py-0.5 rounded-full font-medium"
@@ -298,7 +302,35 @@ export default function CompanyCard({
               )}
             </>
           ) : (
-            <div className="w-full flex justify-end">
+            <div className="w-full flex items-center justify-between">
+              {onToggleCompare ? (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleCompare(company);
+                  }}
+                  className={`flex items-center gap-1.5 text-[11px] font-medium transition-colors cursor-pointer px-2 py-0.5 rounded-full ${
+                    isComparing
+                      ? "text-[#0073ff] bg-[#dfe9ff] font-semibold"
+                      : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                  }`}
+                  title={isComparing ? "Remove from comparison" : "Add to comparison"}
+                >
+                  <span
+                    className={`w-3.5 h-3.5 rounded flex items-center justify-center border transition-all ${
+                      isComparing ? "bg-[#0073ff] border-[#0073ff] text-white" : "border-gray-300 bg-white"
+                    }`}
+                  >
+                    {isComparing && (
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    )}
+                  </span>
+                  <span>Compare</span>
+                </button>
+              ) : <div />}
               <button
                 type="button"
                 onClick={(e) => {

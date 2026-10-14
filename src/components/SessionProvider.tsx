@@ -68,10 +68,10 @@ export default function SessionProvider({ initial, children }: { initial: Curren
   }
 
   return <SessionContext.Provider value={{ ...current, logout }}>
-    <div className="contents" inert={!!error || checking} aria-hidden={!!error || checking}>{children}</div>
-    {(error || checking) && <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-4 bg-white p-6 text-center" role="status">
-      <p>{error || "Checking your session…"}</p>
-      {error && <button className="rounded-xl bg-blue-600 px-5 py-3 text-white" onClick={() => window.location.reload()}>Try again</button>}
+    <div className="contents" inert={!!error || loggingOut.current} aria-hidden={!!error || loggingOut.current}>{children}</div>
+    {(error || loggingOut.current) && <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-4 bg-white/95 backdrop-blur-sm p-6 text-center" role="status">
+      <p className="text-slate-700 font-medium">{error || "Signing out…"}</p>
+      {error && <button className="rounded-full bg-[#0073ff] hover:bg-blue-600 px-6 py-2.5 text-white font-medium shadow-sm transition-colors cursor-pointer" onClick={() => window.location.reload()}>Try again</button>}
     </div>}
   </SessionContext.Provider>;
 }

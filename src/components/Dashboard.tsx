@@ -18,6 +18,7 @@ import { apiClient } from "@/lib/api-client";
 import { companyView, type Company } from "@/lib/companies";
 import { COMPANY_NICHES, COMPANY_SPECIALIZATIONS, type Company as CompanyDto, type Bookmark } from "@gethired/contracts";
 import CompanyResults, { useCompanyPage } from "./CompanyResults";
+import CompareModal from "./CompareModal";
 
 type DashView = "home" | "explore" | "interview";
 
@@ -112,11 +113,15 @@ function CompanyModal({
   onClose,
   onToggleSave,
   onPractice,
+  isComparing = false,
+  onToggleCompare,
 }: {
   company: Company;
   onClose: () => void;
   onToggleSave: (id: string) => void;
   onPractice: () => void;
+  isComparing?: boolean;
+  onToggleCompare?: (c: Company) => void;
 }) {
   return (
     <div
@@ -250,10 +255,11 @@ function CompanyModal({
             </div>
 
             {/* Actions */}
-            <div className="flex gap-3">
+            <div className="flex flex-wrap sm:flex-nowrap gap-3">
               <button
+                type="button"
                 onClick={() => onToggleSave(company.id)}
-                className={`flex items-center gap-2 px-6 py-3 rounded-full text-[14px] font-semibold border transition-all ${
+                className={`flex items-center gap-2 px-5 py-3 rounded-full text-[14px] font-semibold border transition-all cursor-pointer ${
                   company.saved
                     ? "border-[#0073ff] text-[#0073ff] bg-[#dfe9ff]"
                     : "border-gray-200 text-gray-500 hover:border-[#0073ff] hover:text-[#0073ff]"
@@ -262,9 +268,34 @@ function CompanyModal({
                 <BookmarkIcon filled={company.saved} />
                 {company.saved ? "Unsave" : "Save Company"}
               </button>
+              {onToggleCompare && (
+                <button
+                  type="button"
+                  onClick={() => onToggleCompare(company)}
+                  className={`flex items-center gap-2 px-5 py-3 rounded-full text-[14px] font-semibold border transition-all cursor-pointer ${
+                    isComparing
+                      ? "border-[#0073ff] text-[#0073ff] bg-[#dfe9ff]"
+                      : "border-gray-200 text-gray-500 hover:border-[#0073ff] hover:text-[#0073ff]"
+                  }`}
+                >
+                  <span
+                    className={`w-3.5 h-3.5 rounded flex items-center justify-center border transition-all ${
+                      isComparing ? "bg-[#0073ff] border-[#0073ff] text-white" : "border-gray-300 bg-white"
+                    }`}
+                  >
+                    {isComparing && (
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    )}
+                  </span>
+                  <span>{isComparing ? "Comparing" : "Compare"}</span>
+                </button>
+              )}
               <button
+                type="button"
                 onClick={onPractice}
-                className="flex-1 bg-[#4869ff] text-white text-[14px] font-semibold py-3 rounded-full hover:bg-[#3a55e8] transition-all"
+                className="flex-1 bg-[#4869ff] text-white text-[14px] font-semibold py-3 px-5 rounded-full hover:bg-[#3a55e8] transition-all cursor-pointer text-center"
               >
                 Practice Interview →
               </button>
@@ -388,12 +419,16 @@ function HomeView({
   companies,
   onToggleSave,
   onViewMore,
+  compareIds,
+  onToggleCompare,
 }: {
   companies: Company[];
   totalSaved?: number;
   totalCompanies: number;
   onToggleSave: (id: string) => void;
   onViewMore: (c: Company) => void;
+  compareIds?: ReadonlySet<string>;
+  onToggleCompare?: (c: Company) => void;
 }) {
   const { user } = useSession();
   const saved = companies.filter((c) => c.saved);
@@ -493,7 +528,13 @@ function HomeView({
                 key={c.id}
                 className="w-[85%] sm:w-[calc((100%-20px)/2)] lg:w-[calc((100%-40px)/3)] shrink-0 min-w-[280px] snap-start flex flex-col"
               >
-                <CompanyCard company={c} onToggleSave={onToggleSave} onViewMore={onViewMore} />
+                <CompanyCard
+                  company={c}
+                  onToggleSave={onToggleSave}
+                  onViewMore={onViewMore}
+                  isComparing={compareIds?.has(c.id)}
+                  onToggleCompare={onToggleCompare}
+                />
               </div>
             ))}
           </div>
@@ -605,10 +646,14 @@ function ExploreView({
   savedIds,
   onToggleSave,
   onViewMore,
+  compareIds,
+  onToggleCompare,
 }: {
   savedIds: ReadonlySet<string>;
   onToggleSave: (id: string) => void;
   onViewMore: (c: Company) => void;
+  compareIds?: ReadonlySet<string>;
+  onToggleCompare?: (c: Company) => void;
 }) {
   const [search, setSearch]           = useState("");
   const [activeNiche, setActiveNiche] = useState("All");
@@ -696,7 +741,14 @@ function ExploreView({
       {filtered.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {filtered.map((c) => (
-            <CompanyCard key={c.id} company={c} onToggleSave={onToggleSave} onViewMore={onViewMore} />
+            <CompanyCard
+              key={c.id}
+              company={c}
+              onToggleSave={onToggleSave}
+              onViewMore={onViewMore}
+              isComparing={compareIds?.has(c.id)}
+              onToggleCompare={onToggleCompare}
+            />
           ))}
         </div>
       ) : (
@@ -1176,6 +1228,48 @@ export default function Dashboard() {
   const [collapsed, setCollapsed] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
+
+  // Company Comparison State
+  const [compareCompanies, setCompareCompanies] = useState<Map<string, Company>>(new Map());
+  const [compareModalOpen, setCompareModalOpen] = useState(false);
+  const [compareNotification, setCompareNotification] = useState<string | null>(null);
+
+  const compareIds = new Set(compareCompanies.keys());
+
+  useEffect(() => {
+    if (!compareNotification) return;
+    const timer = setTimeout(() => setCompareNotification(null), 3500);
+    return () => clearTimeout(timer);
+  }, [compareNotification]);
+
+  const toggleCompare = (company: Company) => {
+    setCompareCompanies((prev) => {
+      const next = new Map(prev);
+      if (next.has(company.id)) {
+        next.delete(company.id);
+      } else {
+        if (next.size >= 4) {
+          setCompareNotification("You can compare up to 4 companies at a time.");
+          return prev;
+        }
+        next.set(company.id, company);
+      }
+      return next;
+    });
+  };
+
+  const removeCompare = (id: string) => {
+    setCompareCompanies((prev) => {
+      const next = new Map(prev);
+      next.delete(id);
+      return next;
+    });
+  };
+
+  const clearCompare = () => {
+    setCompareCompanies(new Map());
+    setCompareModalOpen(false);
+  };
   const profile: ProfileData = {
     name: user.displayName,
     studentId: user.student?.studentNumber ?? "",
@@ -1314,8 +1408,26 @@ export default function Dashboard() {
         <div className="flex-1 overflow-y-auto px-4 sm:px-7 pb-24 md:pb-7">
           {bookmarkError && <p role="alert" className="text-red-600 py-3">{bookmarkError}</p>}
           {view === "home" && <CompanyResults {...bookmarks} reload={() => { bookmarks.reload(); setRevision(n => n + 1); }} />}
-          {view === "home" && !bookmarks.loading && !bookmarks.error && <HomeView totalCompanies={partners.meta.total} totalSaved={bookmarks.meta.total} companies={companies} onToggleSave={toggleSave} onViewMore={viewCompany} />}
-          {view === "explore"   && <ExploreView savedIds={savedIds} onToggleSave={toggleSave} onViewMore={viewCompany} />}
+          {view === "home" && !bookmarks.loading && !bookmarks.error && (
+            <HomeView
+              totalCompanies={partners.meta.total}
+              totalSaved={bookmarks.meta.total}
+              companies={companies}
+              onToggleSave={toggleSave}
+              onViewMore={viewCompany}
+              compareIds={compareIds}
+              onToggleCompare={toggleCompare}
+            />
+          )}
+          {view === "explore" && (
+            <ExploreView
+              savedIds={savedIds}
+              onToggleSave={toggleSave}
+              onViewMore={viewCompany}
+              compareIds={compareIds}
+              onToggleCompare={toggleCompare}
+            />
+          )}
           {view === "interview" && <InterviewView />}
         </div>
       </div>
@@ -1355,6 +1467,8 @@ export default function Dashboard() {
           onClose={() => setSelectedCompany(null)}
           onToggleSave={toggleSave}
           onPractice={() => { setSelectedCompany(null); setView("interview"); }}
+          isComparing={compareIds.has(selectedCompany.id)}
+          onToggleCompare={toggleCompare}
         />
       )}
 
@@ -1362,6 +1476,92 @@ export default function Dashboard() {
         <ProfileModal
           profile={profile}
           onClose={() => setProfileOpen(false)}
+        />
+      )}
+
+      {/* ═══ Floating Comparison Dock ═══ */}
+      {compareCompanies.size > 0 && (
+        <div className="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-40 max-w-[95vw] sm:max-w-2xl w-auto animate-in slide-in-from-bottom-5 duration-200">
+          <div className="bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-2xl rounded-full px-3.5 sm:px-5 py-2.5 flex items-center gap-2.5 sm:gap-3.5">
+            <div className="flex items-center gap-1.5 overflow-x-auto max-w-[180px] sm:max-w-[280px] py-0.5">
+              {Array.from(compareCompanies.values()).map((c) => (
+                <div
+                  key={c.id}
+                  className="flex items-center gap-1.5 bg-slate-100/90 border border-slate-200/60 rounded-full pl-1.5 pr-2 py-1 shrink-0"
+                >
+                  <img src={c.image} alt={c.name} className="w-5 h-5 rounded-full object-cover shrink-0" />
+                  <span className="text-[11.5px] font-medium text-slate-700 max-w-[65px] sm:max-w-[85px] truncate">{c.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeCompare(c.id)}
+                    className="text-slate-400 hover:text-red-500 transition-colors ml-0.5 cursor-pointer text-[12px] leading-none"
+                    title="Remove"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <span className="text-[11px] font-semibold text-slate-400 shrink-0 hidden sm:inline">
+              {compareCompanies.size}/4
+            </span>
+
+            <div className="h-4 w-px bg-slate-200 shrink-0" />
+
+            <button
+              type="button"
+              onClick={clearCompare}
+              className="text-[12px] text-slate-400 hover:text-slate-600 font-medium hover:underline shrink-0 cursor-pointer"
+            >
+              Clear
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setCompareModalOpen(true)}
+              className="bg-[#0073ff] hover:bg-[#005cd6] text-white text-[12.5px] font-semibold px-4 py-2 rounded-full shadow-sm flex items-center gap-1.5 transition-all active:scale-95 shrink-0 cursor-pointer"
+            >
+              <span>Compare</span>
+              <span className="w-4 h-4 rounded-full bg-white/20 text-[10px] flex items-center justify-center font-bold">
+                {compareCompanies.size}
+              </span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ Compare Notification Toast ═══ */}
+      {compareNotification && (
+        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-[#302929] text-white text-[13px] px-5 py-2.5 rounded-full shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-top-3">
+          <span>{compareNotification}</span>
+          <button
+            type="button"
+            onClick={() => setCompareNotification(null)}
+            className="text-white/70 hover:text-white cursor-pointer ml-1 text-sm leading-none"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* ═══ Comparison Modal ═══ */}
+      {compareModalOpen && (
+        <CompareModal
+          companies={Array.from(compareCompanies.values())}
+          savedIds={savedIds}
+          onClose={() => setCompareModalOpen(false)}
+          onRemove={removeCompare}
+          onClear={clearCompare}
+          onToggleSave={toggleSave}
+          onViewDetails={(c) => {
+            setCompareModalOpen(false);
+            setSelectedCompany(companyView(c, savedIds.has(c.id)));
+          }}
+          onPracticeInterview={() => {
+            setCompareModalOpen(false);
+            setView("interview");
+          }}
         />
       )}
     </div>
