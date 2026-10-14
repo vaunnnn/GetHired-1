@@ -15,9 +15,13 @@ const children = [], sockets = []
 const gateway = randomBytes(32).toString("hex")
 const sessions = new Map()
 let expired = false, outage = false, refreshes = 0, lastRemember
+let holdSessionCheck, sessionCheckHeld = false
 const onboardingRequests = [], registry = new Map()
 let invitations = 0
 const companyId = randomUUID(), savedCompanies = new Set()
+const categoryId = randomUUID(), questionId = randomUUID()
+let category = { id: categoryId, name: "B6 Browser Track", description: "Browser practice", color: "#112233", bg: "#ffffff", status: "active", pipeline: "Intro", phases: [{ id: "intro", label: "Introduction", shortLabel: "Intro", types: ["Introduction"], count: 1 }] }
+let bankQuestion = { id: questionId, question: "B6 introduce yourself", type: "Introduction", hint: "Be specific", feedback: "B6_PRIVATE_RUBRIC", status: "active" }
 let company = { id: companyId, name: "B4 Browser Partner", industry: "Software Development", type: "Services", specializations: ["Web Development"],
   location: "Cebu City", slots: 0, description: "Browser acceptance fixture", website: "https://example.test/", email: "team@example.test",
   phone: "", hours: "Weekdays", image: "/getHiredLogo.png", status: "active" }
@@ -37,7 +41,10 @@ const fixture = createServer(async (req, res) => {
   const current = () => ({ user: users[role], session: { expiresAt: new Date(Date.now() + 3600000).toISOString(), rememberMe: false } })
   if (req.url === "/api/auth/csrf") return finish(200, { csrfToken: role ? "signed-in" : "anonymous" })
   if (req.method !== "GET" && req.headers["x-csrf-token"] !== (role ? "signed-in" : "anonymous")) return finish(403, null, "CSRF_FAILED")
-  if (req.url === "/api/auth/me") return role && !expired ? finish(200, current()) : finish(401, null, "UNAUTHENTICATED")
+  if (req.url === "/api/auth/me") {
+    if (holdSessionCheck) { sessionCheckHeld = true; await holdSessionCheck }
+    return role && !expired ? finish(200, current()) : finish(401, null, "UNAUTHENTICATED")
+  }
   if (req.url === "/api/auth/login") {
     let raw = ""; for await (const chunk of req) raw += chunk
     const body = JSON.parse(raw)
@@ -58,6 +65,22 @@ const fixture = createServer(async (req, res) => {
     return finish(200, { loggedOut: true })
   }
   const url = new URL(req.url, "http://fixture")
+  if (/^\/api\/(admin\/)?(categories|questions)(\/|$)/.test(url.pathname)) {
+    if (!role) return finish(401, null, "UNAUTHENTICATED")
+    if (url.pathname.includes("/admin/") && role !== "admin") return finish(403, null, "FORBIDDEN")
+    if (req.method === "PATCH") {
+      let raw = ""; for await (const chunk of req) raw += chunk
+      if (url.pathname.includes("/questions/")) { bankQuestion = { ...bankQuestion, ...JSON.parse(raw) }; return finish(200, bankQuestion) }
+      category = { ...category, ...JSON.parse(raw) }; return finish(200, category)
+    }
+    if (url.pathname.endsWith("/pipeline")) {
+      if (bankQuestion.status === "inactive") return finish(409, null, "CATEGORY_UNAVAILABLE")
+      const { feedback, status, ...safe } = bankQuestion
+      return finish(200, [{ id: "intro", label: "Introduction", shortLabel: "Intro", questions: [safe] }])
+    }
+    const rows = url.pathname.endsWith("/questions") ? [bankQuestion] : category.status === "active" || role === "admin" ? [category] : []
+    return res.end(JSON.stringify({ data: rows, meta: { page: 1, pageSize: 100, total: rows.length }, requestId: randomUUID() }))
+  }
   if (/^\/api\/auth\/(signup|password-reset|invitations)/.test(url.pathname)) {
     let raw = ""; for await (const chunk of req) raw += chunk
     const body = JSON.parse(raw); onboardingRequests.push({ path: url.pathname, body })
@@ -190,14 +213,35 @@ try {
   await login("21100123")
   await until(() => first.evaluate("location.pathname === '/dashboard' && document.body.innerText.includes('Welcome, Browser!') && !document.querySelector('[role=status]')"), "student login")
   assert.equal(lastRemember, false)
+  // Hold a focus-triggered session check open to verify navigation stays usable.
+  let releaseSessionCheck
+  holdSessionCheck = new Promise(resolve => { releaseSessionCheck = resolve })
+  await first.call("Page.bringToFront")
+  await until(async () => {
+    await first.evaluate("window.dispatchEvent(new Event('focus'))")
+    return sessionCheckHeld
+  }, "background session check started")
+  assert.equal(await first.evaluate("!!document.querySelector('[role=status], [inert]')"), false, "background check must not block the workspace")
   await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Explore').click()")
   await until(() => first.evaluate("document.body.innerText.includes('B4 Browser Partner')"), "live companies")
+  holdSessionCheck = undefined
+  releaseSessionCheck()
   await first.evaluate("document.querySelector('button[title=\"Save Company\"]').click()")
   await until(() => first.evaluate("!!document.querySelector('button[title=Unsave]')"), "persist bookmark")
   assert.ok(savedCompanies.has(companyId))
   await first.navigate(`${base}/dashboard`)
   await until(() => first.evaluate("document.body.innerText.includes('B4 Browser Partner')"), "bookmark survives reload")
   const studentCookie = [...sessions.keys()][0]
+  await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Interview').click()")
+  await until(() => first.evaluate("document.body.innerText.includes('B6 Browser Track')"), "B6 categories from API")
+  bankQuestion.status = "inactive"
+  await first.evaluate("[...document.querySelectorAll('h3')].find(h => h.textContent === 'B6 Browser Track').click()")
+  await until(() => first.evaluate("document.querySelector('[role=alert]')?.textContent.includes('CATEGORY_UNAVAILABLE')"), "B6 shortage shown without fallback")
+  bankQuestion.status = "active"
+  await first.evaluate("[...document.querySelectorAll('h3')].find(h => h.textContent === 'B6 Browser Track').click()")
+  await until(() => first.evaluate("document.body.innerText.includes('B6 introduce yourself')"), "B6 server-selected prompt")
+  assert.equal(await first.evaluate("document.body.innerText.includes('B6_PRIVATE_RUBRIC')"), false)
+  await first.navigate(`${base}/dashboard`)
   const wrongRole = await fetch(`${base}/admin`, { headers: { ...ingress, cookie: `b3-test-session=${studentCookie}` } })
   const denied = await wrongRole.text()
   assert.match(denied, /Access denied/); assert.doesNotMatch(denied, /DCISM Student Registry/)
@@ -250,6 +294,19 @@ try {
   await fill({ firstName: "Updated" })
   await first.evaluate("document.querySelector('[role=dialog] form').requestSubmit()")
   await until(() => first.evaluate("!document.querySelector('[role=dialog]') && document.body.innerText.includes('Updated Student')"), "registry edit saved")
+  await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim().startsWith('Interviews')).click()")
+  await until(() => first.evaluate("!!document.querySelector('button[title=\"Edit Category Info\"]')"), "B6 admin categories")
+  await first.evaluate("document.querySelector('button[title=\"Edit Category Info\"]').click()")
+  await until(() => first.evaluate("!!document.querySelector('input[aria-label=\"Phase 1 name\"]')"), "B6 phase editor")
+  await first.evaluate("document.querySelector('input[aria-label=\"Phase 1 name\"]').closest('form').requestSubmit()")
+  await until(() => first.evaluate("!document.querySelector('input[aria-label=\"Phase 1 name\"]')"), "B6 category save")
+  await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.includes('Manage Questions')).click()")
+  await until(() => first.evaluate("document.body.innerText.includes('B6_PRIVATE_RUBRIC')"), "B6 rubric available only to admin bank")
+  await first.evaluate("document.querySelector('button[title=\"Edit Question\"]').click()")
+  await until(() => first.evaluate("!!document.querySelector('textarea[placeholder=\"Type the question interviewer will ask...\"]')"), "B6 question editor")
+  await first.evaluate("document.querySelector('textarea[placeholder=\"Type the question interviewer will ask...\"]').closest('form').requestSubmit()")
+  await until(() => first.evaluate("!document.querySelector('textarea[placeholder=\"Type the question interviewer will ask...\"]')"), "B6 question save")
+  assert.equal(bankQuestion.feedback, "B6_PRIVATE_RUBRIC")
   outage = true
   await first.navigate(`${base}/admin`)
   await until(() => first.evaluate("document.body.innerText.includes('Unable to load your workspace')"), "outage view")
@@ -285,7 +342,7 @@ try {
   await fill({ newPassword: "browser invite password" }); await first.evaluate("document.querySelector('form').requestSubmit()")
   await until(() => first.evaluate("document.body.innerText.includes('Your account is active.')"), "invitation accepted")
   assert.equal(onboardingRequests.at(-1).body.tokenHash, "a".repeat(56))
-  console.log("B3/B4/B5 browser smoke passed: sessions, companies/bookmarks, registry CRUD/invitations, signup verification/errors, recovery, invitation fragment handling, and outage recovery. Uses isolated HTTP fixtures; hosted Supabase remains unverified.")
+  console.log("B3/B4/B5/B6 browser smoke passed: sessions, companies/bookmarks, registry/onboarding, API categories, pipeline shortage/recovery, public prompts, admin phases/question edits and private rubric visibility. Uses isolated HTTP fixtures; hosted Supabase remains unverified.")
 } finally {
   for (const ws of sockets) ws.close()
   for (const child of children.reverse()) if (child.exitCode === null) child.kill()

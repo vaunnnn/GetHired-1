@@ -1,5 +1,6 @@
 export * from "./companies.js"
 export * from "./students.js"
+export * from "./interviews.js"
 /** Public wire types only. Never add provider tokens or private account/session rows. */
 export interface PaginationMeta {
   page: number

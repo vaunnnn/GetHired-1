@@ -11,6 +11,7 @@ export const API_ERRORS = {
   NOT_FOUND: [404, "The requested resource was not found."],
   METHOD_NOT_ALLOWED: [405, "This method is not supported."],
   CONFLICT: [409, "The request conflicts with the current resource state."],
+  CATEGORY_UNAVAILABLE: [409, "This category does not yet have enough active questions. Please choose another category."],
   ATTEMPT_COMPLETED: [409, "This interview attempt is already complete."],
   ATTEMPT_INCOMPLETE: [
     409,

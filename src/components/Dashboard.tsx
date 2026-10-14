@@ -4,15 +4,8 @@ import React, { useState, useRef, useEffect } from "react";
 import { useSession } from "./SessionProvider";
 import CompanyCard from "./CompanyCard";
 import CategoryCard, { CategoryIcon } from "./CategoryCard";
-import {
-  interviewCategories,
-  interviewQuestions,
-  codingChallenges,
-  InterviewQuestion,
-  getCategoryPipeline,
-  CODING_IDS,
-  NON_TECHNICAL_IDS,
-} from "../data";
+import { bankList, categoryView, type InterviewCategory } from "@/lib/interviews";
+import type { Category, SelectedPhase } from "@gethired/contracts";
 
 import { apiClient } from "@/lib/api-client";
 import { companyView, type Company } from "@/lib/companies";
@@ -428,7 +421,7 @@ function HomeView({
         {[
           { label: "Industry Partners",    value: totalCompanies,           Icon: <BuildingIcon size={20} /> },
           { label: "Saved Companies",      value: totalSaved ?? saved.length,               Icon: <BookmarkIcon filled={true} size={20} /> },
-          { label: "Interview Categories", value: interviewCategories.length, Icon: <MicIcon size={20} /> },
+          { label: "Interview Practice", value: "Explore", Icon: <MicIcon size={20} /> },
         ].map((s) => (
           <div key={s.label} className="bg-[#dfe9ff] rounded-[22px] p-5 flex items-center gap-4">
             <span className="text-[#0073ff]">{s.Icon}</span>
@@ -722,86 +715,7 @@ function ExploreView({
 /* ═══════════════════════════════ INTERVIEW PHASE ENGINE ════════════ */
 
 
-interface InterviewPhaseData {
-  id: string;
-  label: string;
-  shortLabel: string;
-  questions: InterviewQuestion[];
-}
-
-const YOUR_QUESTIONS_Q: InterviewQuestion = {
-  question: "That wraps up our questions for you. The floor is yours — do you have any questions for us about the role, the team, the company culture, or day-to-day life as an intern here?",
-  type: "Candidate Questions",
-  hint: "Prepare 2–3 thoughtful questions. Strong examples: 'What does the onboarding process look like for OJT interns?', 'What tech stack will I be working with?', 'What does growth look like from the intern role?'",
-  feedback: "The best candidates ask specific, researched questions that show genuine curiosity. Asking about team culture, tech stack, mentorship, or what a typical week looks like signals enthusiasm. Vague questions ('Is the work hard?') or asking about compensation in an OJT context signals a lack of preparation. Even 'I've done my research and feel well-informed, but I'd love to know what you enjoy most about working here' is a strong closer.",
-};
-
-function makeIntroQ(catName: string): InterviewQuestion {
-  return {
-    question: `Before we dive in, please introduce yourself — your name, degree and year, any relevant projects or experience you're proud of, and what specifically drew you to ${catName} as your practicum focus.`,
-    type: "Introduction",
-    hint: "Keep it to about 90 seconds. Structure: who you are → your academic background → one standout project or skill → why this field genuinely interests you. End with energy, not a trailing 'that's about it.'",
-    feedback: "A strong introduction is structured, confident, and personal. It covers: name and course (brief), one concrete project or achievement (not a list), and a genuine reason for interest in the field (not 'it pays well'). The best intros end by connecting past experience to what they hope to do at the company. Interviewers remember candidates who sound like themselves — not like they're reading a resume.",
-  };
-}
-
-function makeSituationalFallback(catName: string): InterviewQuestion {
-  return {
-    question: `Tell me about a time you had to solve a difficult problem in a ${catName} context — whether in a class project, personal project, or any tech-related experience. Walk me through the situation, what you did, and what you learned.`,
-    type: "Behavioral",
-    hint: "Use STAR: Situation → Task → Action → Result. Be specific — a real example is always stronger than a hypothetical. Focus on YOUR actions, not the team's.",
-    feedback: "Strong answers name a specific problem (not 'we had issues with our project') and walk through what the candidate personally did — not what 'we' did. The Action portion should be detailed: what did you research, try, build, fix? The Result should be concrete (what actually happened) and followed by a genuine lesson. Vague answers like 'I worked hard and we fixed it' reveal a lack of reflection.",
-  };
-}
-
-function buildPhases(catId: string, catName: string): InterviewPhaseData[] {
-  const all  = interviewQuestions[catId] ?? [];
-  const techQ = all.filter((q) => q.type === "Technical");
-  const behQ  = all.filter((q) => ["Behavioral","Situational","Motivational"].includes(q.type));
-
-  const phases: InterviewPhaseData[] = [
-    {
-      id: "intro",
-      label: "Introduction",
-      shortLabel: "Intro",
-      questions: [makeIntroQ(catName)],
-    },
-    {
-      id: "situational",
-      label: "Situational",
-      shortLabel: "Situational",
-      questions: behQ.length > 0 ? [behQ[0]] : [makeSituationalFallback(catName)],
-    },
-  ];
-
-  if (NON_TECHNICAL_IDS.has(catId)) {
-    // Non-technical categories (BPO, Behavioral/HR) focus on customer/behavioral competencies without technical/coding
-    const remainingBeh = behQ.slice(1);
-    phases.push({
-      id: "behavioral",
-      label: "Behavioral / Interpersonal",
-      shortLabel: "Behavioral",
-      questions: remainingBeh.length > 0 ? remainingBeh : (all.length > 1 ? all.slice(1, 3) : [makeSituationalFallback(catName)]),
-    });
-  } else {
-    // Technical categories include technical domain questions
-    phases.push({
-      id: "technical",
-      label: "Technical",
-      shortLabel: "Technical",
-      questions: techQ.length > 0 ? techQ.slice(0, 2) : all.slice(0, 2),
-    });
-
-    // Only categories requiring software coding or query challenges have the coding phase
-    const challenge = codingChallenges[catId];
-    if (CODING_IDS.has(catId) && challenge) {
-      phases.push({ id: "coding", label: "Coding / Practical", shortLabel: "Coding", questions: [challenge] });
-    }
-  }
-
-  phases.push({ id: "your-questions", label: "Your Questions", shortLabel: "Q&A", questions: [YOUR_QUESTIONS_Q] });
-  return phases;
-}
+type InterviewPhaseData = SelectedPhase;
 
 /* phase-stepper icons */
 const PhaseIntroIcon  = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>;
@@ -834,9 +748,21 @@ function typeBadge(type: string) {
 }
 
 /* ═══════════════════════════════ INTERVIEW VIEW ═════════════════════ */
-interface ResultEntry { phase: string; question: string; answer: string; score: number; feedback: string; }
+interface ResultEntry { phase: string; question: string; answer: string; feedback: string; }
 
 function InterviewView() {
+  const [interviewCategories, setInterviewCategories] = useState<InterviewCategory[]>([]);
+  const [categoryError, setCategoryError] = useState("");
+  const [categoryLoading, setCategoryLoading] = useState(true);
+  const [categoryRevision, setCategoryRevision] = useState(0);
+  const selectionVersion = useRef(0);
+  const [starting, setStarting] = useState(false);
+  useEffect(() => {
+    let live = true; setCategoryLoading(true); setCategoryError("");
+    bankList<Category>("/api/categories").then(rows => { if (live) setInterviewCategories(rows.map(categoryView)); })
+      .catch(error => { if (live) setCategoryError(error.message); }).finally(() => { if (live) setCategoryLoading(false); });
+    return () => { live = false; selectionVersion.current++; };
+  }, [categoryRevision]);
   const [selectedCatId, setSelectedCatId] = useState<string | null>(null);
   const [phases, setPhases]               = useState<InterviewPhaseData[]>([]);
   const [phaseIdx, setPhaseIdx]           = useState(0);
@@ -853,28 +779,26 @@ function InterviewView() {
   const totalPhases   = phases.length;
   const completedPhases = done ? totalPhases : phaseIdx;
 
-  const randomScore = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
-
-  const startInterview = (catId: string) => {
-    const cat = interviewCategories.find((c) => c.id === catId)!;
-    setSelectedCatId(catId);
-    setPhases(buildPhases(catId, cat.name));
-    setPhaseIdx(0); setQIdx(0); setAnswer(""); setShowFeedback(false); setResults([]); setDone(false);
+  const startInterview = async (catId: string) => {
+    const version = ++selectionVersion.current;
+    setStarting(true); setCategoryError("");
+    try {
+      const selected = await apiClient.get<SelectedPhase[]>(`/api/categories/${catId}/pipeline`);
+      if (version !== selectionVersion.current) return;
+      setSelectedCatId(catId); setPhases(selected);
+      setPhaseIdx(0); setQIdx(0); setAnswer(""); setShowFeedback(false); setResults([]); setDone(false);
+    } catch (error) { if (version === selectionVersion.current) setCategoryError(error instanceof Error ? error.message : "Unable to start practice."); }
+    finally { if (version === selectionVersion.current) setStarting(false); }
   };
 
   const reset = () => { setSelectedCatId(null); setPhases([]); setPhaseIdx(0); setQIdx(0); setAnswer(""); setShowFeedback(false); setResults([]); setDone(false); };
 
   const submitAnswer = () => {
-    const isQAPhase = currentPhase.id === "your-questions";
-    const minScore  = isQAPhase ? 75 : currentPhase.id === "intro" ? 78 : 68;
-    const maxScore  = isQAPhase ? 92 : 96;
-    const score = randomScore(minScore, maxScore);
     setResults((prev) => [...prev, {
       phase: currentPhase.label,
       question: currentQ.question,
       answer,
-      score,
-      feedback: currentQ.feedback,
+      feedback: "Your response is kept only for this practice session. Scoring and saved history are not available yet.",
     }]);
     setShowFeedback(true);
   };
@@ -897,7 +821,7 @@ function InterviewView() {
         <h1 className="text-[#302929] text-[38px] tracking-[-1px] mb-1" style={{ fontFamily: "'DM Serif Display', serif" }}>
           Mock Interview Practice
         </h1>
-        <p className="text-gray-400 text-[14px] mb-6">Select a category to begin a structured interview. AI evaluates every response.</p>
+        <p className="text-gray-400 text-[14px] mb-6">Select a category to begin a structured interview. Practice responses in this session. Scoring and saved history are not available yet.</p>
         
         {/* How the interview works — placed first */}
         <div className="mb-7 bg-[#dfe9ff] rounded-[28px] p-6">
@@ -918,13 +842,17 @@ function InterviewView() {
           </div>
         </div>
 
+        {categoryLoading && <p role="status">Loading categories…</p>}
+        {starting && <p role="status">Preparing your questions…</p>}
+        {categoryError && <p role="alert" className="text-red-600">{categoryError} <button onClick={() => setCategoryRevision(n => n + 1)}>Retry</button></p>}
+        {!categoryLoading && !categoryError && interviewCategories.length === 0 && <p>No interview categories are available yet.</p>}
         {/* Categories Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {interviewCategories.map((cat) => (
             <CategoryCard
               key={cat.id}
               category={cat}
-              pipeline={getCategoryPipeline(cat.id)}
+              pipeline={cat.pipeline}
               onSelect={() => startInterview(cat.id)}
             />
           ))}
@@ -935,7 +863,6 @@ function InterviewView() {
 
   /* ── Results screen ── */
   if (done) {
-    const avg = Math.round(results.reduce((s, r) => s + r.score, 0) / results.length);
     return (
       <div>
         <button onClick={reset} className="flex items-center gap-2 text-gray-400 hover:text-[#0073ff] text-[13px] transition-colors mb-6">
@@ -945,15 +872,15 @@ function InterviewView() {
         {/* Overall score banner */}
         <div className="bg-[#4869ff] rounded-[32px] p-7 flex items-center gap-6 mb-6">
           <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shrink-0 shadow-lg">
-            <span className="text-[#4869ff] text-[28px] font-bold" style={{ fontFamily: "'DM Serif Display', serif" }}>{avg}</span>
+            <span className="text-[#4869ff] text-[28px] font-bold" style={{ fontFamily: "'DM Serif Display', serif" }}>{results.length}</span>
           </div>
           <div>
-            <div className="text-white/60 text-[11px] uppercase tracking-widest mb-1">Overall Score</div>
+            <div className="text-white/60 text-[11px] uppercase tracking-widest mb-1">Responses practiced</div>
             <div className="text-white text-[24px] font-semibold" style={{ fontFamily: "'DM Serif Display', serif" }}>
-              {avg >= 90 ? "Outstanding Interview!" : avg >= 80 ? "Strong Performance." : avg >= 70 ? "Good Effort — Keep Practicing." : "Room to Grow. Keep at it."}
+              Practice complete
             </div>
             <div className="text-white/60 text-[13px] mt-1">
-              {category?.name} · {results.length} questions evaluated by AI
+              {category?.name} · {results.length} responses practiced
             </div>
           </div>
         </div>
@@ -967,17 +894,15 @@ function InterviewView() {
                 <div>
                   <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">{r.phase}</span>
                 </div>
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-[15px] font-bold shadow-sm ${
-                  r.score >= 88 ? "bg-[#d1fae5] text-[#059669]" : r.score >= 75 ? "bg-[#dfe9ff] text-[#0073ff]" : "bg-[#fee2e2] text-[#dc2626]"
-                }`} style={{ fontFamily: "'DM Serif Display', serif" }}>
-                  {r.score}
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-[15px] font-bold shadow-sm bg-[#dfe9ff] text-[#0073ff]" style={{ fontFamily: "'DM Serif Display', serif" }}>
+                  ✓
                 </div>
               </div>
               <p className="text-[12px] text-gray-500 leading-relaxed line-clamp-2 mb-2">{r.question}</p>
               <div className="bg-gray-50 rounded-[14px] p-3">
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <span className="text-[#0073ff]"><BotIcon size={13} /></span>
-                  <span className="text-[11px] font-semibold text-[#302929]">AI Feedback</span>
+                  <span className="text-[11px] font-semibold text-[#302929]">Practice note</span>
                 </div>
                 <p className="text-[11px] text-gray-500 leading-relaxed line-clamp-3">{r.feedback}</p>
               </div>
@@ -1084,7 +1009,7 @@ function InterviewView() {
               disabled={answer.trim().length < minLen}
               className="bg-[#0073ff] text-white text-[13px] font-semibold px-7 py-2.5 rounded-full hover:bg-[#0060dd] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Submit for AI Evaluation
+              Record response
             </button>
           </div>
         </div>
@@ -1096,13 +1021,13 @@ function InterviewView() {
             return (
               <div className="bg-[#4869ff] rounded-[28px] p-6 flex items-center gap-5">
                 <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center shrink-0 shadow">
-                  <span className="text-[#4869ff] text-[20px] font-bold" style={{ fontFamily: "'DM Serif Display', serif" }}>{latest.score}</span>
+                  <span className="text-[#4869ff] text-[20px] font-bold" style={{ fontFamily: "'DM Serif Display', serif" }}>✓</span>
                 </div>
                 <div>
                   <div className="text-white font-semibold text-[15px]">
-                    {latest.score >= 90 ? "Excellent response!" : latest.score >= 80 ? "Strong answer." : latest.score >= 70 ? "Good effort." : "Keep practicing."}
+                    Response recorded for this session
                   </div>
-                  <div className="text-white/60 text-[12px] mt-0.5">{currentPhase.label} · AI evaluation complete</div>
+                  <div className="text-white/60 text-[12px] mt-0.5">{currentPhase.label} · Response recorded</div>
                 </div>
               </div>
             );
@@ -1118,9 +1043,9 @@ function InterviewView() {
           <div className="bg-white rounded-[28px] p-6 shadow-sm border-l-4 border-[#0073ff]">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-[#0073ff]"><BotIcon size={15} /></span>
-              <span className="text-[13px] font-semibold text-[#302929]">AI Feedback</span>
+              <span className="text-[13px] font-semibold text-[#302929]">Practice note</span>
             </div>
-            <p className="text-[13px] text-gray-500 leading-relaxed">{currentQ.feedback}</p>
+            <p className="text-[13px] text-gray-500 leading-relaxed">{"Your response is kept only for this practice session. Scoring and saved history are not available yet."}</p>
           </div>
 
           {/* Navigation */}

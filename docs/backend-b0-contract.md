@@ -4,6 +4,8 @@
 
 This amendment takes precedence over the Next.js hosting and invitation-only decisions in [API phase 1](api-phase-1-contract.md). It implements the direction confirmed during review of the [backend plan](backend-implementation-plan.md).
 
+B6 adds the [category/question-bank contract](backend-b6-question-bank.md), explicitly extends the question enum with `Design Challenge`, and introduces a rubric-free pipeline preview endpoint. B7 attempt creation will own persistent question snapshots.
+
 ## Ownership and deployment boundary
 
 - The API runs as a separate Node.js/Express 5 service on Render. Next.js owns rendering and a same-origin `/api` proxy.

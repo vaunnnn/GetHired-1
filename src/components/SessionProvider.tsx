@@ -23,7 +23,8 @@ export default function SessionProvider({ initial, children }: { initial: Curren
     const check = async () => {
       if (pending || document.visibilityState === "hidden" || loggingOut.current) return;
       pending = true;
-      setChecking(true);
+      // Routine revalidation must not interrupt an already authenticated workspace.
+      // API requests still enforce authorization; failures block the UI below.
       try {
         const next = await apiClient.me();
         if (!active || loggingOut.current) return;
@@ -37,7 +38,7 @@ export default function SessionProvider({ initial, children }: { initial: Curren
         if (!active || loggingOut.current) return;
         if (isSessionError(failure)) window.location.replace("/login");
         setError(failure instanceof Error ? failure.message : "Unable to verify your session.");
-      } finally { pending = false; if (active) setChecking(false); }
+      } finally { pending = false; }
     };
     const channel = typeof BroadcastChannel === "undefined" ? null : new BroadcastChannel("gethired-session");
     if (channel) channel.onmessage = () => { void check(); };

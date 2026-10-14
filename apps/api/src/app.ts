@@ -27,7 +27,8 @@ export default function createApp(transport: TransportConfig) {
       const url = new URL(request.originalUrl, "http://api.internal")
       const match = url.pathname.match(/^(\/api\/(?:admin\/companies|companies|me\/bookmarks))\/([^/]+)$/)
       const studentMatch = url.pathname.match(/^\/api\/admin\/students\/([^/]+)(\/invitations)?$/)
-      const template = studentMatch ? `/api/admin/students/[studentId]${studentMatch[2] ?? ""}` : match ? `${match[1]}/[companyId]` : url.pathname
+      const bankMatch = url.pathname.match(/^(\/api\/(?:admin\/categories|admin\/questions|categories))\/([^/]+)(\/questions|\/pipeline)?$/)
+      const template = bankMatch ? `${bankMatch[1]}/[id]${bankMatch[3] ?? ""}` : studentMatch ? `/api/admin/students/[studentId]${studentMatch[2] ?? ""}` : match ? `${match[1]}/[companyId]` : url.pathname
       const handler = routes.get(template) ?? missing
       if (routes.has(template)) route = template
       const isProbe = ["/api/health/live", "/api/health/ready"].includes(url.pathname) && request.method === "GET"
@@ -64,7 +65,7 @@ export default function createApp(transport: TransportConfig) {
         ...(noBody ? {} : upload ? { body: incomingUploadStream(request, response), duplex: "half" } : { body: bytes }),
       } as RequestInit)
       // Every exported dispatcher consults the actual request method, including OPTIONS/HEAD.
-      const result = await handler.GET(webRequest, { params: Promise.resolve(studentMatch ? { studentId: studentMatch[1] } : match ? { companyId: match[2] } : {}) })
+      const result = await handler.GET(webRequest, { params: Promise.resolve(bankMatch ? { id: bankMatch[2] } : studentMatch ? { studentId: studentMatch[1] } : match ? { companyId: match[2] } : {}) })
       if (upload && !request.readableEnded) {
         await webRequest.body?.cancel().catch(() => {})
       }

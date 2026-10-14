@@ -116,6 +116,7 @@ test("every Phase 1 error code has the contracted status and safe envelope", asy
     NOT_FOUND: 404,
     METHOD_NOT_ALLOWED: 405,
     CONFLICT: 409,
+    CATEGORY_UNAVAILABLE: 409,
     ATTEMPT_COMPLETED: 409,
     ATTEMPT_INCOMPLETE: 409,
     PAYLOAD_TOO_LARGE: 413,

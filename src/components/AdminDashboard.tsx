@@ -5,14 +5,9 @@ import { useSession } from "./SessionProvider";
 import StudentRegistry from "./StudentRegistry";
 import CompanyCard from "./CompanyCard";
 import CategoryCard, { CategoryIcon } from "./CategoryCard";
-import {
-  interviewCategories as defaultCategories,
-  interviewQuestions as defaultQuestions,
-  codingChallenges as defaultChallenges,
-  InterviewCategory,
-  InterviewQuestion,
-  getCategoryPipeline,
-} from "../data";
+import { bankList, categoryView, questionView, type InterviewCategory, type InterviewQuestion } from "@/lib/interviews";
+import { DEFAULT_PHASES, QUESTION_TYPES, type Category, type Question, type PhaseConfig } from "@gethired/contracts";
+import PipelineEditor from "./PipelineEditor";
 
 import { apiClient } from "@/lib/api-client";
 import { companyView, type Company } from "@/lib/companies";
@@ -509,11 +504,12 @@ export default function AdminDashboard() {
   });
 
   // States for Interview Categories & Questions
-  const [categories, setCategories] = useState<InterviewCategory[]>(defaultCategories);
-  const [questionsMap, setQuestionsMap] = useState<Record<string, InterviewQuestion[]>>(defaultQuestions);
+  const [categories, setCategories] = useState<InterviewCategory[]>([]);
+  const [questionsMap, setQuestionsMap] = useState<Record<string, InterviewQuestion[]>>({});
   const [selectedCategoryForQuestions, setSelectedCategoryForQuestions] = useState<InterviewCategory | null>(null);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<InterviewCategory | null>(null);
+  const [phaseForm, setPhaseForm] = useState<PhaseConfig[]>(DEFAULT_PHASES);
   const [catForm, setCatForm] = useState({
     name: "",
     description: "",
@@ -530,6 +526,34 @@ export default function AdminDashboard() {
     hint: "",
     feedback: "",
   });
+
+  const [bankRevision, setBankRevision] = useState(0);
+  const [bankError, setBankError] = useState("");
+  const [bankLoading, setBankLoading] = useState(true);
+  const bankLock = useRef(false);
+  useEffect(() => {
+    let live = true;
+    setBankLoading(true); setBankError("");
+    bankList<Category>("/api/admin/categories").then(rows => { if (live) setCategories(rows.map(categoryView)); })
+      .catch(error => { if (live) setBankError(error.message); }).finally(() => { if (live) setBankLoading(false); });
+    return () => { live = false; };
+  }, [bankRevision]);
+  useEffect(() => {
+    if (!selectedCategoryForQuestions) return;
+    let live = true;
+    const id = selectedCategoryForQuestions.id;
+    setQuestionsMap(prev => ({ ...prev, [id]: [] }));
+    bankList<Question>(`/api/admin/categories/${id}/questions`).then(rows => { if (live) setQuestionsMap(prev => ({ ...prev, [id]: rows.map(questionView) })); })
+      .catch(error => { if (live) setBankError(error.message); });
+    return () => { live = false; };
+  }, [selectedCategoryForQuestions?.id, bankRevision]);
+  const bankWrite = async (path: string, method: "POST" | "PATCH", body: unknown, done?: () => void) => {
+    if (bankLock.current) return;
+    bankLock.current = true; setBankError("");
+    try { await apiClient.mutate(path, method, body); setBankRevision(n => n + 1); done?.(); }
+    catch (error) { setBankError(error instanceof Error ? error.message : "Unable to save changes."); }
+    finally { bankLock.current = false; }
+  };
 
   // Confirmation Modal state for Deactivation / Reactivation
   const [confirmModal, setConfirmModal] = useState<ConfirmActionState | null>(null);
@@ -602,17 +626,10 @@ export default function AdminDashboard() {
       } catch (error) { setCompanyError(error instanceof Error ? error.message : "Unable to update company."); }
       finally { companyLock.current = false; }
     } else if (target === "category") {
-      setCategories((prev) =>
-        prev.map((cat) => (cat.id === id ? { ...cat, deactivated: type === "deactivate" } : cat))
-      );
+      await bankWrite(`/api/admin/categories/${id}`, "PATCH", { status: type === "deactivate" ? "inactive" : "active" });
     } else if (target === "question" && selectedCategoryForQuestions && idx !== undefined) {
-      setQuestionsMap((prev) => {
-        const list = [...(prev[selectedCategoryForQuestions.id] || [])];
-        if (list[idx]) {
-          list[idx] = { ...list[idx], deactivated: type === "deactivate" };
-        }
-        return { ...prev, [selectedCategoryForQuestions.id]: list };
-      });
+      const question = questionsMap[selectedCategoryForQuestions.id]?.[idx];
+      if (question?.id) await bankWrite(`/api/admin/questions/${question.id}`, "PATCH", { status: type === "deactivate" ? "inactive" : "active" });
     }
 
     setConfirmModal(null);
@@ -701,6 +718,8 @@ export default function AdminDashboard() {
 
   /* ── Interview Actions ── */
   const handleOpenAddCategory = () => {
+    setPhaseForm(DEFAULT_PHASES);
+    setBankError("");
     setEditingCategory(null);
     setCatForm({
       name: "",
@@ -712,6 +731,8 @@ export default function AdminDashboard() {
   };
 
   const handleOpenEditCategory = (cat: InterviewCategory) => {
+    setPhaseForm(cat.phases);
+    setBankError("");
     setEditingCategory(cat);
     setCatForm({
       name: cat.name,
@@ -722,39 +743,9 @@ export default function AdminDashboard() {
     setIsCategoryModalOpen(true);
   };
 
-  const handleSaveCategory = (e: React.FormEvent) => {
+  const handleSaveCategory = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!catForm.name) return;
-
-    if (editingCategory) {
-      setCategories((prev) =>
-        prev.map((c) => (c.id === editingCategory.id ? { ...c, ...catForm } : c))
-      );
-      if (selectedCategoryForQuestions?.id === editingCategory.id) {
-        setSelectedCategoryForQuestions((prev) => (prev ? { ...prev, ...catForm } : null));
-      }
-    } else {
-      const newId = catForm.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-      const newCat: InterviewCategory = {
-        id: newId,
-        name: catForm.name,
-        description: catForm.description,
-        color: catForm.color || "#0066FF",
-        bg: catForm.bg || "#dfe9ff",
-      };
-      setCategories((prev) => [...prev, newCat]);
-      setQuestionsMap((prev) => ({ ...prev, [newId]: [] }));
-    }
-    setIsCategoryModalOpen(false);
-  };
-
-  const handleDeleteCategory = (id: string) => {
-    if (confirm("Delete this interview category and all its questions?")) {
-      setCategories((prev) => prev.filter((c) => c.id !== id));
-      if (selectedCategoryForQuestions?.id === id) {
-        setSelectedCategoryForQuestions(null);
-      }
-    }
+    await bankWrite(editingCategory ? `/api/admin/categories/${editingCategory.id}` : "/api/admin/categories", editingCategory ? "PATCH" : "POST", { ...catForm, phases: phaseForm }, () => setIsCategoryModalOpen(false));
   };
 
   const handleOpenAddQuestion = () => {
@@ -774,31 +765,12 @@ export default function AdminDashboard() {
     setIsQuestionModalOpen(true);
   };
 
-  const handleSaveQuestion = (e: React.FormEvent) => {
+  const handleSaveQuestion = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedCategoryForQuestions || !questionForm.question) return;
-
-    const catId = selectedCategoryForQuestions.id;
-    const currentList = questionsMap[catId] || [];
-
-    if (editingQuestionIdx !== null) {
-      const updated = [...currentList];
-      updated[editingQuestionIdx] = { ...questionForm };
-      setQuestionsMap({ ...questionsMap, [catId]: updated });
-    } else {
-      setQuestionsMap({ ...questionsMap, [catId]: [...currentList, questionForm] });
-    }
-    setIsQuestionModalOpen(false);
-  };
-
-  const handleDeleteQuestion = (idx: number) => {
     if (!selectedCategoryForQuestions) return;
-    const catId = selectedCategoryForQuestions.id;
-    const currentList = questionsMap[catId] || [];
-    setQuestionsMap({
-      ...questionsMap,
-      [catId]: currentList.filter((_, i) => i !== idx),
-    });
+    const id = editingQuestionIdx === null ? undefined : questionsMap[selectedCategoryForQuestions.id]?.[editingQuestionIdx]?.id;
+    const { question, type, hint, feedback } = questionForm;
+    await bankWrite(id ? `/api/admin/questions/${id}` : `/api/admin/categories/${selectedCategoryForQuestions.id}/questions`, id ? "PATCH" : "POST", { question, type, hint, feedback }, () => setIsQuestionModalOpen(false));
   };
 
   /* Filtered Data */
@@ -1006,6 +978,8 @@ export default function AdminDashboard() {
 
           {activeTab === "interviews" && (
             <div>
+              {bankLoading && <p role="status">Loading categories…</p>}
+              {bankError && <p role="alert" className="text-red-600">{bankError} <button onClick={() => setBankRevision(n => n + 1)}>Retry</button></p>}
               {/* If a category is selected to manage its questions */}
               {selectedCategoryForQuestions ? (
                 <div>
@@ -1162,8 +1136,7 @@ export default function AdminDashboard() {
                       <CategoryCard
                         key={cat.id}
                         category={cat}
-                        pipeline={getCategoryPipeline(cat.id)}
-                        questionCount={(questionsMap[cat.id] || []).length}
+                        pipeline={cat.pipeline}
                         isAdmin={true}
                         onEdit={handleOpenEditCategory}
                         onDeactivate={handleRequestDeactivateCategory}
@@ -1455,6 +1428,8 @@ export default function AdminDashboard() {
             </div>
 
             <form onSubmit={handleSaveCategory} className="space-y-4">
+            {bankError && <p role="alert" className="text-red-600">{bankError}</p>}
+              <PipelineEditor value={phaseForm} onChange={setPhaseForm} />
               <div>
                 <label className="block text-[12.5px] font-semibold text-slate-700 mb-1">Category Name</label>
                 <input
@@ -1553,12 +1528,13 @@ export default function AdminDashboard() {
             </div>
 
             <form onSubmit={handleSaveQuestion} className="space-y-4">
+            {bankError && <p role="alert" className="text-red-600">{bankError}</p>}
               <div>
                 <label className="block text-[12.5px] font-semibold text-slate-700 mb-1">Question Type</label>
                 <FormSelect
                   value={questionForm.type || "Technical"}
-                  options={["Technical", "Behavioral", "Situational", "Coding"]}
-                  onChange={(val) => setQuestionForm({ ...questionForm, type: val })}
+                  options={[...QUESTION_TYPES]}
+                  onChange={(val) => setQuestionForm({ ...questionForm, type: val as Question["type"] })}
                 />
               </div>
 
@@ -1568,6 +1544,7 @@ export default function AdminDashboard() {
                   required
                   rows={3}
                   placeholder="Type the question interviewer will ask..."
+                  aria-describedby="bank-question-error"
                   value={questionForm.question}
                   onChange={(e) => setQuestionForm({ ...questionForm, question: e.target.value })}
                   className="w-full border border-slate-200 rounded-xl p-3 text-[13.5px] outline-none focus:border-[#0066FF]"
