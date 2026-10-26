@@ -62,6 +62,7 @@ test("B3 migration, authorized atomic writes, append-only audit and leased outbo
       await db.exec(await readFile(new URL(`../../../supabase/migrations/${name}`, import.meta.url), "utf8"))
     const authId = randomUUID(), accountId = randomUUID(), sessionId = randomUUID()
     await db.exec("alter table gethired_private.accounts add column credentials_blocked boolean not null default false; alter table gethired_private.accounts add column credential_version integer not null default 0")
+  await db.exec(await readFile(new URL("../../../supabase/migrations/202610260001_session_authorization.sql", import.meta.url), "utf8"))
     await db.query("insert into auth.users values ($1, now(), null)", [authId])
     await db.query("insert into auth.sessions values ($1, $2, null)", [sessionId, authId])
     await db.query("insert into auth.refresh_tokens values ($1, false)", [sessionId])

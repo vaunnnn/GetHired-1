@@ -1,0 +1,2347 @@
+{
+  "timestamp": "2026-10-26T12:30:48.290Z",
+  "database": "PGlite; single connection; not production PostgreSQL latency or concurrency",
+  "node": "v22.14.0",
+  "reports": [
+    {
+      "injectedLatencyPerQueryMs": 0,
+      "touch": false,
+      "sample": 1,
+      "durationMs": 7,
+      "statementCount": 10,
+      "timings": {
+        "pool": {
+          "durationMs": 0.16,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 6.02,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 6.04,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 1.56,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 1.11,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 2.77,
+          "count": 4
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 0,
+      "touch": false,
+      "sample": 2,
+      "durationMs": 8,
+      "statementCount": 10,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 7.71,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 7.72,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 2.67,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 2.31,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 2.55,
+          "count": 4
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 0,
+      "touch": false,
+      "sample": 3,
+      "durationMs": 5,
+      "statementCount": 10,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 4.82,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 4.83,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 1.42,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 1.09,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 2.15,
+          "count": 4
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 0,
+      "touch": false,
+      "sample": 4,
+      "durationMs": 6,
+      "statementCount": 10,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 6.16,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 6.17,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 1.69,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 1.35,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 2.95,
+          "count": 4
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 0,
+      "touch": false,
+      "sample": 5,
+      "durationMs": 7,
+      "statementCount": 10,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 6.64,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 6.65,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 1.96,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 1.97,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 2.45,
+          "count": 4
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 0,
+      "touch": true,
+      "sample": 1,
+      "durationMs": 5,
+      "statementCount": 11,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 4.5,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 4.5,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 1.1,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 0.91,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 2.39,
+          "count": 5
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1 and revoked_at is null",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 0,
+      "touch": true,
+      "sample": 2,
+      "durationMs": 6,
+      "statementCount": 11,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 5.68,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 5.69,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 1.12,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 1.12,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 3.31,
+          "count": 5
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1 and revoked_at is null",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 0,
+      "touch": true,
+      "sample": 3,
+      "durationMs": 5,
+      "statementCount": 11,
+      "timings": {
+        "pool": {
+          "durationMs": 0.08,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 4.69,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 4.69,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 1.36,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 1.06,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 2,
+          "count": 5
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1 and revoked_at is null",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 0,
+      "touch": true,
+      "sample": 4,
+      "durationMs": 4,
+      "statementCount": 11,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 3.82,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 3.83,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 1,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 0.83,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 1.8,
+          "count": 5
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1 and revoked_at is null",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 0,
+      "touch": true,
+      "sample": 5,
+      "durationMs": 4,
+      "statementCount": 11,
+      "timings": {
+        "pool": {
+          "durationMs": 0,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 4.4,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 4.4,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 1.55,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 0.86,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 1.9,
+          "count": 5
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1 and revoked_at is null",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 25,
+      "touch": false,
+      "sample": 1,
+      "durationMs": 308,
+      "statementCount": 10,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 308.13,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 308.14,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 122.77,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 62.45,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 122.75,
+          "count": 4
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 25,
+      "touch": false,
+      "sample": 2,
+      "durationMs": 311,
+      "statementCount": 10,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 311.2,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 311.2,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 122.99,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 63.19,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 124.85,
+          "count": 4
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 25,
+      "touch": false,
+      "sample": 3,
+      "durationMs": 311,
+      "statementCount": 10,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 311.44,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 311.44,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 124,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 62.74,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 124.54,
+          "count": 4
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 25,
+      "touch": false,
+      "sample": 4,
+      "durationMs": 310,
+      "statementCount": 10,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 309.95,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 309.96,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 123.41,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 62.25,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 124.12,
+          "count": 4
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 25,
+      "touch": false,
+      "sample": 5,
+      "durationMs": 336,
+      "statementCount": 10,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 336.32,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 336.33,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 149.19,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 62.82,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 124.13,
+          "count": 4
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 25,
+      "touch": true,
+      "sample": 1,
+      "durationMs": 349,
+      "statementCount": 11,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 348.78,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 348.79,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 132.1,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 60.9,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 155.55,
+          "count": 5
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1 and revoked_at is null",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 25,
+      "touch": true,
+      "sample": 2,
+      "durationMs": 344,
+      "statementCount": 11,
+      "timings": {
+        "pool": {
+          "durationMs": 0,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 343.5,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 343.51,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 124.68,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 63.25,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 155.39,
+          "count": 5
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1 and revoked_at is null",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 25,
+      "touch": true,
+      "sample": 3,
+      "durationMs": 343,
+      "statementCount": 11,
+      "timings": {
+        "pool": {
+          "durationMs": 0,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 342.84,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 342.84,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 123.04,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 61.36,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 158.25,
+          "count": 5
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1 and revoked_at is null",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 25,
+      "touch": true,
+      "sample": 4,
+      "durationMs": 341,
+      "statementCount": 11,
+      "timings": {
+        "pool": {
+          "durationMs": 0,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 341.08,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 341.08,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 124.59,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 62.98,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 153.35,
+          "count": 5
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1 and revoked_at is null",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 25,
+      "touch": true,
+      "sample": 5,
+      "durationMs": 339,
+      "statementCount": 11,
+      "timings": {
+        "pool": {
+          "durationMs": 0,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 339.16,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 339.16,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 122.6,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 62.59,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 153.72,
+          "count": 5
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1 and revoked_at is null",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 75,
+      "touch": false,
+      "sample": 1,
+      "durationMs": 778,
+      "statementCount": 10,
+      "timings": {
+        "pool": {
+          "durationMs": 0,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 777.8,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 777.81,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 307.51,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 156.21,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 313.91,
+          "count": 4
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 75,
+      "touch": false,
+      "sample": 2,
+      "durationMs": 776,
+      "statementCount": 10,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 776.24,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 776.25,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 310.33,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 156.13,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 309.61,
+          "count": 4
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 75,
+      "touch": false,
+      "sample": 3,
+      "durationMs": 787,
+      "statementCount": 10,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 787.06,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 787.07,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 309.51,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 154.22,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 323.14,
+          "count": 4
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 75,
+      "touch": false,
+      "sample": 4,
+      "durationMs": 809,
+      "statementCount": 10,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 808.59,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 808.6,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 322.35,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 155,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 331.05,
+          "count": 4
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 75,
+      "touch": false,
+      "sample": 5,
+      "durationMs": 794,
+      "statementCount": 10,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 793.95,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 793.96,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 325.59,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 158.52,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 309.59,
+          "count": 4
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 75,
+      "touch": true,
+      "sample": 1,
+      "durationMs": 854,
+      "statementCount": 11,
+      "timings": {
+        "pool": {
+          "durationMs": 0,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 853.47,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 853.48,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 312.47,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 155.56,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 385.15,
+          "count": 5
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1 and revoked_at is null",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 75,
+      "touch": true,
+      "sample": 2,
+      "durationMs": 870,
+      "statementCount": 11,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 870.16,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 870.17,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 311.53,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 156.95,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 401.34,
+          "count": 5
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1 and revoked_at is null",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 75,
+      "touch": true,
+      "sample": 3,
+      "durationMs": 871,
+      "statementCount": 11,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 870.7,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 870.71,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 308.44,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 169.88,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 392.17,
+          "count": 5
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1 and revoked_at is null",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 75,
+      "touch": true,
+      "sample": 4,
+      "durationMs": 855,
+      "statementCount": 11,
+      "timings": {
+        "pool": {
+          "durationMs": 0,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 855,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 855,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 310.75,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 155.66,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 388.44,
+          "count": 5
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1 and revoked_at is null",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 75,
+      "touch": true,
+      "sample": 5,
+      "durationMs": 857,
+      "statementCount": 11,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 857.31,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 857.32,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 311.75,
+          "count": 4
+        },
+        "db_lock": {
+          "durationMs": 159.19,
+          "count": 2
+        },
+        "db_auth": {
+          "durationMs": 386.21,
+          "count": 5
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1 and revoked_at is null",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 0,
+      "sample": 1,
+      "durationMs": 11,
+      "statementCount": 22,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 2
+        },
+        "transaction": {
+          "durationMs": 10.5,
+          "count": 2
+        },
+        "authorized": {
+          "durationMs": 6.94,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 3.64,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 2.65,
+          "count": 8
+        },
+        "db_lock": {
+          "durationMs": 1.9,
+          "count": 4
+        },
+        "db_auth": {
+          "durationMs": 3.56,
+          "count": 9
+        },
+        "db_business": {
+          "durationMs": 1.88,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit",
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account($1)",
+        "select id, auth_user_id, role, status, credentials_blocked from gethired_private.accounts where id = $1",
+        "select * from gethired_private.sessions where id = $1 and account_id = $2 for update",
+        "select clock_timestamp() as now",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 0,
+      "sample": 2,
+      "durationMs": 9,
+      "statementCount": 22,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 2
+        },
+        "transaction": {
+          "durationMs": 8.72,
+          "count": 2
+        },
+        "authorized": {
+          "durationMs": 4.72,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 4.01,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 2.87,
+          "count": 8
+        },
+        "db_lock": {
+          "durationMs": 1.58,
+          "count": 4
+        },
+        "db_auth": {
+          "durationMs": 3.3,
+          "count": 9
+        },
+        "db_business": {
+          "durationMs": 0.8,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit",
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account($1)",
+        "select id, auth_user_id, role, status, credentials_blocked from gethired_private.accounts where id = $1",
+        "select * from gethired_private.sessions where id = $1 and account_id = $2 for update",
+        "select clock_timestamp() as now",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 0,
+      "sample": 3,
+      "durationMs": 7,
+      "statementCount": 22,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 2
+        },
+        "transaction": {
+          "durationMs": 7.28,
+          "count": 2
+        },
+        "authorized": {
+          "durationMs": 3.82,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 3.47,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 1.87,
+          "count": 8
+        },
+        "db_lock": {
+          "durationMs": 1.47,
+          "count": 4
+        },
+        "db_auth": {
+          "durationMs": 3.14,
+          "count": 9
+        },
+        "db_business": {
+          "durationMs": 0.66,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit",
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account($1)",
+        "select id, auth_user_id, role, status, credentials_blocked from gethired_private.accounts where id = $1",
+        "select * from gethired_private.sessions where id = $1 and account_id = $2 for update",
+        "select clock_timestamp() as now",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 0,
+      "sample": 4,
+      "durationMs": 8,
+      "statementCount": 22,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 2
+        },
+        "transaction": {
+          "durationMs": 7.52,
+          "count": 2
+        },
+        "authorized": {
+          "durationMs": 4.53,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 2.99,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 2.11,
+          "count": 8
+        },
+        "db_lock": {
+          "durationMs": 1.59,
+          "count": 4
+        },
+        "db_auth": {
+          "durationMs": 3.01,
+          "count": 9
+        },
+        "db_business": {
+          "durationMs": 0.67,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit",
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account($1)",
+        "select id, auth_user_id, role, status, credentials_blocked from gethired_private.accounts where id = $1",
+        "select * from gethired_private.sessions where id = $1 and account_id = $2 for update",
+        "select clock_timestamp() as now",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 0,
+      "sample": 5,
+      "durationMs": 9,
+      "statementCount": 22,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 2
+        },
+        "transaction": {
+          "durationMs": 9.39,
+          "count": 2
+        },
+        "authorized": {
+          "durationMs": 6.16,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 3.23,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 2.2,
+          "count": 8
+        },
+        "db_lock": {
+          "durationMs": 1.74,
+          "count": 4
+        },
+        "db_auth": {
+          "durationMs": 3.94,
+          "count": 9
+        },
+        "db_business": {
+          "durationMs": 1.26,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit",
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account($1)",
+        "select id, auth_user_id, role, status, credentials_blocked from gethired_private.accounts where id = $1",
+        "select * from gethired_private.sessions where id = $1 and account_id = $2 for update",
+        "select clock_timestamp() as now",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 25,
+      "sample": 1,
+      "durationMs": 682,
+      "statementCount": 22,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 2
+        },
+        "transaction": {
+          "durationMs": 682.26,
+          "count": 2
+        },
+        "authorized": {
+          "durationMs": 370.52,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 311.75,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 250.21,
+          "count": 8
+        },
+        "db_lock": {
+          "durationMs": 125.17,
+          "count": 4
+        },
+        "db_auth": {
+          "durationMs": 274.29,
+          "count": 9
+        },
+        "db_business": {
+          "durationMs": 32.12,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit",
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account($1)",
+        "select id, auth_user_id, role, status, credentials_blocked from gethired_private.accounts where id = $1",
+        "select * from gethired_private.sessions where id = $1 and account_id = $2 for update",
+        "select clock_timestamp() as now",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 25,
+      "sample": 2,
+      "durationMs": 684,
+      "statementCount": 22,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 2
+        },
+        "transaction": {
+          "durationMs": 683.71,
+          "count": 2
+        },
+        "authorized": {
+          "durationMs": 374.15,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 309.58,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 247.16,
+          "count": 8
+        },
+        "db_lock": {
+          "durationMs": 124.34,
+          "count": 4
+        },
+        "db_auth": {
+          "durationMs": 279.02,
+          "count": 9
+        },
+        "db_business": {
+          "durationMs": 32.76,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit",
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account($1)",
+        "select id, auth_user_id, role, status, credentials_blocked from gethired_private.accounts where id = $1",
+        "select * from gethired_private.sessions where id = $1 and account_id = $2 for update",
+        "select clock_timestamp() as now",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 25,
+      "sample": 3,
+      "durationMs": 688,
+      "statementCount": 22,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 2
+        },
+        "transaction": {
+          "durationMs": 687.48,
+          "count": 2
+        },
+        "authorized": {
+          "durationMs": 374.28,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 313.21,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 250.83,
+          "count": 8
+        },
+        "db_lock": {
+          "durationMs": 125.29,
+          "count": 4
+        },
+        "db_auth": {
+          "durationMs": 279.38,
+          "count": 9
+        },
+        "db_business": {
+          "durationMs": 31.44,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit",
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account($1)",
+        "select id, auth_user_id, role, status, credentials_blocked from gethired_private.accounts where id = $1",
+        "select * from gethired_private.sessions where id = $1 and account_id = $2 for update",
+        "select clock_timestamp() as now",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 25,
+      "sample": 4,
+      "durationMs": 684,
+      "statementCount": 22,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 2
+        },
+        "transaction": {
+          "durationMs": 683.87,
+          "count": 2
+        },
+        "authorized": {
+          "durationMs": 374.15,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 309.74,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 247.64,
+          "count": 8
+        },
+        "db_lock": {
+          "durationMs": 124.2,
+          "count": 4
+        },
+        "db_auth": {
+          "durationMs": 280.14,
+          "count": 9
+        },
+        "db_business": {
+          "durationMs": 31.12,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit",
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account($1)",
+        "select id, auth_user_id, role, status, credentials_blocked from gethired_private.accounts where id = $1",
+        "select * from gethired_private.sessions where id = $1 and account_id = $2 for update",
+        "select clock_timestamp() as now",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 25,
+      "sample": 5,
+      "durationMs": 684,
+      "statementCount": 22,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 2
+        },
+        "transaction": {
+          "durationMs": 683.75,
+          "count": 2
+        },
+        "authorized": {
+          "durationMs": 369.61,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 314.15,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 250.07,
+          "count": 8
+        },
+        "db_lock": {
+          "durationMs": 127.36,
+          "count": 4
+        },
+        "db_auth": {
+          "durationMs": 273.54,
+          "count": 9
+        },
+        "db_business": {
+          "durationMs": 32.28,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit",
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account($1)",
+        "select id, auth_user_id, role, status, credentials_blocked from gethired_private.accounts where id = $1",
+        "select * from gethired_private.sessions where id = $1 and account_id = $2 for update",
+        "select clock_timestamp() as now",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 75,
+      "sample": 1,
+      "durationMs": 1739,
+      "statementCount": 22,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 2
+        },
+        "transaction": {
+          "durationMs": 1738.76,
+          "count": 2
+        },
+        "authorized": {
+          "durationMs": 948.9,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 789.87,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 620.11,
+          "count": 8
+        },
+        "db_lock": {
+          "durationMs": 310.59,
+          "count": 4
+        },
+        "db_auth": {
+          "durationMs": 729.14,
+          "count": 9
+        },
+        "db_business": {
+          "durationMs": 78.51,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit",
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account($1)",
+        "select id, auth_user_id, role, status, credentials_blocked from gethired_private.accounts where id = $1",
+        "select * from gethired_private.sessions where id = $1 and account_id = $2 for update",
+        "select clock_timestamp() as now",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 75,
+      "sample": 2,
+      "durationMs": 1726,
+      "statementCount": 22,
+      "timings": {
+        "pool": {
+          "durationMs": 0.02,
+          "count": 2
+        },
+        "transaction": {
+          "durationMs": 1726.34,
+          "count": 2
+        },
+        "authorized": {
+          "durationMs": 948.23,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 778.13,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 621.54,
+          "count": 8
+        },
+        "db_lock": {
+          "durationMs": 310.28,
+          "count": 4
+        },
+        "db_auth": {
+          "durationMs": 702.03,
+          "count": 9
+        },
+        "db_business": {
+          "durationMs": 92.06,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit",
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account($1)",
+        "select id, auth_user_id, role, status, credentials_blocked from gethired_private.accounts where id = $1",
+        "select * from gethired_private.sessions where id = $1 and account_id = $2 for update",
+        "select clock_timestamp() as now",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 75,
+      "sample": 3,
+      "durationMs": 1711,
+      "statementCount": 22,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 2
+        },
+        "transaction": {
+          "durationMs": 1710.66,
+          "count": 2
+        },
+        "authorized": {
+          "durationMs": 937.05,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 773.62,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 618.38,
+          "count": 8
+        },
+        "db_lock": {
+          "durationMs": 310.78,
+          "count": 4
+        },
+        "db_auth": {
+          "durationMs": 702.71,
+          "count": 9
+        },
+        "db_business": {
+          "durationMs": 78.4,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit",
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account($1)",
+        "select id, auth_user_id, role, status, credentials_blocked from gethired_private.accounts where id = $1",
+        "select * from gethired_private.sessions where id = $1 and account_id = $2 for update",
+        "select clock_timestamp() as now",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 75,
+      "sample": 4,
+      "durationMs": 1716,
+      "statementCount": 22,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 2
+        },
+        "transaction": {
+          "durationMs": 1715.81,
+          "count": 2
+        },
+        "authorized": {
+          "durationMs": 938.2,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 777.63,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 625.8,
+          "count": 8
+        },
+        "db_lock": {
+          "durationMs": 312.31,
+          "count": 4
+        },
+        "db_auth": {
+          "durationMs": 698.61,
+          "count": 9
+        },
+        "db_business": {
+          "durationMs": 78.69,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit",
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account($1)",
+        "select id, auth_user_id, role, status, credentials_blocked from gethired_private.accounts where id = $1",
+        "select * from gethired_private.sessions where id = $1 and account_id = $2 for update",
+        "select clock_timestamp() as now",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 75,
+      "sample": 5,
+      "durationMs": 1730,
+      "statementCount": 22,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 2
+        },
+        "transaction": {
+          "durationMs": 1730.27,
+          "count": 2
+        },
+        "authorized": {
+          "durationMs": 935.16,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 795.12,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 635.72,
+          "count": 8
+        },
+        "db_lock": {
+          "durationMs": 312.61,
+          "count": 4
+        },
+        "db_auth": {
+          "durationMs": 701.44,
+          "count": 9
+        },
+        "db_business": {
+          "durationMs": 80.11,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
+        "select a.*, p.student_number, p.first_name, p.last_name, p.course, p.year_level from gethired_private.accounts a left join gethired_private.student_profiles p on p.account_id = a.id where a.id = (select account_id from gethired_private.sessions where id = $1)",
+        "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
+        "select clock_timestamp() as checked_at",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "commit",
+        "begin",
+        "set local lock_timeout = '5s'",
+        "set local statement_timeout = '10s'",
+        "select gethired_private.lock_account($1)",
+        "select id, auth_user_id, role, status, credentials_blocked from gethired_private.accounts where id = $1",
+        "select * from gethired_private.sessions where id = $1 and account_id = $2 for update",
+        "select clock_timestamp() as now",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.provider_session_live($1, $2) as live",
+        "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1",
+        "commit"
+      ]
+    }
+  ]
+}

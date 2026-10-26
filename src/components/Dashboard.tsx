@@ -5,7 +5,7 @@ import { useSession } from "./SessionProvider";
 import CompanyCard from "./CompanyCard";
 import CategoryCard, { CategoryIcon } from "./CategoryCard";
 import { bankList, categoryView, type InterviewCategory } from "@/lib/interviews";
-import type { Category, SelectedPhase } from "@gethired/contracts";
+import type { CompanyListing, Category, SelectedPhase } from "@gethired/contracts";
 
 import { apiClient } from "@/lib/api-client";
 import { companyView, type Company } from "@/lib/companies";
@@ -108,7 +108,7 @@ function CompanyModal({
 }: {
   company: Company;
   onClose: () => void;
-  onToggleSave: (id: string) => void;
+  onToggleSave: (id: string, saved: boolean) => void;
   onPractice: () => void;
 }) {
   return (
@@ -127,12 +127,13 @@ function CompanyModal({
           <img src={company.image} alt={company.name} className="w-full h-full object-cover" />
           <button
             onClick={onClose}
+            aria-label="Close company details"
             className="absolute top-4 right-4 w-9 h-9 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-all shadow-sm"
           >
             <XIcon />
           </button>
           <button
-            onClick={() => onToggleSave(company.id)}
+            onClick={() => onToggleSave(company.id, company.saved)}
             className={`absolute top-4 left-4 flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-semibold transition-all shadow-sm ${
               company.saved ? "bg-[#0073ff] text-white" : "bg-white/90 text-gray-600 hover:bg-white"
             }`}
@@ -245,7 +246,7 @@ function CompanyModal({
             {/* Actions */}
             <div className="flex gap-3">
               <button
-                onClick={() => onToggleSave(company.id)}
+                onClick={() => onToggleSave(company.id, company.saved)}
                 className={`flex items-center gap-2 px-6 py-3 rounded-full text-[14px] font-semibold border transition-all ${
                   company.saved
                     ? "border-[#0073ff] text-[#0073ff] bg-[#dfe9ff]"
@@ -385,7 +386,7 @@ function HomeView({
   companies: Company[];
   totalSaved?: number;
   totalCompanies: number;
-  onToggleSave: (id: string) => void;
+  onToggleSave: (id: string, saved: boolean) => void;
   onViewMore: (c: Company) => void;
 }) {
   const { user } = useSession();
@@ -595,12 +596,20 @@ function FilterModal({
 
 /* ═══════════════════════════════ EXPLORE VIEW ═══════════════════════ */
 function ExploreView({
-  savedIds,
+  savedOverrides,
+  enabled,
+  revision,
+  onRefresh,
+  onBookmarkSnapshot,
   onToggleSave,
   onViewMore,
 }: {
-  savedIds: ReadonlySet<string>;
-  onToggleSave: (id: string) => void;
+  savedOverrides: Readonly<Record<string, boolean>>;
+  enabled: boolean;
+  revision: number;
+  onRefresh: () => void;
+  onBookmarkSnapshot: (rows: CompanyListing[]) => void;
+  onToggleSave: (id: string, saved: boolean) => void;
   onViewMore: (c: Company) => void;
 }) {
   const [search, setSearch]           = useState("");
@@ -612,8 +621,10 @@ function ExploreView({
 
   const query = new URLSearchParams({ q: search, niche: activeNiche });
   activeFilters.specializations.forEach(spec => query.append("specialization", spec));
-  const results = useCompanyPage<CompanyDto>("/api/companies", query.toString());
-  const filtered = results.data.map(c => companyView(c, savedIds.has(c.id)));
+  const results = useCompanyPage<CompanyListing>("/api/companies", query.toString(), revision, enabled);
+  const knownBookmarks = results.data.every(c => typeof c.bookmarked === "boolean");
+  const filtered = knownBookmarks ? results.data.map(c => companyView(c, savedOverrides[c.id] ?? c.bookmarked)) : [];
+  useEffect(() => { if (knownBookmarks) onBookmarkSnapshot(results.data); }, [results.data, knownBookmarks, onBookmarkSnapshot]);
 
   const clearAll = () => { setSearch(""); setActiveNiche("All"); setActiveFilters({ specializations: [] }); };
 
@@ -685,7 +696,7 @@ function ExploreView({
         )}
       </div>
 
-      <CompanyResults {...results} />
+      <CompanyResults {...results} error={knownBookmarks ? results.error : "Company information is temporarily unavailable. Please refresh."} reload={onRefresh} />
       {filtered.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {filtered.map((c) => (
@@ -750,7 +761,7 @@ function typeBadge(type: string) {
 /* ═══════════════════════════════ INTERVIEW VIEW ═════════════════════ */
 interface ResultEntry { phase: string; question: string; answer: string; feedback: string; }
 
-function InterviewView() {
+function InterviewView({ cache }: { cache: { current: { rows: InterviewCategory[]; at: number } | null } }) {
   const [interviewCategories, setInterviewCategories] = useState<InterviewCategory[]>([]);
   const [categoryError, setCategoryError] = useState("");
   const [categoryLoading, setCategoryLoading] = useState(true);
@@ -758,11 +769,15 @@ function InterviewView() {
   const selectionVersion = useRef(0);
   const [starting, setStarting] = useState(false);
   useEffect(() => {
+    const age = cache.current ? Date.now() - cache.current.at : Infinity;
+    if (categoryRevision === 0 && cache.current && age >= 0 && age < 30000) {
+      setInterviewCategories(cache.current.rows); setCategoryLoading(false); return;
+    }
     let live = true; setCategoryLoading(true); setCategoryError("");
-    bankList<Category>("/api/categories").then(rows => { if (live) setInterviewCategories(rows.map(categoryView)); })
+    bankList<Category>("/api/categories").then(rows => { if (live) { const categories = rows.map(categoryView); setInterviewCategories(categories); cache.current = { rows: categories, at: Date.now() }; } })
       .catch(error => { if (live) setCategoryError(error.message); }).finally(() => { if (live) setCategoryLoading(false); });
     return () => { live = false; selectionVersion.current++; };
-  }, [categoryRevision]);
+  }, [categoryRevision, cache]);
   const [selectedCatId, setSelectedCatId] = useState<string | null>(null);
   const [phases, setPhases]               = useState<InterviewPhaseData[]>([]);
   const [phaseIdx, setPhaseIdx]           = useState(0);
@@ -1077,29 +1092,32 @@ function InterviewView() {
 export default function Dashboard() {
   const { user, logout: handleLogout } = useSession();
   const [view, setView] = useState<DashView>("home");
+  const [exploreOpened, setExploreOpened] = useState(false);
+  const interviewCache = useRef<{ rows: InterviewCategory[]; at: number } | null>(null);
+  useEffect(() => { if (view === "explore") setExploreOpened(true); }, [view]);
   const [revision, setRevision] = useState(0);
-  const bookmarks = useCompanyPage<Bookmark>("/api/me/bookmarks", "", revision);
-  const partners = useCompanyPage<CompanyDto>("/api/companies", "pageSize=1", revision);
-  const companies = bookmarks.data.map(b => companyView(b.company, true));
+  const [partnerRevision, setPartnerRevision] = useState(0);
+  const bookmarks = useCompanyPage<Bookmark>("/api/me/bookmarks", "", revision, view === "home");
+  const partners = useCompanyPage<CompanyDto>("/api/companies", "pageSize=1", partnerRevision, view === "home");
   const [bookmarkError, setBookmarkError] = useState("");
   const savingBookmark = useRef(false);
-  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
-  useEffect(() => {
-    let cancelled = false;
-    // Read all bookmark IDs so Explore never mistakes an off-page save for an unsaved company.
-    void (async () => {
-      const ids = new Set<string>();
-      for (let page = 1; ; page++) {
-        const result = await apiClient.list<Bookmark>(`/api/me/bookmarks?page=${page}&pageSize=100`);
-        result.data.forEach(b => ids.add(b.companyId));
-        if (page * result.meta!.pageSize >= result.meta!.total) break;
-      }
-      if (!cancelled) setSavedIds(ids);
-    })().catch(error => { if (!cancelled) setBookmarkError(error.message); });
-    return () => { cancelled = true; };
-  }, [revision]);
+  const bookmarkVersion = useRef(0);
+  const [savedOverrides, setSavedOverrides] = useState<Record<string, boolean>>({});
+  const companies = bookmarks.data.map(b => companyView(b.company, savedOverrides[b.companyId] ?? true));
   const [collapsed, setCollapsed] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const onBookmarkSnapshot = React.useCallback((rows: CompanyListing[]) => {
+    setSavedOverrides(previous => {
+      if (!rows.some(row => Object.hasOwn(previous, row.id))) return previous;
+      const next = { ...previous }; rows.forEach(row => { delete next[row.id]; }); return next;
+    });
+    setSelectedCompany(previous => {
+      const fresh = rows.find(row => row.id === previous?.id);
+      return previous && fresh && previous.saved !== fresh.bookmarked ? { ...previous, saved: fresh.bookmarked } : previous;
+    });
+  }, []);
+  const refreshCompanies = () => { setSavedOverrides({}); setRevision(n => n + 1); setPartnerRevision(n => n + 1); };
+  useEffect(() => { onBookmarkSnapshot(bookmarks.data.map(row => ({ ...row.company, bookmarked: true }))); }, [bookmarks.data, onBookmarkSnapshot]);
   const [profileOpen, setProfileOpen] = useState(false);
   const profile: ProfileData = {
     name: user.displayName,
@@ -1109,20 +1127,32 @@ export default function Dashboard() {
     yearLevel: user.student?.yearLevel ?? "",
   };
 
-  const toggleSave = async (id: string) => {
+  const toggleSave = async (id: string, saved: boolean) => {
     if (savingBookmark.current) return;
     savingBookmark.current = true;
     setBookmarkError("");
-    const saved = savedIds.has(id);
     try {
       await apiClient.mutate(`/api/me/bookmarks/${id}`, saved ? "DELETE" : "PUT", saved ? undefined : {});
-      setSavedIds(previous => { const next = new Set(previous); saved ? next.delete(id) : next.add(id); return next; });
+      bookmarkVersion.current++;
+      setSavedOverrides(previous => ({ ...previous, [id]: !saved }));
+      setSelectedCompany(previous => previous?.id === id ? { ...previous, saved: !saved } : previous);
       setRevision(n => n + 1);
     } catch (error) { setBookmarkError(error instanceof Error ? error.message : "Unable to update bookmark."); }
     finally { savingBookmark.current = false; }
   };
   const viewCompany = async (company: Company) => {
-    try { setSelectedCompany(companyView(await apiClient.get<CompanyDto>(`/api/companies/${company.id}`), savedIds.has(company.id))); }
+    try {
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const version = bookmarkVersion.current;
+        const fresh = await apiClient.get<CompanyListing>(`/api/companies/${company.id}`);
+        if (version !== bookmarkVersion.current) continue;
+        if (typeof fresh.bookmarked !== "boolean") throw new Error("Company information is temporarily unavailable. Please refresh.");
+        setSavedOverrides(previous => ({ ...previous, [company.id]: fresh.bookmarked }));
+        setSelectedCompany(companyView(fresh, fresh.bookmarked));
+        return;
+      }
+      throw new Error("Your saved companies changed. Please try again.");
+    }
     catch (error) { setBookmarkError(error instanceof Error ? error.message : "Company unavailable."); }
   };
 
@@ -1238,10 +1268,10 @@ export default function Dashboard() {
 
         <div className="flex-1 overflow-y-auto px-4 sm:px-7 pb-24 md:pb-7">
           {bookmarkError && <p role="alert" className="text-red-600 py-3">{bookmarkError}</p>}
-          {view === "home" && <CompanyResults {...bookmarks} reload={() => { bookmarks.reload(); setRevision(n => n + 1); }} />}
-          {view === "home" && !bookmarks.loading && !bookmarks.error && <HomeView totalCompanies={partners.meta.total} totalSaved={bookmarks.meta.total} companies={companies} onToggleSave={toggleSave} onViewMore={viewCompany} />}
-          {view === "explore"   && <ExploreView savedIds={savedIds} onToggleSave={toggleSave} onViewMore={viewCompany} />}
-          {view === "interview" && <InterviewView />}
+          {view === "home" && <CompanyResults {...bookmarks} reload={refreshCompanies} />}
+          {view === "home" && !bookmarks.error && <HomeView totalCompanies={partners.meta.total} totalSaved={bookmarks.meta.total} companies={companies} onToggleSave={toggleSave} onViewMore={viewCompany} />}
+          {(view === "explore" || exploreOpened) && <div hidden={view !== "explore"}><ExploreView enabled={view === "explore"} savedOverrides={savedOverrides} revision={revision} onRefresh={refreshCompanies} onBookmarkSnapshot={onBookmarkSnapshot} onToggleSave={toggleSave} onViewMore={viewCompany} /></div>}
+          {view === "interview" && <InterviewView cache={interviewCache} />}
         </div>
       </div>
 
@@ -1276,7 +1306,7 @@ export default function Dashboard() {
 
       {selectedCompany && (
         <CompanyModal
-          company={{ ...selectedCompany, saved: savedIds.has(selectedCompany.id) }}
+          company={{ ...selectedCompany, saved: savedOverrides[selectedCompany.id] ?? selectedCompany.saved }}
           onClose={() => setSelectedCompany(null)}
           onToggleSave={toggleSave}
           onPractice={() => { setSelectedCompany(null); setView("interview"); }}

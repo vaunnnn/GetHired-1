@@ -1,0 +1,134 @@
+{
+  "timestamp": "2026-10-26T12:11:53.194Z",
+  "injectedDelayPerRequestMs": 75,
+  "reports": [
+    {
+      "scenario": "refresh",
+      "durationMs": 465,
+      "requestCount": 5,
+      "trace": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "start": 1793016711452
+        },
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "start": 1793016711539
+        },
+        {
+          "path": "/api/auth/refresh",
+          "method": "POST",
+          "start": 1793016711633
+        },
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "start": 1793016711726
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "start": 1793016711818
+        }
+      ]
+    },
+    {
+      "scenario": "me after expiry",
+      "durationMs": 589,
+      "requestCount": 7,
+      "trace": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "start": 1793016711914
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "start": 1793016712004
+        },
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "start": 1793016712095
+        },
+        {
+          "path": "/api/auth/refresh",
+          "method": "POST",
+          "start": 1793016712189
+        },
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "start": 1793016712267
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "start": 1793016712345
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "start": 1793016712424
+        }
+      ]
+    },
+    {
+      "scenario": "three concurrent mutations",
+      "durationMs": 495,
+      "requestCount": 6,
+      "trace": [
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "start": 1793016712507
+        },
+        {
+          "path": "/api/admin/companies",
+          "method": "PATCH",
+          "start": 1793016712596
+        },
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "start": 1793016712674
+        },
+        {
+          "path": "/api/admin/companies",
+          "method": "PATCH",
+          "start": 1793016712753
+        },
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "start": 1793016712844
+        },
+        {
+          "path": "/api/admin/companies",
+          "method": "PATCH",
+          "start": 1793016712923
+        }
+      ]
+    },
+    {
+      "scenario": "me outage",
+      "durationMs": 184,
+      "requestCount": 2,
+      "trace": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "start": 1793016713005
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "start": 1793016713095
+        }
+      ]
+    }
+  ]
+}

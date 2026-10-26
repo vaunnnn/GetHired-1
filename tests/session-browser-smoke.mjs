@@ -10,12 +10,14 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { randomBytes, randomUUID } from "node:crypto"
 import { setTimeout as delay } from "node:timers/promises"
+import { browserTimingSource, summarizeNavigation } from "./performance-metrics.mjs"
 
 const children = [], sockets = []
 const gateway = randomBytes(32).toString("hex")
 const sessions = new Map()
 let expired = false, outage = false, refreshes = 0, lastRemember
 let holdSessionCheck, sessionCheckHeld = false
+let holdOldSearch, oldSearchHeld = false, holdSecondPage, secondPageHeld = false
 const onboardingRequests = [], registry = new Map()
 let invitations = 0
 const companyId = randomUUID(), savedCompanies = new Set()
@@ -25,6 +27,8 @@ let bankQuestion = { id: questionId, question: "B6 introduce yourself", type: "I
 let company = { id: companyId, name: "B4 Browser Partner", industry: "Software Development", type: "Services", specializations: ["Web Development"],
   location: "Cebu City", slots: 0, description: "Browser acceptance fixture", website: "https://example.test/", email: "team@example.test",
   phone: "", hours: "Weekdays", image: "/getHiredLogo.png", status: "active" }
+const extraCompanies = Array.from({ length: 20 }, (_, i) => ({ ...company, id: randomUUID(), name: i === 19 ? "Z Saved Off-page Partner" : `Extra Partner ${i}` }))
+savedCompanies.add(extraCompanies.at(-1).id)
 const users = {
   student: { id: randomUUID(), role: "student", displayName: "Browser Test Student", email: "21100123@usc.edu.ph",
     student: { studentNumber: "21100123", firstName: "Browser", lastName: "Student", course: "BSCS", yearLevel: "4" } },
@@ -57,7 +61,7 @@ const fixture = createServer(async (req, res) => {
   }
   if (req.url === "/api/auth/refresh") {
     if (!role) return finish(401, null, "SESSION_EXPIRED")
-    refreshes++; expired = false; return finish(200, { session: current().session })
+    refreshes++; expired = false; return finish(200, current())
   }
   if (req.url === "/api/auth/logout") {
     sessions.delete(id)
@@ -120,13 +124,18 @@ const fixture = createServer(async (req, res) => {
       if (req.method === "DELETE") { savedCompanies.delete(companyId); return finish(200, { removed: true }) }
       savedCompanies.add(companyId); return finish(200, { companyId, createdAt: new Date().toISOString(), company })
     }
-    if (url.pathname === `/api/companies/${companyId}`) return company.status === "active" ? finish(200, company) : finish(404, null, "NOT_FOUND")
-    let rows = company.status === "active" || role === "admin" ? [company] : []
+    if (url.pathname === `/api/companies/${companyId}`) return company.status === "active" ? finish(200, { ...company, bookmarked: savedCompanies.has(companyId) }) : finish(404, null, "NOT_FOUND")
+    let rows = (company.status === "active" || role === "admin" ? [company] : []).concat(extraCompanies).sort((a,b) => a.name.localeCompare(b.name))
     const q = url.searchParams.get("q") ?? ""
-    if (q) rows = rows.filter(c => c.name.toLowerCase().includes(q.toLowerCase()))
+    if (url.pathname === "/api/companies" && q === "phase4-old") { oldSearchHeld = true; if (holdOldSearch) await holdOldSearch; rows = [{ ...company, name: "Stale Partner" }] }
+    else if (url.pathname === "/api/companies" && q === "phase4-new") rows = [{ ...company, name: "Latest Partner" }]
+    else if (q) rows = rows.filter(c => c.name.toLowerCase().includes(q.toLowerCase()))
+    if (url.pathname === "/api/companies" && url.searchParams.get("page") === "2" && holdSecondPage) { secondPageHeld = true; await holdSecondPage }
     if (url.pathname === "/api/me/bookmarks") rows = rows.filter(c => savedCompanies.has(c.id)).map(c => ({ companyId: c.id, createdAt: new Date().toISOString(), company: c }))
+    if (url.pathname === "/api/companies") rows = rows.map(c => ({ ...c, bookmarked: savedCompanies.has(c.id) }))
+    const page = Number(url.searchParams.get("page") ?? 1), pageSize = Number(url.searchParams.get("pageSize") ?? 20), total = rows.length
     res.statusCode = 200
-    return res.end(JSON.stringify({ data: rows, meta: { page: Number(url.searchParams.get("page") ?? 1), pageSize: Number(url.searchParams.get("pageSize") ?? 20), total: rows.length }, requestId: randomUUID() }))
+    return res.end(JSON.stringify({ data: rows.slice((page-1)*pageSize,page*pageSize), meta: { page, pageSize, total }, requestId: randomUUID() }))
   }
   finish(404, null, "NOT_FOUND")
 })
@@ -150,22 +159,31 @@ async function until(work, label) {
 async function tab(debugPort) {
   const target = await (await fetch(`http://127.0.0.1:${debugPort}/json/new?about:blank`, { method: "PUT" })).json()
   const ws = new WebSocket(target.webSocketDebuggerUrl); sockets.push(ws); await once(ws, "open")
-  let sequence = 0; const pending = new Map()
+  let sequence = 0; const pending = new Map(), performanceEvents = [], traffic = []
   ws.addEventListener("message", ({ data }) => {
     const message = JSON.parse(data), task = pending.get(message.id)
+    if (message.method === "Network.requestWillBeSent") {
+      const url = new URL(message.params.request.url)
+      if (url.pathname.startsWith("/api/")) traffic.push({ path: url.pathname, method: message.params.request.method })
+    }
+    if (message.method === "Runtime.bindingCalled" && message.params.name === "__getHiredPerfRecord")
+      performanceEvents.push(JSON.parse(message.params.payload))
     if (task) { pending.delete(message.id); message.error ? task.reject(new Error(message.error.message)) : task.resolve(message.result) }
   })
   const call = (method, params = {}) => new Promise((resolve, reject) => {
     const id = ++sequence; pending.set(id, { resolve, reject }); ws.send(JSON.stringify({ id, method, params }))
   })
   await call("Page.enable"); await call("Runtime.enable"); await call("Network.enable")
+  await call("Runtime.addBinding", { name: "__getHiredPerfRecord" })
+  await call("Page.addScriptToEvaluateOnNewDocument", { source: browserTimingSource })
+  await call("Page.addScriptToEvaluateOnNewDocument", { source: "window.__searchDebounces=0;const originalTimeout=window.setTimeout;window.setTimeout=function(fn,ms,...args){if(ms===180)window.__searchDebounces++;return originalTimeout(fn,ms,...args)};" })
   await call("Network.setExtraHTTPHeaders", { headers: { "x-smoke-ingress-ip": "127.0.0.1" } })
   const evaluate = async expression => {
     const result = await call("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true })
     if (result.exceptionDetails) throw new Error(result.exceptionDetails.text)
     return result.result.value
   }
-  return { call, evaluate, navigate: url => call("Page.navigate", { url }) }
+  return { call, evaluate, performanceEvents, traffic, navigate: url => call("Page.navigate", { url }) }
 }
 
 try {
@@ -210,9 +228,23 @@ try {
   }
   await login("21100123", "wrong")
   await until(() => first.evaluate("document.querySelector('[role=alert]')?.textContent.includes('INVALID_CREDENTIALS')"), "invalid login shown")
+  const loginOffset = first.traffic.length
   await login("21100123")
   await until(() => first.evaluate("location.pathname === '/dashboard' && document.body.innerText.includes('Welcome, Browser!') && !document.querySelector('[role=status]')"), "student login")
   assert.equal(lastRemember, false)
+  await delay(300)
+  assert.equal(first.traffic.slice(loginOffset).filter(t => t.path === "/api/auth/me").length, 0, "server-validated session has no mount-time client read")
+  assert.equal(first.traffic.slice(loginOffset).filter(t => t.path === "/api/me/bookmarks").length, 1, "home has one bookmark page, no ID walker")
+  assert.equal(await first.evaluate("window.__searchDebounces"), 0, "initial loading is immediate")
+  const freshOffset = first.traffic.length
+  await first.evaluate("for (let i = 0; i < 3; i++) { window.dispatchEvent(new Event('focus')); window.dispatchEvent(new Event('pageshow')); document.dispatchEvent(new Event('visibilitychange')); }")
+  await delay(200)
+  assert.equal(first.traffic.slice(freshOffset).filter(t => t.path === "/api/auth/me").length, 0, "fresh focus burst makes no session request")
+  const taskOffset = first.performanceEvents.length
+  await first.evaluate("setTimeout(() => { const end = performance.now() + 80; while (performance.now() < end) {} }, 0)")
+  await until(() => first.performanceEvents.slice(taskOffset).some(e => e.kind === "long_task" && e.duration >= 50), "long-task collector")
+  await delay(15100)
+  const focusOffset = first.traffic.length
   // Hold a focus-triggered session check open to verify navigation stays usable.
   let releaseSessionCheck
   holdSessionCheck = new Promise(resolve => { releaseSessionCheck = resolve })
@@ -221,19 +253,73 @@ try {
     await first.evaluate("window.dispatchEvent(new Event('focus'))")
     return sessionCheckHeld
   }, "background session check started")
+  await first.evaluate("for (let i = 0; i < 4; i++) { window.dispatchEvent(new Event('focus')); document.dispatchEvent(new Event('visibilitychange')); }")
+  assert.equal(first.traffic.slice(focusOffset).filter(t => t.path === "/api/auth/me").length, 1, "stale focus bursts coalesce")
   assert.equal(await first.evaluate("!!document.querySelector('[role=status], [inert]')"), false, "background check must not block the workspace")
   await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Explore').click()")
   await until(() => first.evaluate("document.body.innerText.includes('B4 Browser Partner')"), "live companies")
+  let releaseSecondPage
+  holdSecondPage = new Promise(resolve => { releaseSecondPage = resolve })
+  await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Next' && !b.disabled).click()")
+  await until(() => secondPageHeld, "next page requested")
+  assert.equal(await first.evaluate("window.__searchDebounces"), 0, "pagination is immediate")
+  assert.equal(await first.evaluate("document.body.innerText.includes('B4 Browser Partner')"), true, "previous rows remain during pagination")
+  holdSecondPage = undefined; releaseSecondPage()
+  await until(() => first.evaluate("document.body.innerText.includes('Z Saved Off-page Partner') && !!document.querySelector('button[title=Unsave]')"), "off-page company has server-projected bookmark state")
+  await searchCompanies("B4")
+  await until(() => first.evaluate("document.body.innerText.includes('B4 Browser Partner') && !document.querySelector('[role=status]')"), "search resets page two")
+  await searchCompanies("")
+  await until(() => first.evaluate("document.body.innerText.includes('Page 1 of 2') && !document.querySelector('[role=status]')"), "cleared search stays on first page")
+  const beforeSearchDebounces = await first.evaluate("window.__searchDebounces")
+  let releaseOldSearch
+  holdOldSearch = new Promise(resolve => { releaseOldSearch = resolve })
+  async function searchCompanies(value) {
+    await first.evaluate(`(() => { const input=document.querySelector('input[placeholder="Search companies, specializations, or locations..."]');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,${JSON.stringify(value)});input.dispatchEvent(new Event('input',{bubbles:true})); })()`)
+  }
+  await searchCompanies("phase4-old")
+  await until(() => oldSearchHeld, "debounced search sent")
+  assert.equal(await first.evaluate("document.body.innerText.includes('B4 Browser Partner')"), true, "search keeps prior rows")
+  assert.equal(await first.evaluate("window.__searchDebounces"), beforeSearchDebounces + 1, "text search is debounced")
+  await searchCompanies("phase4-new")
+  await until(() => first.evaluate("document.body.innerText.includes('Latest Partner')"), "latest search completes first")
+  holdOldSearch = undefined; releaseOldSearch(); await delay(200)
+  assert.equal(await first.evaluate("document.body.innerText.includes('Stale Partner')"), false, "superseded response ignored")
+  await searchCompanies("")
+  await until(() => first.evaluate("document.body.innerText.includes('B4 Browser Partner') && !document.querySelector('[role=status]')"), "search cleared")
+  const refreshOffset = first.traffic.length, debounceCount = await first.evaluate("window.__searchDebounces")
+  await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Refresh' && b.getClientRects().length).click()")
+  await until(() => first.traffic.slice(refreshOffset).some(t => t.path === "/api/companies"), "explicit refresh requested")
+  await until(() => first.evaluate("!document.querySelector('[role=status]')"), "explicit refresh loaded")
+  assert.equal(await first.evaluate("window.__searchDebounces"), debounceCount, "refresh does not debounce")
   holdSessionCheck = undefined
   releaseSessionCheck()
   await first.evaluate("document.querySelector('button[title=\"Save Company\"]').click()")
   await until(() => first.evaluate("!!document.querySelector('button[title=Unsave]')"), "persist bookmark")
   assert.ok(savedCompanies.has(companyId))
+  await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim().startsWith('know more')).click()")
+  await until(() => first.evaluate("!!document.querySelector('button[aria-label=\"Close company details\"]') && [...document.querySelectorAll('button')].some(b => b.textContent.trim() === 'Saved')"), "detail shows authoritative saved state")
+  await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Unsave').click()")
+  await until(() => first.evaluate("[...document.querySelectorAll('button')].some(b => b.textContent.trim() === 'Save Company')"), "detail unsaves")
+  await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Save Company').click()")
+  await until(() => first.evaluate("[...document.querySelectorAll('button')].some(b => b.textContent.trim() === 'Saved')"), "detail saves again")
+  await first.evaluate("document.querySelector('button[aria-label=\"Close company details\"]').click()")
+  await delay(150)
+  await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Home').click()")
+  await until(() => first.evaluate("document.body.innerText.includes('Saved Companies') && !document.querySelector('[role=status]')"), "home invalidates bookmarks after write")
+  const revisitOffset = first.traffic.length
+  await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Explore').click()")
+  await delay(150)
+  assert.equal(first.traffic.slice(revisitOffset).filter(t => t.path === "/api/companies").length, 0, "unchanged Explore data reused between tabs")
   await first.navigate(`${base}/dashboard`)
   await until(() => first.evaluate("document.body.innerText.includes('B4 Browser Partner')"), "bookmark survives reload")
   const studentCookie = [...sessions.keys()][0]
   await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Interview').click()")
   await until(() => first.evaluate("document.body.innerText.includes('B6 Browser Track')"), "B6 categories from API")
+  const studentCategoryReads = first.traffic.filter(t => t.path === "/api/categories").length
+  await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Home').click()")
+  await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Interview').click()")
+  await until(() => first.evaluate("document.body.innerText.includes('B6 Browser Track')"), "cached student category tab")
+  assert.equal(first.traffic.filter(t => t.path === "/api/categories").length, studentCategoryReads)
   bankQuestion.status = "inactive"
   await first.evaluate("[...document.querySelectorAll('h3')].find(h => h.textContent === 'B6 Browser Track').click()")
   await until(() => first.evaluate("document.querySelector('[role=alert]')?.textContent.includes('CATEGORY_UNAVAILABLE')"), "B6 shortage shown without fallback")
@@ -249,19 +335,55 @@ try {
   await second.navigate(`${base}/dashboard`)
   await until(() => second.evaluate("document.body.innerText.includes('Welcome, Browser!') && !document.querySelector('[role=status]')"), "second tab")
   expired = true
+  const recoveryStart = Date.now(), recoveryOffset = first.performanceEvents.length, secondRecoveryOffset = second.performanceEvents.length
   // Both page GETs see expired access; browser recovery coordinates the refresh.
   await Promise.all([first.navigate(`${base}/dashboard`), second.navigate(`${base}/dashboard`)])
   await until(async () => (await Promise.all([first, second].map(t => t.evaluate("document.body.innerText.includes('Welcome, Browser!') && !document.querySelector('[role=status]')")))).every(Boolean), "cross-tab refresh")
   assert.equal(refreshes, 1)
+  const recoveryObservations = () => [first.performanceEvents.slice(recoveryOffset), second.performanceEvents.slice(secondRecoveryOffset)]
+    .map(events => summarizeNavigation(events, [], recoveryStart, Date.now()))
+  await until(() => recoveryObservations().some(metrics => metrics.documentCount === 1 && metrics.checkingVisibleMs > 0), "recovery screen is measured without a document reload")
+  assert.ok(recoveryObservations().every(metrics => metrics.documentCount === 1), "both tabs recover without replacing the document")
+  outage = true
+  await first.evaluate("(() => { const channel = new BroadcastChannel('gethired-session'); channel.postMessage('changed'); channel.close(); })()")
+  await until(() => first.evaluate("document.querySelector('aside[role=alert]')?.textContent.includes('SERVICE_UNAVAILABLE')"), "routine service failure shows a retry banner")
+  assert.equal(await first.evaluate("!!document.querySelector('[role=status], [inert]')"), false, "transient revalidation does not block the workspace")
+  assert.equal(await first.evaluate("location.pathname"), "/dashboard")
+  outage = false
+  await first.evaluate("document.querySelector('aside[role=alert] button').click()")
+  await until(() => first.evaluate("!document.querySelector('aside[role=alert]')"), "retry clears routine service failure")
+  expired = true
+  await second.navigate(`${base}/admin`)
+  await until(() => second.evaluate("document.body.innerText.includes('Access denied')"), "recovered student is denied the admin workspace")
+  assert.equal(await second.evaluate("document.body.innerText.includes('DCISM Student Registry')"), false)
+  await second.navigate(`${base}/dashboard`)
+  await until(() => second.evaluate("document.body.innerText.includes('Welcome, Browser!')"), "student returns to own workspace")
+
   await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Log out').click()")
   await until(() => first.evaluate("location.pathname === '/login' && !!document.querySelector('#identifier')"), "logout")
   assert.equal(sessions.size, 0)
   await second.call("Page.bringToFront")
   await second.evaluate("window.dispatchEvent(new Event('focus'))")
   await until(() => second.evaluate("location.pathname === '/login'"), "other tab logout")
+  const adminLoginOffset = first.traffic.length
   await login("admin@example.test")
   await until(() => first.evaluate("location.pathname === '/admin' && document.body.innerText.includes('Browser Test Admin') && !document.querySelector('[role=status]')"), "admin login")
   await until(() => first.evaluate("!!document.querySelector('button[title=\"Edit Company\"]')"), "admin company list")
+  assert.equal(first.traffic.slice(adminLoginOffset).filter(t => t.path === "/api/admin/categories").length, 0, "admin bank is not eagerly loaded")
+  await first.evaluate("(() => { const select=document.querySelector('select[aria-label=\"Company status\"]');select.value='active';select.dispatchEvent(new Event('change',{bubbles:true})); })()")
+  await delay(100)
+  assert.equal(await first.evaluate("window.__searchDebounces"), 0, "filter edits are immediate")
+  await first.evaluate("(() => { const select=document.querySelector('select[aria-label=\"Company status\"]');select.value='all';select.dispatchEvent(new Event('change',{bubbles:true})); })()")
+  await until(() => first.evaluate("!document.querySelector('[role=status]')"), "filter reset loaded")
+  assert.equal(first.traffic.slice(adminLoginOffset).filter(t => t.path === "/api/auth/me").length, 0, "admin mount does not revalidate server session")
+  expired = true
+  const adminRecoveryOffset = first.performanceEvents.length, adminRecoveryStart = Date.now(), adminRefreshes = refreshes
+  await first.navigate(`${base}/admin`)
+  await until(() => first.evaluate("location.pathname === '/admin' && document.body.innerText.includes('Browser Test Admin') && !!document.querySelector('button[title=\"Edit Company\"]')"), "admin recovers without reload")
+  await until(() => first.performanceEvents.slice(adminRecoveryOffset).some(e => e.kind === "checking_end"), "admin recovery is measured")
+  assert.equal(summarizeNavigation(first.performanceEvents.slice(adminRecoveryOffset), [], adminRecoveryStart, Date.now()).documentCount, 1)
+  assert.equal(refreshes, adminRefreshes + 1)
+
   await first.evaluate("document.querySelector('button[title=\"Edit Company\"]').click()")
   await first.evaluate(`(() => { const input=document.querySelector('input[aria-label="Company name"]'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,'B4 Updated Partner'); input.dispatchEvent(new Event('input',{bubbles:true})); })()`)
   await first.evaluate("document.querySelector('input[aria-label=\"Company name\"]').closest('form').requestSubmit()")
@@ -296,6 +418,11 @@ try {
   await until(() => first.evaluate("!document.querySelector('[role=dialog]') && document.body.innerText.includes('Updated Student')"), "registry edit saved")
   await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim().startsWith('Interviews')).click()")
   await until(() => first.evaluate("!!document.querySelector('button[title=\"Edit Category Info\"]')"), "B6 admin categories")
+  const categoryReads = first.traffic.filter(t => t.path === "/api/admin/categories" && t.method === "GET").length
+  await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim().startsWith('Companies')).click()")
+  await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim().startsWith('Interviews')).click()")
+  await until(() => first.evaluate("!!document.querySelector('button[title=\"Edit Category Info\"]')"), "cached category tab")
+  assert.equal(first.traffic.filter(t => t.path === "/api/admin/categories" && t.method === "GET").length, categoryReads)
   await first.evaluate("document.querySelector('button[title=\"Edit Category Info\"]').click()")
   await until(() => first.evaluate("!!document.querySelector('input[aria-label=\"Phase 1 name\"]')"), "B6 phase editor")
   await first.evaluate("document.querySelector('input[aria-label=\"Phase 1 name\"]').closest('form').requestSubmit()")
@@ -308,12 +435,15 @@ try {
   await until(() => first.evaluate("!document.querySelector('textarea[placeholder=\"Type the question interviewer will ask...\"]')"), "B6 question save")
   assert.equal(bankQuestion.feedback, "B6_PRIVATE_RUBRIC")
   outage = true
+  const outageOffset = first.performanceEvents.length
   await first.navigate(`${base}/admin`)
   await until(() => first.evaluate("document.body.innerText.includes('Unable to load your workspace')"), "outage view")
   assert.equal(await first.evaluate("location.pathname"), "/admin")
   outage = false
-  await first.navigate(`${base}/admin`)
-  await until(() => first.evaluate("document.body.innerText.includes('Browser Test Admin')"), "admin recovers")
+  await until(() => first.evaluate("Object.keys([...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Try again') ?? {}).some(k => k.startsWith('__reactProps$'))"), "outage retry hydrated")
+  await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Try again').click()")
+  await until(() => first.evaluate("document.body.innerText.includes('Browser Test Admin') && Object.keys([...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Log out') ?? {}).some(k => k.startsWith('__reactProps$'))"), "admin recovers")
+  assert.equal(first.performanceEvents.slice(outageOffset).filter(e => e.kind === "document").length, 1, "initial outage retry avoids document reload")
   await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Log out').click()")
   await until(() => first.evaluate("!!document.querySelector('#identifier')"), "admin logout")
   await login("21100123")

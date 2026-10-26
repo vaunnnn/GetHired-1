@@ -1,0 +1,176 @@
+{
+  "timestamp": "2026-10-26T17:22:32.751Z",
+  "scope": "Existing baseline sufficiency only; no preview collected or deployment performed.",
+  "performanceGatesMet": false,
+  "gates": [
+    {
+      "scenario": "complete preview audits",
+      "status": "missing_evidence"
+    },
+    {
+      "role": "admin",
+      "scenario": "session",
+      "before": {
+        "attempts": 10,
+        "successes": 10,
+        "failures": 0,
+        "successRate": 1,
+        "n": 10,
+        "medianMs": 2226,
+        "p95Ms": 2360
+      },
+      "after": {
+        "attempts": 0,
+        "successes": 0,
+        "failures": 0,
+        "successRate": null,
+        "n": 0,
+        "medianMs": null,
+        "p95Ms": null
+      },
+      "medianReduction": null,
+      "status": "insufficient_samples"
+    },
+    {
+      "role": "admin",
+      "scenario": "companies",
+      "before": {
+        "attempts": 10,
+        "successes": 10,
+        "failures": 0,
+        "successRate": 1,
+        "n": 10,
+        "medianMs": 4349,
+        "p95Ms": 4754
+      },
+      "after": {
+        "attempts": 0,
+        "successes": 0,
+        "failures": 0,
+        "successRate": null,
+        "n": 0,
+        "medianMs": null,
+        "p95Ms": null
+      },
+      "medianReduction": null,
+      "status": "insufficient_samples"
+    },
+    {
+      "role": "admin",
+      "scenario": "recovery",
+      "before": {
+        "attempts": 3,
+        "successes": 3,
+        "failures": 0,
+        "successRate": 1,
+        "n": 3,
+        "medianMs": 9870,
+        "p95Ms": 9981
+      },
+      "after": {
+        "attempts": 0,
+        "successes": 0,
+        "failures": 0,
+        "successRate": null,
+        "n": 0,
+        "medianMs": null,
+        "p95Ms": null
+      },
+      "medianReduction": null,
+      "status": "insufficient_samples",
+      "singleDocumentRecovery": null
+    },
+    {
+      "role": "admin",
+      "scenario": "routine overlays",
+      "samples": 0,
+      "status": "missing_evidence"
+    },
+    {
+      "role": "student",
+      "scenario": "session",
+      "before": {
+        "attempts": 10,
+        "successes": 10,
+        "failures": 0,
+        "successRate": 1,
+        "n": 10,
+        "medianMs": 2211,
+        "p95Ms": 3830
+      },
+      "after": {
+        "attempts": 0,
+        "successes": 0,
+        "failures": 0,
+        "successRate": null,
+        "n": 0,
+        "medianMs": null,
+        "p95Ms": null
+      },
+      "medianReduction": null,
+      "status": "insufficient_samples"
+    },
+    {
+      "role": "student",
+      "scenario": "companies",
+      "before": {
+        "attempts": 10,
+        "successes": 10,
+        "failures": 0,
+        "successRate": 1,
+        "n": 10,
+        "medianMs": 4305,
+        "p95Ms": 4957
+      },
+      "after": {
+        "attempts": 0,
+        "successes": 0,
+        "failures": 0,
+        "successRate": null,
+        "n": 0,
+        "medianMs": null,
+        "p95Ms": null
+      },
+      "medianReduction": null,
+      "status": "insufficient_samples"
+    },
+    {
+      "role": "student",
+      "scenario": "recovery",
+      "before": {
+        "attempts": 3,
+        "successes": 3,
+        "failures": 0,
+        "successRate": 1,
+        "n": 3,
+        "medianMs": 10224,
+        "p95Ms": 11439
+      },
+      "after": {
+        "attempts": 0,
+        "successes": 0,
+        "failures": 0,
+        "successRate": null,
+        "n": 0,
+        "medianMs": null,
+        "p95Ms": null
+      },
+      "medianReduction": null,
+      "status": "insufficient_samples",
+      "singleDocumentRecovery": null
+    },
+    {
+      "role": "student",
+      "scenario": "routine overlays",
+      "samples": 0,
+      "status": "missing_evidence"
+    }
+  ],
+  "independentReads": [],
+  "releaseRequirements": [
+    "Confirm deployment commits, API/database/provider placement and connection/pool telemetry.",
+    "Review read overlap using request/SQL traces; batch duration alone does not prove lock concurrency.",
+    "Run the independent-user staging cohort after the sequential two-role comparison.",
+    "Review migration compatibility and separate backend and frontend promotion/rollback."
+  ]
+}

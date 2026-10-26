@@ -478,7 +478,7 @@ export default function AdminDashboard() {
   const query = new URLSearchParams({ q: companySearch });
   if (companyStatus !== "all") query.set("status", companyStatus);
   if (selectedNiche !== "All") query.set("specialization", selectedNiche);
-  const companyResults = useCompanyPage<CompanyDto>("/api/admin/companies", query.toString(), companyRevision);
+  const companyResults = useCompanyPage<CompanyDto>("/api/admin/companies", query.toString(), companyRevision, activeTab === "companies");
   const companies = companyResults.data.map(c => companyView(c));
   const [companyError, setCompanyError] = useState("");
   const [companyBusy, setCompanyBusy] = useState(false);
@@ -531,22 +531,28 @@ export default function AdminDashboard() {
   const [bankError, setBankError] = useState("");
   const [bankLoading, setBankLoading] = useState(true);
   const bankLock = useRef(false);
+  const loadedCategories = useRef({ revision: -1, at: 0 });
+  const loadedQuestions = useRef<Record<string, { revision: number; at: number }>>({});
   useEffect(() => {
+    const age = Date.now() - loadedCategories.current.at;
+    if (activeTab !== "interviews" || loadedCategories.current.revision === bankRevision && age >= 0 && age < 30000) return;
     let live = true;
     setBankLoading(true); setBankError("");
-    bankList<Category>("/api/admin/categories").then(rows => { if (live) setCategories(rows.map(categoryView)); })
+    bankList<Category>("/api/admin/categories").then(rows => { if (live) { setCategories(rows.map(categoryView)); loadedCategories.current = { revision: bankRevision, at: Date.now() }; } })
       .catch(error => { if (live) setBankError(error.message); }).finally(() => { if (live) setBankLoading(false); });
     return () => { live = false; };
-  }, [bankRevision]);
+  }, [bankRevision, activeTab]);
   useEffect(() => {
-    if (!selectedCategoryForQuestions) return;
+    if (activeTab !== "interviews" || !selectedCategoryForQuestions) return;
     let live = true;
     const id = selectedCategoryForQuestions.id;
-    setQuestionsMap(prev => ({ ...prev, [id]: [] }));
-    bankList<Question>(`/api/admin/categories/${id}/questions`).then(rows => { if (live) setQuestionsMap(prev => ({ ...prev, [id]: rows.map(questionView) })); })
+    const cached = loadedQuestions.current[id];
+    const age = cached ? Date.now() - cached.at : Infinity;
+    if (cached?.revision === bankRevision && age >= 0 && age < 30000) return;
+    bankList<Question>(`/api/admin/categories/${id}/questions`).then(rows => { if (live) { setQuestionsMap(prev => ({ ...prev, [id]: rows.map(questionView) })); loadedQuestions.current[id] = { revision: bankRevision, at: Date.now() }; } })
       .catch(error => { if (live) setBankError(error.message); });
     return () => { live = false; };
-  }, [selectedCategoryForQuestions?.id, bankRevision]);
+  }, [selectedCategoryForQuestions?.id, bankRevision, activeTab]);
   const bankWrite = async (path: string, method: "POST" | "PATCH", body: unknown, done?: () => void) => {
     if (bankLock.current) return;
     bankLock.current = true; setBankError("");

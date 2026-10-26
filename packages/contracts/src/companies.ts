@@ -16,6 +16,8 @@ export interface Company {
 }
 export type CompanyInput = Omit<Company, "id" | "image" | "status"> & { imageId?: string | null; status?: Company["status"] }
 export interface Bookmark { companyId: string; createdAt: string; company: Company }
+/** Private projection for /companies reads; derived from the authenticated owner. */
+export interface CompanyListing extends Company { bookmarked: boolean }
 export const COMPANY_SPECIALIZATIONS = ["Software Dev", "React / Node.js", "Web Development", "Mobile Development", "Data Analytics", "Machine Learning", "Cybersecurity", "Cloud Computing", "DevOps", "AI", "Automation", "UI/UX Design", "IT Consulting", "BPO", "Telecommunications", "FinTech", "Blockchain", "Network Engineering", "IT Support", "QA / Testing", "Database Management"] as const
 export const COMPANY_NICHES: Record<string, { industry?: string; pattern?: string }> = {
   "All": {},

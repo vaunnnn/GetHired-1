@@ -1,7 +1,7 @@
-import { COMPANY_NICHES, type Company, type CompanyInput, type Bookmark } from "@gethired/contracts"
+import { COMPANY_NICHES, type Company, type CompanyListing, type CompanyInput, type Bookmark } from "@gethired/contracts"
 import type { SqlPool, SqlClient } from "../../auth/store.js"
 import type { Principal } from "../../auth/types.js"
-import { authorizedTransaction } from "../../db/transaction.js"
+import { authorizedTransaction, type AuthorizationTransaction } from "../../db/transaction.js"
 import { appendAudit } from "../../db/events.js"
 import { ApiError } from "../../api/errors.js"
 import type { companyQuery } from "./validation.js"
@@ -17,19 +17,20 @@ async function get(client: SqlClient, id: string, admin = false): Promise<Compan
 }
 export function createCompanyRepository(pool: SqlPool) {
   return {
-    list(actor: Principal, query: Query, admin = false, bookmarks = false) {
+    list(actor: Principal, query: Query, admin = false, bookmarks = false, authorization?: AuthorizationTransaction) {
       return authorizedTransaction(pool, actor, bookmarks ? "bookmarks:own" : admin ? "companies:write" : "companies:read", async client => {
         // One statement provides a consistent total and page, including empty pages.
         const values: unknown[] = []
         const bind = (v: unknown) => { values.push(v); return `$${values.length}` }
         const filters = [admin ? query.status ? `c.status=${bind(query.status)}` : "true" : "c.status='active'"]
+        const saved = !admin && !bookmarks ? `, exists(select 1 from gethired_private.bookmarks own where own.account_id=${bind(actor.id)} and own.company_id=c.id) as bookmarked` : ""
         if (query.q) filters.push(`strpos(lower(concat_ws(' ',c.name,c.industry,c.location,array_to_string(c.specializations,' '))),lower(${bind(query.q)})) > 0`)
         const niche = COMPANY_NICHES[query.niche]
         if (niche.industry || niche.pattern) filters.push(`(c.industry=${bind(niche.industry ?? "")} or array_to_string(c.specializations,' ') ~* ${bind(niche.pattern ?? "a^")})`)
         if (query.specializations.length) filters.push(`c.specializations && ${bind(query.specializations)}::text[]`)
         if (bookmarks) filters.push(`b.account_id=${bind(actor.id)}`)
         const result = await client.query(`with matches as (
-          select ${projection}${bookmarks ? ', b.created_at as "createdAt", c.id as "companyId"' : ""} from ${joined}
+          select ${projection}${saved}${bookmarks ? ', b.created_at as "createdAt", c.id as "companyId"' : ""} from ${joined}
           ${bookmarks ? "join gethired_private.bookmarks b on b.company_id=c.id" : ""}
           where ${filters.join(" and ")}
         ), page as (select * from matches order by lower(name), id limit ${bind(query.pageSize)} offset ${bind((query.page - 1) * query.pageSize)})
@@ -39,10 +40,16 @@ export function createCompanyRepository(pool: SqlPool) {
           const { createdAt, companyId, ...company } = row
           return { companyId, createdAt, company } satisfies Bookmark
         }) : data as Company[], meta: { page: query.page, pageSize: query.pageSize, total } }
-      })
+      }, authorization)
     },
-    get(actor: Principal, id: string) { return authorizedTransaction(pool, actor, "companies:read", client => get(client, id)) },
-    save(actor: Principal, requestId: string, input: Partial<CompanyInput>, id?: string) {
+    get(actor: Principal, id: string, authorization?: AuthorizationTransaction) {
+      return authorizedTransaction(pool, actor, "companies:read", async client => {
+        const result = await client.query(`select ${projection}, exists(select 1 from gethired_private.bookmarks b where b.account_id=$2 and b.company_id=c.id) as bookmarked from ${joined} where c.id=$1 and c.status='active'`, [id, actor.id])
+        if (!result.rows[0]) throw new ApiError("NOT_FOUND")
+        return result.rows[0] as CompanyListing
+      }, authorization)
+    },
+    save(actor: Principal, requestId: string, input: Partial<CompanyInput>, id?: string, authorization?: AuthorizationTransaction) {
       return authorizedTransaction(pool, actor, "companies:write", async client => {
         if (id) {
           const locked = await client.query("select id from gethired_private.companies where id=$1 for update", [id])
@@ -59,9 +66,9 @@ export function createCompanyRepository(pool: SqlPool) {
         const resourceId = result.rows[0].id
         await appendAudit(client, { actorId: actor.id, requestId, action: id ? "company.updated" : "company.created", resourceType: "company", resourceId })
         return get(client, resourceId, true)
-      })
+      }, authorization)
     },
-    bookmark(actor: Principal, id: string, remove = false) {
+    bookmark(actor: Principal, id: string, remove = false, authorization?: AuthorizationTransaction) {
       return authorizedTransaction(pool, actor, "bookmarks:own", async client => {
         if (remove) {
           await client.query("delete from gethired_private.bookmarks where account_id=$1 and company_id=$2", [actor.id, id])
@@ -73,7 +80,7 @@ export function createCompanyRepository(pool: SqlPool) {
         await client.query("insert into gethired_private.bookmarks(account_id,company_id) values ($1,$2) on conflict do nothing", [actor.id, id])
         const saved = await client.query("select created_at from gethired_private.bookmarks where account_id=$1 and company_id=$2", [actor.id, id])
         return { companyId: id, createdAt: new Date(saved.rows[0].created_at).toISOString(), company: await get(client, id) }
-      })
+      }, authorization)
     },
   }
 }

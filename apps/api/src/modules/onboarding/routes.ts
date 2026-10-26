@@ -33,12 +33,12 @@ export function onboardingRoutes() {
     return getOnboardingService().acceptInvitation(c.request, input.tokenHash, input.newPassword)
   })
   const repository = () => createStudentRepository(getDatabasePool()), route = "/api/admin/students"
-  routes.set(route, createApiRoute({ route, access: { kind: "protected", permission: "students:manage" }, methods: {
-    GET: { body: "none", handle: c => repository().list(actor(c), studentQuery(new URL(c.request.url).searchParams)) },
-    POST: { body: "json", handle: async c => ({ status: 201, data: await repository().create(actor(c), c.requestId, studentInput(c.body)) }) },
+  routes.set(route, createApiRoute({ route, access: { kind: "protected", permission: "students:manage", transaction: "business" }, methods: {
+    GET: { body: "none", handle: c => repository().list(actor(c), studentQuery(new URL(c.request.url).searchParams), c.authorization) },
+    POST: { body: "json", handle: async c => ({ status: 201, data: await repository().create(actor(c), c.requestId, studentInput(c.body), c.authorization) }) },
   } }))
-  routes.set(`${route}/[studentId]`, createApiRoute({ route: `${route}/[studentId]`, access: { kind: "protected", permission: "students:manage" }, methods: {
-    PATCH: { body: "json", handle: async c => ({ data: await repository().patch(actor(c), c.requestId, uuid(c.params.studentId), studentPatch(c.body)) }) },
+  routes.set(`${route}/[studentId]`, createApiRoute({ route: `${route}/[studentId]`, access: { kind: "protected", permission: "students:manage", transaction: "business" }, methods: {
+    PATCH: { body: "json", handle: async c => ({ data: await repository().patch(actor(c), c.requestId, uuid(c.params.studentId), studentPatch(c.body), c.authorization) }) },
   } }))
   routes.set(`${route}/[studentId]/invitations`, createApiRoute({ route: `${route}/[studentId]/invitations`, access: { kind: "protected", permission: "students:manage" }, methods: {
     POST: { body: "json", handle: c => { strictObject(c.body, {}); return getOnboardingService().invite(actor(c), c.requestId, uuid(c.params.studentId)) } },

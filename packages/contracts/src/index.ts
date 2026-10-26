@@ -48,3 +48,6 @@ export interface CurrentUser {
   user: User
   session: SessionSummary
 }
+
+/** Refresh preserves session fields and includes the verified current user. */
+export type RefreshResult = CurrentUser

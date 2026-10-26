@@ -161,7 +161,22 @@
             "value": "{{origin}}"
           }
         ]
-      }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Company bookmark flags are private, read-only owner projections\", function () {",
+              "  pm.response.to.have.status(200);",
+              "  pm.expect(pm.response.headers.get(\"Cache-Control\")).to.eql(\"private, no-store\");",
+              "  pm.response.json().data.forEach(function(company) { pm.expect(company.bookmarked).to.be.a(\"boolean\"); });",
+              "});"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "08 - Bookmarks (student)",
@@ -230,7 +245,25 @@
             "value": "application/json"
           }
         ]
-      }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Refresh returns a verified user and the existing session summary\", function () {",
+              "  pm.response.to.have.status(200);",
+              "  const current = pm.response.json().data;",
+              "  pm.expect(current.user.id).to.be.a(\"string\");",
+              "  pm.expect(current.user.role).to.be.oneOf([\"student\", \"admin\"]);",
+              "  pm.expect(current.session.expiresAt).to.be.a(\"string\");",
+              "  pm.expect(current.session.rememberMe).to.be.a(\"boolean\");",
+              "});"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "12 - Logout",

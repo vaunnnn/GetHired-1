@@ -31,6 +31,9 @@
                   "type": "string",
                   "const": "private, no-store"
                 }
+              },
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
               }
             },
             "content": {
@@ -67,6 +70,9 @@
                   "type": "string",
                   "const": "private, no-store"
                 }
+              },
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
               }
             },
             "content": {
@@ -138,6 +144,9 @@
                   "type": "string",
                   "const": "private, no-store"
                 }
+              },
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
               }
             },
             "content": {
@@ -163,7 +172,7 @@
     "/auth/refresh": {
       "post": {
         "operationId": "refresh",
-        "description": "Rotates provider credentials within the original active session deadline. Access JWT may be expired; refresh and signed browser binding remain required.",
+        "description": "Rotates provider credentials within the original active session deadline. Access JWT may be expired; refresh and signed browser binding remain required. Returns the verified current user with the existing session summary. Refresh does not rotate the signed browser binding; no post-refresh CSRF read is required. The projection is returned only after post-provider database authorization succeeds.",
         "responses": {
           "200": {
             "description": "Success",
@@ -179,6 +188,9 @@
                   "type": "string",
                   "const": "private, no-store"
                 }
+              },
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
               }
             },
             "content": {
@@ -251,6 +263,9 @@
                   "type": "string",
                   "const": "private, no-store"
                 }
+              },
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
               }
             },
             "content": {
@@ -322,6 +337,9 @@
                   "type": "string",
                   "const": "private, no-store"
                 }
+              },
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
               }
             },
             "content": {
@@ -418,6 +436,11 @@
                     "meta"
                   ]
                 }
+              }
+            },
+            "headers": {
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
               }
             }
           },
@@ -542,6 +565,11 @@
                   ]
                 }
               }
+            },
+            "headers": {
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
+              }
             }
           },
           "400": {
@@ -615,6 +643,11 @@
                     "requestId"
                   ]
                 }
+              }
+            },
+            "headers": {
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
               }
             }
           },
@@ -710,6 +743,11 @@
                     "requestId"
                   ]
                 }
+              }
+            },
+            "headers": {
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
               }
             }
           },
@@ -853,6 +891,11 @@
                   ]
                 }
               }
+            },
+            "headers": {
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
+              }
             }
           },
           "400": {
@@ -935,6 +978,11 @@
                     "requestId"
                   ]
                 }
+              }
+            },
+            "headers": {
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
               }
             }
           },
@@ -1031,6 +1079,11 @@
                   ]
                 }
               }
+            },
+            "headers": {
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
+              }
             }
           },
           "400": {
@@ -1121,6 +1174,11 @@
                   ]
                 }
               }
+            },
+            "headers": {
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
+              }
             }
           },
           "400": {
@@ -1148,6 +1206,245 @@
             "$ref": "#/components/responses/ApiError"
           },
           "503": {
+            "$ref": "#/components/responses/ApiError"
+          }
+        }
+      }
+    },
+    "/companies": {
+      "get": {
+        "operationId": "listCompanies",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "description": "Requires companies:read. Active companies only, filtered/paginated as described in backend-b4-integration.md. Every row includes authenticated-owner bookmark state; do not share-cache this response. No owner/account override query is accepted. Unknown filters and duplicate scalar parameters are rejected.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000,
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            }
+          },
+          {
+            "in": "query",
+            "name": "niche",
+            "schema": {
+              "type": "string",
+              "default": "All",
+              "enum": [
+                "All",
+                "Web Development",
+                "Mobile Development",
+                "Data Science",
+                "Cybersecurity",
+                "Cloud & DevOps",
+                "AI / ML",
+                "UI/UX Design",
+                "IT Consulting",
+                "BPO",
+                "Telecommunications",
+                "Banking / FinTech",
+                "Software Dev",
+                "Network Engineering",
+                "IT Support"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "specialization",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "Software Dev",
+                  "React / Node.js",
+                  "Web Development",
+                  "Mobile Development",
+                  "Data Analytics",
+                  "Machine Learning",
+                  "Cybersecurity",
+                  "Cloud Computing",
+                  "DevOps",
+                  "AI",
+                  "Automation",
+                  "UI/UX Design",
+                  "IT Consulting",
+                  "BPO",
+                  "Telecommunications",
+                  "FinTech",
+                  "Blockchain",
+                  "Network Engineering",
+                  "IT Support",
+                  "QA / Testing",
+                  "Database Management"
+                ]
+              },
+              "maxItems": 30
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Private company page with owner bookmark flags",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/CompanyListing"
+                      }
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "page": {
+                          "type": "integer"
+                        },
+                        "pageSize": {
+                          "type": "integer"
+                        },
+                        "total": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "page",
+                        "pageSize",
+                        "total"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "requestId",
+                    "meta"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/ApiError"
+          }
+        }
+      }
+    },
+    "/companies/{companyId}": {
+      "get": {
+        "operationId": "getCompany",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "description": "Requires companies:read. Active company with the authenticated owner bookmark flag. Inactive/missing companies return 404.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "companyId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Private company projection",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/CompanyListing"
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "requestId"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
             "$ref": "#/components/responses/ApiError"
           }
         }
@@ -1340,10 +1637,14 @@
             "properties": {
               "session": {
                 "$ref": "#/components/schemas/Session"
+              },
+              "user": {
+                "$ref": "#/components/schemas/User"
               }
             },
             "required": [
-              "session"
+              "session",
+              "user"
             ]
           },
           "requestId": {
@@ -1856,6 +2157,88 @@
           "shortLabel",
           "questions"
         ]
+      },
+      "CompanyListing": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "industry": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "specializations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "maxItems": 30
+          },
+          "location": {
+            "type": "string"
+          },
+          "slots": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "description": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "hours": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          },
+          "bookmarked": {
+            "type": "boolean",
+            "readOnly": true,
+            "description": "Whether the authenticated account owns a bookmark for this visible company. No account ID input is accepted. This is not a writable company field."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "industry",
+          "type",
+          "specializations",
+          "location",
+          "slots",
+          "description",
+          "image",
+          "website",
+          "email",
+          "phone",
+          "hours",
+          "status",
+          "bookmarked"
+        ]
       }
     },
     "securitySchemes": {
@@ -1893,6 +2276,9 @@
               "type": "string",
               "const": "private, no-store"
             }
+          },
+          "Server-Timing": {
+            "$ref": "#/components/headers/ServerTiming"
           }
         },
         "content": {
@@ -1902,6 +2288,15 @@
             }
           }
         }
+      }
+    },
+    "headers": {
+      "ServerTiming": {
+        "description": "Optional diagnostic durations in milliseconds. Static metric names and numeric durations only; no SQL, identities or credentials. Metrics overlap and must not be added together. The gateway appends upstream and gateway timings. See performance-observability.md.",
+        "schema": {
+          "type": "string"
+        },
+        "example": "api;dur=20, authentication;dur=15, upstream;dur=25, gateway;dur=26"
       }
     }
   }

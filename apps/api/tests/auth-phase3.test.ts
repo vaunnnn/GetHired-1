@@ -277,6 +277,8 @@ test("Phase 3 database and authentication lifecycle", async (t) => {
   )
   // B5 adds a credential barrier/version consumed by the shared login service.
   await db.exec("alter table gethired_private.accounts add column credentials_blocked boolean not null default false; alter table gethired_private.accounts add column credential_version integer not null default 0")
+  await db.exec(await readFile(new URL("../../../supabase/migrations/202610050001_b2_operations.sql", import.meta.url), "utf8"))
+  await db.exec(await readFile(new URL("../../../supabase/migrations/202610260001_session_authorization.sql", import.meta.url), "utf8"))
   // PGlite has one connection; serialize transactions and execute as the restricted runtime.
   let queue = Promise.resolve()
   const pool: SqlPool = {
@@ -490,7 +492,12 @@ test("Phase 3 database and authentication lifecycle", async (t) => {
         8 * 3600000,
       )
       const refresh = await service.refresh(request(), {})
+      assert.deepEqual((refresh.data as { user: unknown }).user, principal.user)
+      assert.equal(new Headers(refresh.headers).getSetCookie().length, 2)
+      assert.ok(new Headers(refresh.headers).getSetCookie().every(value => !value.startsWith(`${service.browser.names.binding}=`)))
+      assert.doesNotMatch(JSON.stringify(refresh.data), /accessToken|refreshToken|password|session_id/)
       apply(refresh.headers)
+      service.browser.assertMutation(request()) // The pre-refresh CSRF value remains valid.
       const after = await service.authenticate(request("GET"))
       assert.equal(
         after.session.expiresAt.getTime(),

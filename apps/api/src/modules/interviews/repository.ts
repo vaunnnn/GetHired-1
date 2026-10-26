@@ -2,7 +2,7 @@ import { randomInt } from "node:crypto"
 import type { Category, Question, SelectedPhase, PhaseConfig } from "@gethired/contracts"
 import type { SqlPool, SqlClient } from "../../auth/store.js"
 import type { Principal } from "../../auth/types.js"
-import { authorizedTransaction } from "../../db/transaction.js"
+import { authorizedTransaction, type AuthorizationTransaction } from "../../db/transaction.js"
 import { appendAudit } from "../../db/events.js"
 import { ApiError } from "../../api/errors.js"
 import { DEFAULT_PHASES, type bankQuery } from "./validation.js"
@@ -28,7 +28,7 @@ async function category(client: SqlClient, id: string, active = false) {
 }
 export function createBankRepository(pool: SqlPool) {
   return {
-    list(actor: Principal, query: ReturnType<typeof bankQuery>, admin: boolean, categoryId?: string) {
+    list(actor: Principal, query: ReturnType<typeof bankQuery>, admin: boolean, categoryId?: string, authorization?: AuthorizationTransaction) {
       return authorizedTransaction(pool, actor, admin || categoryId ? "questions:write" : "categories:read", async client => {
         if (categoryId) await category(client, categoryId)
         const status = admin ? query.status ?? null : "active"
@@ -39,9 +39,9 @@ export function createBankRepository(pool: SqlPool) {
         [status, query.pageSize, (query.page - 1) * query.pageSize, ...(categoryId ? [categoryId] : [])])
         const row = result.rows[0]
         return { data: categoryId ? row.data as Question[] : row.data.map(categoryDto) as Category[], meta: { page: query.page, pageSize: query.pageSize, total: row.total } }
-      })
+      }, authorization)
     },
-    save(actor: Principal, requestId: string, input: Record<string, unknown>, kind: "category" | "question", id?: string, categoryId?: string) {
+    save(actor: Principal, requestId: string, input: Record<string, unknown>, kind: "category" | "question", id?: string, categoryId?: string, authorization?: AuthorizationTransaction) {
       return authorizedTransaction(pool, actor, "questions:write", async client => {
         const table = kind === "category" ? "categories" : "questions"
         if (categoryId) await category(client, categoryId)
@@ -57,14 +57,14 @@ export function createBankRepository(pool: SqlPool) {
         const row = result.rows[0]
         await appendAudit(client, { actorId: actor.id, requestId, action: `${kind}.${id ? "updated" : "created"}`, resourceType: kind, resourceId: row.id })
         return kind === "category" ? categoryDto(row as Category) : row as Question
-      })
+      }, authorization)
     },
-    pipeline(actor: Principal, id: string) {
+    pipeline(actor: Principal, id: string, authorization?: AuthorizationTransaction) {
       return authorizedTransaction(pool, actor, "categories:read", async client => {
         const cat = await category(client, id, true)
         const rows = await client.query(`select id,question,type,hint,status from gethired_private.questions where category_id=$1 and status='active' order by id for share`, [id])
         return selectPipeline(cat.phases, rows.rows as Question[])
-      })
+      }, authorization)
     },
   }
 }

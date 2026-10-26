@@ -1,6 +1,10 @@
 import { Pool, type QueryResultRow } from "pg"
 import { ApiError } from "../api/errors.js"
 import { transaction as runTransaction } from "../db/transaction.js"
+import { authorizeSession } from "../db/authorization.js"
+import { sessionTransaction, type AuthorizationTransaction } from "../db/transaction.js"
+import type { Permission } from "../authorization/policy.js"
+import { time, queryScope } from "../logging/timing.js"
 import type { AuthConfig } from "./config.js"
 import {
   sessionPolicy,
@@ -22,8 +26,12 @@ export interface SqlClient {
 }
 export interface SqlPool {
   connect(): Promise<SqlClient>
+  readonly waitingCount?: number
 }
 export interface AuthStore {
+  readSession(sessionId: string, identity: Identity): Promise<Principal>
+  withAuthorization<T>(sessionId: string, identity: Identity, permission: Permission,
+    work: (principal: Principal, authorization: AuthorizationTransaction) => Promise<T>): Promise<T>
   resolveIdentifier(identifier: string): Promise<string | null>
   credentialVersion(email: string): Promise<number | null>
   createSession(identity: Identity, rememberMe: boolean, expectedVersion?: number): Promise<Principal>
@@ -78,7 +86,7 @@ export function createAuthStore(pool: SqlPool): AuthStore {
   async function transaction<T>(
     work: (client: SqlClient) => Promise<T>,
   ): Promise<T> {
-    return runTransaction(pool, work)
+    return time("session_store", () => queryScope("db_auth", () => runTransaction(pool, work)))
   }
   async function revoke(client: SqlClient, sessionId: string) {
     await client.query(
@@ -100,6 +108,8 @@ export function createAuthStore(pool: SqlPool): AuthStore {
     if (!result.rows[0]?.live) throw new ApiError("SESSION_EXPIRED")
   }
   return {
+    readSession: (sessionId, identity) => transaction(client => authorizeSession(client, sessionId, identity, { shared: true })),
+    withAuthorization: (sessionId, identity, permission, work) => sessionTransaction(pool, sessionId, identity, permission, work),
     resolveIdentifier: (identifier) =>
       transaction(async (client) => {
         const result = await client.query(
@@ -149,60 +159,11 @@ export function createAuthStore(pool: SqlPool): AuthStore {
       }),
     withSession: (sessionId, identity, touch, work) =>
       transaction(async (client) => {
-        // Lock account before session in every flow, matching account-change triggers.
-        await client.query(
-          "select gethired_private.lock_account(account_id) from gethired_private.sessions where id = $1",
-          [sessionId],
-        )
-        const accounts = await client.query(
-          `${accountSelect} where a.id = (select account_id from gethired_private.sessions where id = $1)`,
-          [sessionId],
-        )
-        const account = accounts.rows[0]
-        if (!account || account.status !== "active" || account.credentials_blocked)
-          throw new ApiError("SESSION_EXPIRED")
-        const rows = await client.query(
-          "select *, clock_timestamp() as checked_at from gethired_private.sessions where id = $1 for update",
-          [sessionId],
-        )
-        if (!rows.rows[0]) throw new ApiError("SESSION_EXPIRED")
-        const current = session(rows.rows[0])
-        // Read time after acquiring the row lock, so time spent waiting cannot revive expiry.
-        const checked = await client.query(
-          "select clock_timestamp() as checked_at",
-        )
-        const now = new Date(checked.rows[0].checked_at).getTime()
-        const verified = { userId: account.auth_user_id, sessionId }
-        if (
-          identity &&
-          (identity.userId !== verified.userId ||
-            identity.sessionId !== sessionId)
-        )
-          throw new ApiError("UNAUTHENTICATED")
-        if (
-          current.revokedAt ||
-          current.expiresAt.getTime() <= now ||
-          current.lastActivityAt.getTime() +
-            sessionPolicy(account.role, current.rememberMe).idleMs <=
-            now
-        )
-          throw new ApiError("SESSION_EXPIRED")
-        await live(client, verified)
-        const result = await work(
-          {
-            id: account.id,
-            identity: verified,
-            user: user(account),
-            session: current,
-          },
-          () => revoke(client, sessionId),
-        )
-        if (!(result instanceof ApiError)) await live(client, verified)
-        if (touch && !(result instanceof ApiError))
-          await client.query(
-            "update gethired_private.sessions set last_activity_at = clock_timestamp() where id = $1 and revoked_at is null",
-            [sessionId],
-          )
+        const principal = await authorizeSession(client, sessionId, identity)
+        const result = await work(principal, () => revoke(client, sessionId))
+        // Refresh/provider callbacks retain exclusive locks and a fresh DB-clock
+        // authorization check. Replay returns ApiError so its revocation commits.
+        if (!(result instanceof ApiError)) await authorizeSession(client, sessionId, identity, { expected: principal, touch })
         return result
       }),
     revokeSession: (sessionId) =>

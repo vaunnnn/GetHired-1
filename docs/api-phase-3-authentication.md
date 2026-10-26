@@ -1,5 +1,17 @@
 # Phase 3: JWT authentication and session lifecycle
 
+**2026-10-26 recovery update:** Refresh now returns the verified user alongside its
+existing session summary. See [performance-phase3.md](performance-phase3.md) for
+the current contract, recovery/freshness behavior and backend-first rollout.
+
+**2026-10-26 performance update:** Session projections now use a shared-lock database
+authorization function; ordinary business routes authorize and execute in one
+transaction. Refresh retains exclusive locking and post-callback DB-clock checks.
+Apply the new migration before deploying the backend. See
+[performance-phase2.md](performance-phase2.md) for current transaction ownership,
+verification evidence and rollout order; it supersedes historical transaction
+guidance below.
+
 **2026-10-01 extraction:** The implementation described below now lives under `apps/api/src` in the standalone Node.js service. Follow [B1 setup](backend-b1-extraction.md) for current environment locations and commands. Live Supabase verification remains pending. Public student registration is planned in B5 under the revised [B0 contract](backend-b0-contract.md).
 
 **Status:** Backend implementation complete with configuration placeholders. Live Supabase connection and verification are deferred by the user's choice. No cloud resources or accounts have been created, and the migration has not been applied to a hosted database.

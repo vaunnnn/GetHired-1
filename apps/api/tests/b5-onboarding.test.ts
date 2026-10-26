@@ -29,7 +29,7 @@ async function fixture() {
       confirmation_token text, recovery_token text, confirmation_sent_at timestamptz, recovery_sent_at timestamptz);
     create table auth.sessions(id uuid primary key, user_id uuid references auth.users(id), not_after timestamptz);
     create table auth.refresh_tokens(session_id uuid references auth.sessions(id) on delete cascade, revoked boolean);`)
-  for (const name of ["202609290001_phase3_auth.sql", "202610050001_b2_operations.sql", "202610120001_b3_feature_foundation.sql", "202610120002_b4_companies.sql", "202610130001_b5_onboarding.sql"])
+  for (const name of ["202609290001_phase3_auth.sql", "202610050001_b2_operations.sql", "202610120001_b3_feature_foundation.sql", "202610120002_b4_companies.sql", "202610130001_b5_onboarding.sql", "202610260001_session_authorization.sql"])
     await db.exec(await readFile(new URL(`../../../supabase/migrations/${name}`, import.meta.url), "utf8"))
   const client = { query: async (sql: string, values?: unknown[]) => { const result = await db.query(sql, values); return { rows: result.rows, rowCount: result.affectedRows ?? 0 } }, release() {} } as SqlClient
   const pool: SqlPool = { connect: async () => client }

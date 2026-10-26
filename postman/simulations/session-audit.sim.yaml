@@ -1,0 +1,6 @@
+simulation: session-audit
+routing: path
+mocks:
+  - name: session-audit
+    routeKey: session
+    path: postman/mocks/session-audit/config.yaml

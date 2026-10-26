@@ -38,6 +38,7 @@ test("B6 PostgreSQL persists edits, excludes rubrics, rejects inactive/short ban
     for (const name of ["202609290001_phase3_auth.sql", "202610050001_b2_operations.sql", "202610120001_b3_feature_foundation.sql", "202610140001_b6_question_bank.sql"])
       await db.exec(await readFile(new URL(`../../../supabase/migrations/${name}`, import.meta.url), "utf8"))
     await db.exec("alter table gethired_private.accounts add column credentials_blocked boolean not null default false; alter table gethired_private.accounts add column credential_version integer not null default 0")
+  await db.exec(await readFile(new URL("../../../supabase/migrations/202610260001_session_authorization.sql", import.meta.url), "utf8"))
     const seed = await readFile(new URL("../../../supabase/seeds/b6_question_bank.sql", import.meta.url), "utf8")
     await db.exec(seed); await db.exec(seed)
     const client = { query: async (sql: string, values?: unknown[]) => { const r = await db.query(sql, values); return { rows: r.rows, rowCount: r.affectedRows ?? 0 } }, release() {} } as SqlClient

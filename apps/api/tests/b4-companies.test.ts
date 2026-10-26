@@ -128,6 +128,7 @@ test("B4 persists companies and private bookmarks, audits atomically and retries
     for (const name of ["202609290001_phase3_auth.sql", "202610050001_b2_operations.sql", "202610120001_b3_feature_foundation.sql", "202610120002_b4_companies.sql"])
       await db.exec(await readFile(new URL(`../../../supabase/migrations/${name}`, import.meta.url), "utf8"))
     await db.exec("alter table gethired_private.accounts add column credentials_blocked boolean not null default false; alter table gethired_private.accounts add column credential_version integer not null default 0")
+  await db.exec(await readFile(new URL("../../../supabase/migrations/202610260001_session_authorization.sql", import.meta.url), "utf8"))
     const client = { query: async (sql: string, values?: unknown[]) => { const result = await db.query(sql, values); return { rows: result.rows, rowCount: result.affectedRows ?? 0 } }, release() {} } as SqlClient
     const pool: SqlPool = { connect: async () => client }
     const actor = async (role: "student" | "admin"): Promise<Principal> => {
@@ -153,6 +154,8 @@ test("B4 persists companies and private bookmarks, audits atomically and retries
     assert.equal((await repo.list(student, query("page=2&pageSize=1"))).data.length, 0)
     assert.equal((await repo.list(student, query("page=2&pageSize=1"))).meta.total, 1)
     const saved = await repo.bookmark(student, company.id)
+    assert.equal((await repo.get(student, company.id)).bookmarked, true)
+    assert.equal((await repo.get(other, company.id)).bookmarked, false)
     assert.deepEqual(await repo.bookmark(student, company.id), saved)
     assert.equal((await repo.list(other, query(), false, true)).meta.total, 0)
     assert.equal((await repo.list(student, query(), false, true)).meta.total, 1)
@@ -168,6 +171,15 @@ test("B4 persists companies and private bookmarks, audits atomically and retries
     assert.equal((await repo.list(student, query(), false, true)).meta.total, 1)
     await repo.bookmark(student, company.id, true); await repo.bookmark(student, company.id, true)
     assert.equal((await repo.list(student, query(), false, true)).meta.total, 0)
+    const first = await repo.save(admin, randomUUID(), companyInput({ ...input, name: "A first partner" }))
+    await repo.bookmark(student, first.id)
+    await repo.bookmark(student, company.id)
+    assert.equal((await repo.list(student, query("pageSize=1", false, true), false, true)).data[0].companyId, first.id)
+    const offPage = (await repo.list(student, query("page=2&pageSize=1"))).data[0]
+    assert.equal(offPage.id, company.id)
+    assert.equal((offPage as { bookmarked?: boolean }).bookmarked, true)
+    assert.equal(((await repo.list(other, query("page=2&pageSize=1"))).data[0] as { bookmarked?: boolean }).bookmarked, false)
+    assert.throws(() => companyInput({ ...input, bookmarked: true }), { code: "VALIDATION_ERROR" })
     await db.exec("reset role; revoke insert on gethired_private.audit_events from gethired_runtime; set role gethired_runtime")
     await assert.rejects(repo.save(admin, randomUUID(), { name: "Must roll back" }, company.id), { code: "SERVICE_UNAVAILABLE" })
     assert.equal((await repo.get(student, company.id)).name, "Updated partner")

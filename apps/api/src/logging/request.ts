@@ -1,4 +1,5 @@
 import type { ApiErrorCode } from "../api/errors.js"
+import { safeTimings, type Timings } from "./timing.js"
 
 export interface RequestLog {
   requestId: string
@@ -8,6 +9,9 @@ export interface RequestLog {
   durationMs: number
   actorId?: string
   errorCode?: ApiErrorCode
+  timings?: Timings
+  deployment?: { firstRequest: boolean; serviceRegion: string; databaseRegion: string }
+  connections?: { firstSeen: number; reused: number; waitingMax: number }
 }
 
 export type RequestLogger = (entry: RequestLog) => void | Promise<void>
@@ -25,6 +29,17 @@ export const logRequest: RequestLogger = (entry) => {
       durationMs: entry.durationMs,
       ...(entry.actorId ? { actorId: entry.actorId } : {}),
       ...(entry.errorCode ? { errorCode: entry.errorCode } : {}),
+      ...(entry.timings ? { timings: safeTimings(entry.timings) } : {}),
+      ...(entry.deployment ? { deployment: {
+        firstRequest: entry.deployment.firstRequest,
+        serviceRegion: entry.deployment.serviceRegion,
+        databaseRegion: entry.deployment.databaseRegion,
+      } } : {}),
+      ...(entry.connections ? { connections: {
+        firstSeen: entry.connections.firstSeen,
+        reused: entry.connections.reused,
+        waitingMax: entry.connections.waitingMax,
+      } } : {}),
     }),
   )
 }

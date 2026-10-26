@@ -3,7 +3,7 @@ import type { QueryResultRow } from "pg"
 import { ApiError } from "../../api/errors.js"
 import type { SqlPool } from "../../auth/store.js"
 import type { Principal } from "../../auth/types.js"
-import { authorizedTransaction } from "../../db/transaction.js"
+import { authorizedTransaction, type AuthorizationTransaction } from "../../db/transaction.js"
 import { appendAudit } from "../../db/events.js"
 import type { studentPatch, studentQuery } from "./input.js"
 
@@ -13,7 +13,7 @@ const project = (r: QueryResultRow): Student => ({ id: r.id, email: r.email, sta
   firstName: r.first_name, lastName: r.last_name, course: r.course, yearLevel: r.year_level })
 export function createStudentRepository(pool: SqlPool) {
   return {
-    list(actor: Principal, query: ReturnType<typeof studentQuery>) {
+    list(actor: Principal, query: ReturnType<typeof studentQuery>, authorization?: AuthorizationTransaction) {
       return authorizedTransaction(pool, actor, "students:manage", async c => {
         const where = ` where a.role = 'student' and ($1 = '' or position(lower($1) in lower(a.email || ' ' || p.first_name || ' ' || p.last_name)) > 0)
           and ($2::text is null or p.course = $2) and ($3::text is null or a.status = $3)`
@@ -21,9 +21,9 @@ export function createStudentRepository(pool: SqlPool) {
         const count = await c.query(`select count(*)::integer as total from gethired_private.accounts a join gethired_private.student_profiles p on p.account_id = a.id${where}`, values)
         const rows = await c.query(`${select}${where} order by p.last_name, p.first_name, a.id limit $4 offset $5`, [...values, query.pageSize, (query.page - 1) * query.pageSize])
         return { data: rows.rows.map(project), meta: { page: query.page, pageSize: query.pageSize, total: count.rows[0].total } }
-      })
+      }, authorization)
     },
-    create(actor: Principal, requestId: string, input: StudentInput) {
+    create(actor: Principal, requestId: string, input: StudentInput, authorization?: AuthorizationTransaction) {
       return authorizedTransaction(pool, actor, "students:manage", async c => {
         await c.query("select pg_advisory_xact_lock(hashtextextended($1, 5))", [input.email])
         if ((await c.query("select id from gethired_private.accounts where lower(email) = $1", [input.email])).rows.length) throw new ApiError("CONFLICT")
@@ -31,9 +31,9 @@ export function createStudentRepository(pool: SqlPool) {
         const id = result.rows[0].id
         await appendAudit(c, { actorId: actor.id, requestId, action: "student.created", resourceType: "student", resourceId: id })
         return project((await c.query(`${select} where a.id = $1`, [id])).rows[0])
-      })
+      }, authorization)
     },
-    patch(actor: Principal, requestId: string, id: string, input: ReturnType<typeof studentPatch>) {
+    patch(actor: Principal, requestId: string, id: string, input: ReturnType<typeof studentPatch>, authorization?: AuthorizationTransaction) {
       return authorizedTransaction(pool, actor, "students:manage", async c => {
         const email = (await c.query("select email from gethired_private.accounts where id = $1 and role = 'student'", [id])).rows[0]?.email
         if (!email) throw new ApiError("NOT_FOUND")
@@ -51,7 +51,7 @@ export function createStudentRepository(pool: SqlPool) {
           where account_id = $1 and state not in ('completed','superseded')`, [id])
         await appendAudit(c, { actorId: actor.id, requestId, action: "student.updated", resourceType: "student", resourceId: id })
         return project((await c.query(`${select} where a.id = $1`, [id])).rows[0])
-      })
+      }, authorization)
     },
   }
 }

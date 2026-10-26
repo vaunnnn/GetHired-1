@@ -1,0 +1,99 @@
+{
+  "timestamp": "2026-10-26T14:03:33.698Z",
+  "injectedDelayPerRequestMs": 75,
+  "reports": [
+    {
+      "scenario": "refresh",
+      "durationMs": 298,
+      "requestCount": 3,
+      "trace": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "start": 1793023412635
+        },
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "start": 1793023412732
+        },
+        {
+          "path": "/api/auth/refresh",
+          "method": "POST",
+          "start": 1793023412826
+        }
+      ]
+    },
+    {
+      "scenario": "me after expiry",
+      "durationMs": 364,
+      "requestCount": 4,
+      "trace": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "start": 1793023412927
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "start": 1793023413014
+        },
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "start": 1793023413107
+        },
+        {
+          "path": "/api/auth/refresh",
+          "method": "POST",
+          "start": 1793023413201
+        }
+      ]
+    },
+    {
+      "scenario": "three concurrent mutations",
+      "durationMs": 196,
+      "requestCount": 4,
+      "trace": [
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "start": 1793023413300
+        },
+        {
+          "path": "/api/admin/companies",
+          "method": "PATCH",
+          "start": 1793023413386
+        },
+        {
+          "path": "/api/admin/companies",
+          "method": "PATCH",
+          "start": 1793023413402
+        },
+        {
+          "path": "/api/admin/companies",
+          "method": "PATCH",
+          "start": 1793023413402
+        }
+      ]
+    },
+    {
+      "scenario": "me outage",
+      "durationMs": 177,
+      "requestCount": 2,
+      "trace": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "start": 1793023413503
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "start": 1793023413585
+        }
+      ]
+    }
+  ]
+}
