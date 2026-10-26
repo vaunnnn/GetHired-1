@@ -794,7 +794,7 @@ export default function AdminDashboard() {
             }`}
           >
             <img
-              src="/getHiredLogo.PNG"
+              src="/getHiredLogo.png"
               alt="GetHired Logo"
               className="w-10 h-10 object-contain shrink-0"
             />
@@ -872,7 +872,7 @@ export default function AdminDashboard() {
             {/* Mobile logo icon */}
             <div className="flex items-center gap-1.5 md:hidden shrink-0">
               <img
-                src="/getHiredLogo.PNG"
+                src="/getHiredLogo.png"
                 alt="GetHired Logo"
                 className="w-7 h-7 object-contain"
               />

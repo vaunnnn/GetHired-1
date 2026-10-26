@@ -1152,14 +1152,14 @@ export default function Dashboard() {
           >
             {collapsed ? (
               <img
-                src="/getHiredLogo.PNG"
+                src="/getHiredLogo.png"
                 alt="GetHired Logo"
                 className="w-11 h-11 object-contain shrink-0"
               />
             ) : (
               <>
                 <img
-                  src="/getHiredLogo.PNG"
+                  src="/getHiredLogo.png"
                   alt="GetHired Logo"
                   className="w-10 h-10 object-contain shrink-0"
                 />
@@ -1211,7 +1211,7 @@ export default function Dashboard() {
           {/* Mobile brand header */}
           <div className="flex items-center gap-2 md:hidden">
             <img
-              src="/getHiredLogo.PNG"
+              src="/getHiredLogo.png"
               alt="GetHired Logo"
               className="w-8 h-8 object-contain shrink-0"
             />
