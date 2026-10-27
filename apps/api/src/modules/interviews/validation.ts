@@ -1,4 +1,5 @@
-import { DEFAULT_PHASES, QUESTION_TYPES, type PhaseConfig } from "@gethired/contracts"
+import { DEFAULT_PHASES, QUESTION_TYPES, MCQ_QUESTION_TYPES, type PhaseConfig, type QuestionInput } from "@gethired/contracts"
+import { responseDefinition } from "./response-definition.js"
 import { ApiError } from "../../api/errors.js"
 import { strictObject, text, oneOf, optional, pagination, type Parser } from "../../api/validation.js"
 const color: Parser<string> = value => { if (typeof value !== "string" || !/^#[0-9a-f]{6}$/i.test(value)) throw new ApiError("VALIDATION_ERROR"); return value }
@@ -24,7 +25,22 @@ export function categoryInput(value: unknown, patch = false) {
     status: optional(oneOf(["active", "inactive"])), phases: optional(phaseInput) }, patch)
 }
 export function questionInput(value: unknown, patch = false) {
-  return input(value, { question: text(1, 12000), type: oneOf(QUESTION_TYPES), hint: text(0, 4000), feedback: text(0, 12000), status: optional(oneOf(["active", "inactive"])) }, patch)
+  const parsed = input(value, { question: text(1, 12000), type: oneOf(QUESTION_TYPES), hint: text(0, 4000), feedback: text(0, 12000),
+    responseDefinition: optional(responseDefinition), status: optional(oneOf(["active", "inactive"])) }, patch)
+  if (!patch) {
+    parsed.responseDefinition ??= { format: "written" }
+    parsed.status ??= "active"
+    const question = parsed as unknown as QuestionInput
+    if (question.responseDefinition?.format === "multiple_choice") {
+      if (!(MCQ_QUESTION_TYPES as readonly string[]).includes(question.type))
+        throw new ApiError("VALIDATION_ERROR", { fieldErrors: { type: ["Multiple choice is available for Technical, Situational, and Coding questions."] } })
+      if (question.feedback !== "")
+        throw new ApiError("VALIDATION_ERROR", { fieldErrors: { feedback: ["Multiple-choice questions cannot include explanations."] } })
+    } else if (question.status === "active" && !question.feedback.trim()) {
+      throw new ApiError("VALIDATION_ERROR", { fieldErrors: { feedback: ["Add evaluation criteria before activating a written question."] } })
+    }
+  }
+  return parsed
 }
 export function bankQuery(params: URLSearchParams, admin: boolean) {
   for (const key of params.keys()) if (!["page", "pageSize", ...(admin ? ["status"] : [])].includes(key) || params.getAll(key).length !== 1) throw new ApiError("VALIDATION_ERROR")

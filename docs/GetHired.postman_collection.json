@@ -320,7 +320,7 @@
                   "pm.test('Expected success status', () => pm.response.to.have.status(200));",
                   "const body = pm.response.json();",
                   "pm.test('Envelope has request ID and data', () => { pm.expect(body.requestId).to.be.a('string'); pm.expect(body).to.have.property('data'); });",
-                  "pm.test('No private rubric fields', () => pm.expect(JSON.stringify(body)).not.to.match(/\"feedback\"\\s*:/));"
+                  "pm.test('No private rubric or answer key fields', () => pm.expect(JSON.stringify(body)).not.to.match(/\"(feedback|correctOptionId)\"\\s*:/));"
                 ]
               }
             }
@@ -569,7 +569,7 @@
                   "pm.test('Expected success status', () => pm.response.to.have.status(200));",
                   "const body = pm.response.json();",
                   "pm.test('Envelope has request ID and data', () => { pm.expect(body.requestId).to.be.a('string'); pm.expect(body).to.have.property('data'); });",
-                  "pm.test('No private rubric fields', () => pm.expect(JSON.stringify(body)).not.to.match(/\"feedback\"\\s*:/));"
+                  "pm.test('No private rubric or answer key fields', () => pm.expect(JSON.stringify(body)).not.to.match(/\"(feedback|correctOptionId)\"\\s*:/));"
                 ]
               }
             }

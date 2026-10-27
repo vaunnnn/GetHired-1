@@ -5,6 +5,7 @@ import { useSession } from "./SessionProvider";
 import CompanyCard from "./CompanyCard";
 import CategoryCard, { CategoryIcon } from "./CategoryCard";
 import { bankList, categoryView, type InterviewCategory } from "@/lib/interviews";
+import { validPracticeAnswer, practiceAnswerText } from "@/lib/interview-answers";
 import type { CompanyListing, Category, SelectedPhase } from "@gethired/contracts";
 
 import { apiClient } from "@/lib/api-client";
@@ -759,7 +760,7 @@ function typeBadge(type: string) {
 }
 
 /* ═══════════════════════════════ INTERVIEW VIEW ═════════════════════ */
-interface ResultEntry { phase: string; question: string; answer: string; feedback: string; }
+interface ResultEntry { phase: string; question: string; answer: string; selectedOptionId?: string; feedback: string; }
 
 function InterviewView({ cache }: { cache: { current: { rows: InterviewCategory[]; at: number } | null } }) {
   const [interviewCategories, setInterviewCategories] = useState<InterviewCategory[]>([]);
@@ -809,10 +810,12 @@ function InterviewView({ cache }: { cache: { current: { rows: InterviewCategory[
   const reset = () => { setSelectedCatId(null); setPhases([]); setPhaseIdx(0); setQIdx(0); setAnswer(""); setShowFeedback(false); setResults([]); setDone(false); };
 
   const submitAnswer = () => {
+    if (showFeedback || !currentQ || !validPracticeAnswer(currentQ, answer)) return;
     setResults((prev) => [...prev, {
       phase: currentPhase.label,
       question: currentQ.question,
-      answer,
+      answer: practiceAnswerText(currentQ, answer),
+      ...(currentQ.responseDefinition.format === "multiple_choice" ? { selectedOptionId: answer } : {}),
       feedback: "Your response is kept only for this practice session. Scoring and saved history are not available yet.",
     }]);
     setShowFeedback(true);
@@ -939,8 +942,9 @@ function InterviewView({ cache }: { cache: { current: { rows: InterviewCategory[
 
   /* ── Active interview ── */
   const isQAPhase = currentPhase.id === "your-questions";
-  const isCodingPhase = currentPhase.id === "coding";
-  const minLen = isQAPhase ? 1 : 20;
+  const isCodingPhase = currentQ.type === "Coding";
+  const responseDefinition = currentQ.responseDefinition;
+  const isMultipleChoice = responseDefinition.format === "multiple_choice";
 
   return (
     <div>
@@ -1002,26 +1006,42 @@ function InterviewView({ cache }: { cache: { current: { rows: InterviewCategory[
       {/* Answer / feedback */}
       {!showFeedback ? (
         <div className="bg-white rounded-[28px] p-6 shadow-sm">
-          <label className="block text-[13px] font-semibold text-[#302929] mb-3">
-            {isQAPhase ? "Your Questions for the Interviewer" : isCodingPhase ? "Your Solution" : "Your Answer"}
+          <label htmlFor={isMultipleChoice ? undefined : "practice-answer"} id="practice-answer-label" className="block text-[13px] font-semibold text-[#302929] mb-3">
+            {isMultipleChoice ? "Choose one answer" : isQAPhase ? "Your Questions for the Interviewer" : isCodingPhase ? "Your Solution and Reasoning" : "Your Answer"}
           </label>
-          <textarea
+          {responseDefinition.format === "multiple_choice" ? (
+            <fieldset aria-labelledby="practice-answer-label" className="space-y-3">
+              {responseDefinition.options.map((option, index) => (
+                <label key={option.id} className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 ${answer === option.id ? "border-[#0073ff] bg-[#dfe9ff]" : "border-gray-200"}`}>
+                  <input type="radio" name="practice-option" value={option.id}
+                    checked={answer === option.id} onChange={() => setAnswer(option.id)}
+                    className="mt-1 accent-[#0073ff]" />
+                  <span className="text-sm text-gray-700">
+                    <span className="mr-2 font-semibold">{String.fromCharCode(65 + index)}.</span>
+                    <span className={`whitespace-pre-wrap break-words ${isCodingPhase ? "font-mono" : ""}`}>{option.text}</span>
+                  </span>
+                </label>
+              ))}
+            </fieldset>
+          ) : <textarea
+            id="practice-answer"
+            maxLength={20000}
             value={answer}
             onChange={(e) => setAnswer(e.target.value)}
             placeholder={
               isQAPhase ? "Type your questions here, or 'No questions at this time.'"
-              : isCodingPhase ? "Write your code or solution here..."
+              : isCodingPhase ? "Write your code or solution and explain your reasoning..."
               : "Type your answer here. Use the STAR method for behavioral questions..."
             }
             rows={isCodingPhase ? 10 : 7}
             className="w-full outline-none text-[14px] text-gray-600 leading-relaxed resize-none placeholder-gray-200"
             style={{ fontFamily: isCodingPhase ? "'Courier New', monospace" : "'Poppins', sans-serif" }}
-          />
+          />}
           <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-50">
-            <span className="text-[11px] text-gray-300">{answer.length} characters</span>
+            <span className="text-[11px] text-gray-400">{isMultipleChoice ? "Select one option to continue." : `${answer.length} / 20000 characters`}</span>
             <button
               onClick={submitAnswer}
-              disabled={answer.trim().length < minLen}
+              disabled={!validPracticeAnswer(currentQ, answer)}
               className="bg-[#0073ff] text-white text-[13px] font-semibold px-7 py-2.5 rounded-full hover:bg-[#0060dd] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Record response
@@ -1051,7 +1071,7 @@ function InterviewView({ cache }: { cache: { current: { rows: InterviewCategory[
           {/* Your answer */}
           <div className="bg-white rounded-[28px] p-6 shadow-sm">
             <div className="text-[11px] font-semibold text-gray-300 mb-3 uppercase tracking-wide">Your Answer</div>
-            <p className="text-[13px] text-gray-600 leading-relaxed whitespace-pre-wrap">{answer}</p>
+            <p className="text-[13px] text-gray-600 leading-relaxed whitespace-pre-wrap">{practiceAnswerText(currentQ, answer)}</p>
           </div>
 
           {/* AI feedback */}

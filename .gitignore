@@ -12,6 +12,7 @@
 
 # next.js
 /.next/
+/.next-smoke/
 /out/
 
 # production
@@ -20,6 +21,8 @@
 # misc
 .DS_Store
 *.pem
+# Local Supabase trust certificate (configured per development environment)
+/supabase-ca.crt
 
 # debug
 npm-debug.log*

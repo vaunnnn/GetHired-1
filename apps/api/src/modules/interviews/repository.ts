@@ -5,9 +5,10 @@ import type { Principal } from "../../auth/types.js"
 import { authorizedTransaction, type AuthorizationTransaction } from "../../db/transaction.js"
 import { appendAudit } from "../../db/events.js"
 import { ApiError } from "../../api/errors.js"
-import { DEFAULT_PHASES, type bankQuery } from "./validation.js"
+import { DEFAULT_PHASES, questionInput, type bankQuery } from "./validation.js"
+import { publicResponseDefinition } from "./response-definition.js"
 const categoryFields = "id,name,description,color,bg,phases,status"
-const questionFields = "id,question,type,hint,feedback,status"
+const questionFields = 'id,question,type,hint,feedback,status,response_definition as "responseDefinition"'
 const categoryDto = (row: Category): Category => ({ ...row, pipeline: row.phases.map(p => p.shortLabel).join(" → ") })
 export function selectPipeline(phases: PhaseConfig[], questions: Question[]): SelectedPhase[] {
   const used = new Set<string>()
@@ -16,7 +17,7 @@ export function selectPipeline(phases: PhaseConfig[], questions: Question[]): Se
     if (candidates.length < phase.count) throw new ApiError("CATEGORY_UNAVAILABLE")
     const selected = Array.from({ length: phase.count }, () => {
       const q = candidates.splice(randomInt(candidates.length), 1)[0]; used.add(q.id)
-      return { id: q.id, question: q.question, type: q.type, hint: q.hint }
+      return { id: q.id, question: q.question, type: q.type, hint: q.hint, responseDefinition: publicResponseDefinition(q.responseDefinition) }
     })
     return { id: phase.id, label: phase.label, shortLabel: phase.shortLabel, questions: selected }
   })
@@ -45,13 +46,18 @@ export function createBankRepository(pool: SqlPool) {
       return authorizedTransaction(pool, actor, "questions:write", async client => {
         const table = kind === "category" ? "categories" : "questions"
         if (categoryId) await category(client, categoryId)
+        let current: Record<string, unknown> = {}
         if (id) {
-          const locked = await client.query(`select id from gethired_private.${table} where id=$1 for update`, [id])
+          const locked = await client.query(`select ${kind === "question" ? questionFields : "id"} from gethired_private.${table} where id=$1 for update`, [id])
           if (!locked.rows.length) throw new ApiError("NOT_FOUND")
+          if (kind === "question") { const { id: _id, ...fields } = locked.rows[0]; current = fields }
         }
-        const data = { ...input, ...(!id && kind === "category" ? { phases: input.phases ?? DEFAULT_PHASES } : {}), ...(categoryId ? { category_id: categoryId } : {}) }
-        const entries = Object.entries(data)
-        const values = entries.map(([k,v]) => k === "phases" ? JSON.stringify(v) : v)
+        // Revalidate a PATCH against the locked current record, so type/status or
+        // rubric edits cannot leave an invalid MCQ or activate an incomplete draft.
+        const validated = kind === "question" ? questionInput({ ...current, ...input }) : input
+        const data = { ...validated, ...(!id && kind === "category" ? { phases: input.phases ?? DEFAULT_PHASES } : {}), ...(categoryId ? { category_id: categoryId } : {}) }
+        const entries = Object.entries(data).map(([key, value]) => [key === "responseDefinition" ? "response_definition" : key, value] as const)
+        const values = entries.map(([k,v]) => ["phases", "response_definition"].includes(k) ? JSON.stringify(v) : v)
         const result = await client.query(id ? `update gethired_private.${table} set ${entries.map(([k], i) => `${k}=$${i+1}`).join(",")},updated_at=clock_timestamp() where id=$${values.length+1} returning ${kind === "category" ? categoryFields : questionFields}`
           : `insert into gethired_private.${table} (${entries.map(([k]) => k).join(",")}) values (${values.map((_,i) => `$${i+1}`).join(",")}) returning ${kind === "category" ? categoryFields : questionFields}`, [...values, ...(id ? [id] : [])])
         const row = result.rows[0]
@@ -62,7 +68,7 @@ export function createBankRepository(pool: SqlPool) {
     pipeline(actor: Principal, id: string, authorization?: AuthorizationTransaction) {
       return authorizedTransaction(pool, actor, "categories:read", async client => {
         const cat = await category(client, id, true)
-        const rows = await client.query(`select id,question,type,hint,status from gethired_private.questions where category_id=$1 and status='active' order by id for share`, [id])
+        const rows = await client.query(`select id,question,type,hint,status,response_definition as "responseDefinition" from gethired_private.questions where category_id=$1 and status='active' order by id for share`, [id])
         return selectPipeline(cat.phases, rows.rows as Question[])
       }, authorization)
     },

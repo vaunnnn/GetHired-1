@@ -23,7 +23,7 @@ let invitations = 0
 const companyId = randomUUID(), savedCompanies = new Set()
 const categoryId = randomUUID(), questionId = randomUUID()
 let category = { id: categoryId, name: "B6 Browser Track", description: "Browser practice", color: "#112233", bg: "#ffffff", status: "active", pipeline: "Intro", phases: [{ id: "intro", label: "Introduction", shortLabel: "Intro", types: ["Introduction"], count: 1 }] }
-let bankQuestion = { id: questionId, question: "B6 introduce yourself", type: "Introduction", hint: "Be specific", feedback: "B6_PRIVATE_RUBRIC", status: "active" }
+let bankQuestion = { id: questionId, question: "B6 introduce yourself", type: "Introduction", hint: "Be specific", feedback: "B6_PRIVATE_RUBRIC", status: "active", responseDefinition: { format: "written" } }
 let company = { id: companyId, name: "B4 Browser Partner", industry: "Software Development", type: "Services", specializations: ["Web Development"],
   location: "Cebu City", slots: 0, description: "Browser acceptance fixture", website: "https://example.test/", email: "team@example.test",
   phone: "", hours: "Weekdays", image: "/getHiredLogo.png", status: "active" }
@@ -79,7 +79,8 @@ const fixture = createServer(async (req, res) => {
     }
     if (url.pathname.endsWith("/pipeline")) {
       if (bankQuestion.status === "inactive") return finish(409, null, "CATEGORY_UNAVAILABLE")
-      const { feedback, status, ...safe } = bankQuestion
+      const { feedback, status, responseDefinition, ...safe } = bankQuestion
+      safe.responseDefinition = responseDefinition.format === "written" ? { format: "written" } : { format: "multiple_choice", options: responseDefinition.options }
       return finish(200, [{ id: "intro", label: "Introduction", shortLabel: "Intro", questions: [safe] }])
     }
     const rows = url.pathname.endsWith("/questions") ? [bankQuestion] : category.status === "active" || role === "admin" ? [category] : []
@@ -327,6 +328,29 @@ try {
   await first.evaluate("[...document.querySelectorAll('h3')].find(h => h.textContent === 'B6 Browser Track').click()")
   await until(() => first.evaluate("document.body.innerText.includes('B6 introduce yourself')"), "B6 server-selected prompt")
   assert.equal(await first.evaluate("document.body.innerText.includes('B6_PRIVATE_RUBRIC')"), false)
+  await first.evaluate(`(() => { const input = document.querySelector('#practice-answer'); Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set.call(input, 'A written answer with enough detail.'); input.dispatchEvent(new Event('input', {bubbles:true})); })()`)
+  await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Record response').click()")
+  await until(() => first.evaluate("document.body.innerText.includes('Response recorded for this session')"), "written response recorded")
+  await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Retry').click()")
+  assert.equal(await first.evaluate("document.querySelector('#practice-answer').value"), "")
+  const originalQuestion = structuredClone(bankQuestion)
+  bankQuestion = { ...bankQuestion, type: "Coding", question: "Trace the output", feedback: "", responseDefinition: { format: "multiple_choice", options: [{ id: "a", text: "0" }, { id: "b", text: "1" }], correctOptionId: "b" } }
+  await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.includes('Back to categories')).click()")
+  await first.evaluate("[...document.querySelectorAll('h3')].find(h => h.textContent === 'B6 Browser Track').click()")
+  await until(() => first.evaluate("document.querySelectorAll('input[name=practice-option]').length === 2"), "coding MCQ choices")
+  assert.equal(await first.evaluate("!!document.querySelector('textarea')"), false, "MCQ has no written explanation")
+  assert.equal(await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Record response').disabled"), true)
+  await first.evaluate("document.querySelector('input[name=practice-option][value=a]').click()")
+  await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Record response').click()")
+  await until(() => first.evaluate("document.body.innerText.includes('Response recorded for this session')"), "MCQ recorded without minimum text length")
+  assert.equal(await first.evaluate("[...document.querySelectorAll('div')].find(e => e.textContent.trim() === 'Your Answer')?.nextElementSibling?.textContent"), "0")
+  await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Retry').click()")
+  assert.equal(await first.evaluate("document.querySelector('input[name=practice-option]:checked') === null"), true)
+  await first.evaluate("document.querySelector('input[name=practice-option][value=b]').click()")
+  await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Record response').click()")
+  await first.evaluate("[...document.querySelectorAll('button')].find(b => b.textContent.includes('See Results')).click()")
+  await until(() => first.evaluate("document.body.innerText.includes('Retry This Category')"), "MCQ flow reaches summary")
+  bankQuestion = originalQuestion
   await first.navigate(`${base}/dashboard`)
   const wrongRole = await fetch(`${base}/admin`, { headers: { ...ingress, cookie: `b3-test-session=${studentCookie}` } })
   const denied = await wrongRole.text()
@@ -434,6 +458,27 @@ try {
   await first.evaluate("document.querySelector('textarea[placeholder=\"Type the question interviewer will ask...\"]').closest('form').requestSubmit()")
   await until(() => first.evaluate("!document.querySelector('textarea[placeholder=\"Type the question interviewer will ask...\"]')"), "B6 question save")
   assert.equal(bankQuestion.feedback, "B6_PRIVATE_RUBRIC")
+  await first.evaluate("document.querySelector('button[title=\"Edit Question\"]').click()")
+  await until(() => first.evaluate("!!document.querySelector('select[aria-label=\"Answer format\"]')"), "answer format editor")
+  assert.equal(await first.evaluate("document.querySelector('select[aria-label=\"Answer format\"] option[value=multiple_choice]').disabled"), true, "intro remains written")
+  await first.evaluate("[...document.querySelectorAll('label')].find(e => e.textContent === 'Question Type').parentElement.querySelector('button').click()")
+  await first.evaluate("[...document.querySelectorAll('button')].find(e => e.textContent.trim() === 'Coding').click()")
+  await first.evaluate("(() => { const select = document.querySelector('select[aria-label=\"Answer format\"]'); select.value='multiple_choice'; select.dispatchEvent(new Event('change',{bubbles:true})); })()")
+  await until(() => first.evaluate("!!document.querySelector('textarea[aria-label=\"Option 1\"]')"), "MCQ editor choices")
+  assert.equal(await first.evaluate("!!document.querySelector('#question-rubric')"), false, "MCQ cannot have an explanation field")
+  await first.evaluate(`(() => { const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set;
+    for (let i=1;i<=4;i++) { const input=document.querySelector('textarea[aria-label="Option '+i+'"]'); setter.call(input,'Output '+i); input.dispatchEvent(new Event('input',{bubbles:true})); } })()`)
+  await first.evaluate("document.querySelector('input[aria-label=\"Mark option 2 correct\"]').click()")
+  await first.evaluate("document.querySelector('select[aria-label=\"Answer format\"]').closest('form').requestSubmit()")
+  await until(() => first.evaluate("!document.querySelector('select[aria-label=\"Answer format\"]')"), "MCQ saved")
+  assert.equal(bankQuestion.type, "Coding")
+  assert.equal(bankQuestion.feedback, "")
+  assert.equal(bankQuestion.responseDefinition.correctOptionId, "b")
+  assert.deepEqual(bankQuestion.responseDefinition.options.map(o => o.text), ["Output 1", "Output 2", "Output 3", "Output 4"])
+  await first.evaluate("document.querySelector('button[title=\"Edit Question\"]').click()")
+  await until(() => first.evaluate("document.querySelector('textarea[aria-label=\"Option 2\"]')?.value === 'Output 2'"), "MCQ reloads for editing")
+  assert.equal(await first.evaluate("document.querySelector('input[aria-label=\"Mark option 2 correct\"]').checked"), true)
+  await first.evaluate("[...document.querySelector('select[aria-label=\"Answer format\"]').closest('form').querySelectorAll('button')].find(b => b.textContent.trim() === 'Cancel').click()")
   outage = true
   const outageOffset = first.performanceEvents.length
   await first.navigate(`${base}/admin`)
@@ -472,7 +517,7 @@ try {
   await fill({ newPassword: "browser invite password" }); await first.evaluate("document.querySelector('form').requestSubmit()")
   await until(() => first.evaluate("document.body.innerText.includes('Your account is active.')"), "invitation accepted")
   assert.equal(onboardingRequests.at(-1).body.tokenHash, "a".repeat(56))
-  console.log("B3/B4/B5/B6 browser smoke passed: sessions, companies/bookmarks, registry/onboarding, API categories, pipeline shortage/recovery, public prompts, admin phases/question edits and private rubric visibility. Uses isolated HTTP fixtures; hosted Supabase remains unverified.")
+  console.log("Browser smoke passed: sessions, companies/bookmarks, registry/onboarding, API categories, shortages, written responses, Coding MCQ selection/retry/completion, admin MCQ editing, and private rubric/answer-key projections. Uses isolated HTTP fixtures; hosted authenticated flows were not exercised.")
 } finally {
   for (const ws of sockets) ws.close()
   for (const child of children.reverse()) if (child.exitCode === null) child.kill()

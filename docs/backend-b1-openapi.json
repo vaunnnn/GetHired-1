@@ -437,11 +437,6 @@
                   ]
                 }
               }
-            },
-            "headers": {
-              "Server-Timing": {
-                "$ref": "#/components/headers/ServerTiming"
-              }
             }
           },
           "400": {
@@ -565,11 +560,6 @@
                   ]
                 }
               }
-            },
-            "headers": {
-              "Server-Timing": {
-                "$ref": "#/components/headers/ServerTiming"
-              }
             }
           },
           "400": {
@@ -643,11 +633,6 @@
                     "requestId"
                   ]
                 }
-              }
-            },
-            "headers": {
-              "Server-Timing": {
-                "$ref": "#/components/headers/ServerTiming"
               }
             }
           },
@@ -743,11 +728,6 @@
                     "requestId"
                   ]
                 }
-              }
-            },
-            "headers": {
-              "Server-Timing": {
-                "$ref": "#/components/headers/ServerTiming"
               }
             }
           },
@@ -891,11 +871,6 @@
                   ]
                 }
               }
-            },
-            "headers": {
-              "Server-Timing": {
-                "$ref": "#/components/headers/ServerTiming"
-              }
             }
           },
           "400": {
@@ -978,11 +953,6 @@
                     "requestId"
                   ]
                 }
-              }
-            },
-            "headers": {
-              "Server-Timing": {
-                "$ref": "#/components/headers/ServerTiming"
               }
             }
           },
@@ -1079,11 +1049,6 @@
                   ]
                 }
               }
-            },
-            "headers": {
-              "Server-Timing": {
-                "$ref": "#/components/headers/ServerTiming"
-              }
             }
           },
           "400": {
@@ -1173,11 +1138,6 @@
                     "requestId"
                   ]
                 }
-              }
-            },
-            "headers": {
-              "Server-Timing": {
-                "$ref": "#/components/headers/ServerTiming"
               }
             }
           },
@@ -1888,7 +1848,8 @@
           "feedback": {
             "type": "string",
             "minLength": 0,
-            "maxLength": 12000
+            "maxLength": 12000,
+            "description": "Private evaluation criteria: required for active written questions, empty for MCQs. MCQ explanations are prohibited."
           },
           "status": {
             "type": "string",
@@ -1896,6 +1857,9 @@
               "active",
               "inactive"
             ]
+          },
+          "responseDefinition": {
+            "$ref": "#/components/schemas/QuestionResponseDefinition"
           },
           "id": {
             "type": "string",
@@ -1908,6 +1872,7 @@
           "hint",
           "feedback",
           "status",
+          "responseDefinition",
           "id"
         ]
       },
@@ -2027,7 +1992,8 @@
           "feedback": {
             "type": "string",
             "minLength": 0,
-            "maxLength": 12000
+            "maxLength": 12000,
+            "description": "Private evaluation criteria: required for active written questions, empty for MCQs. MCQ explanations are prohibited."
           },
           "status": {
             "type": "string",
@@ -2035,6 +2001,9 @@
               "active",
               "inactive"
             ]
+          },
+          "responseDefinition": {
+            "$ref": "#/components/schemas/QuestionResponseDefinition"
           }
         },
         "required": [
@@ -2074,7 +2043,8 @@
           "feedback": {
             "type": "string",
             "minLength": 0,
-            "maxLength": 12000
+            "maxLength": 12000,
+            "description": "Private evaluation criteria: required for active written questions, empty for MCQs. MCQ explanations are prohibited."
           },
           "status": {
             "type": "string",
@@ -2082,6 +2052,9 @@
               "active",
               "inactive"
             ]
+          },
+          "responseDefinition": {
+            "$ref": "#/components/schemas/QuestionResponseDefinition"
           }
         },
         "required": [],
@@ -2140,13 +2113,17 @@
                   "type": "string",
                   "minLength": 0,
                   "maxLength": 4000
+                },
+                "responseDefinition": {
+                  "$ref": "#/components/schemas/PublicQuestionResponseDefinition"
                 }
               },
               "required": [
                 "id",
                 "question",
                 "type",
-                "hint"
+                "hint",
+                "responseDefinition"
               ]
             }
           }
@@ -2238,6 +2215,121 @@
           "hours",
           "status",
           "bookmarked"
+        ]
+      },
+      "QuestionOption": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40,
+            "pattern": "^[a-z][a-z0-9_-]{0,39}$"
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        },
+        "required": [
+          "id",
+          "text"
+        ]
+      },
+      "QuestionResponseDefinition": {
+        "description": "Single-correct-answer MCQs are allowed only for Technical, Situational, and Coding. Written is the default on create. Replace this complete object on PATCH; option IDs and trimmed case-insensitive labels must be unique.",
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "format": {
+                "type": "string",
+                "enum": [
+                  "written"
+                ]
+              }
+            },
+            "required": [
+              "format"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "format": {
+                "type": "string",
+                "enum": [
+                  "multiple_choice"
+                ]
+              },
+              "options": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 6,
+                "items": {
+                  "$ref": "#/components/schemas/QuestionOption"
+                }
+              },
+              "correctOptionId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40,
+                "description": "Must identify exactly one listed option. Admin/evaluator only."
+              }
+            },
+            "required": [
+              "format",
+              "options",
+              "correctOptionId"
+            ]
+          }
+        ]
+      },
+      "PublicQuestionResponseDefinition": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "format": {
+                "type": "string",
+                "enum": [
+                  "written"
+                ]
+              }
+            },
+            "required": [
+              "format"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "format": {
+                "type": "string",
+                "enum": [
+                  "multiple_choice"
+                ]
+              },
+              "options": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 6,
+                "items": {
+                  "$ref": "#/components/schemas/QuestionOption"
+                }
+              }
+            },
+            "required": [
+              "format",
+              "options"
+            ]
+          }
         ]
       }
     },
