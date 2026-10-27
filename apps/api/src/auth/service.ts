@@ -8,6 +8,10 @@ import { emptyInput, loginInput } from "./input.js"
 import { createProvider, RefreshReplayError } from "./provider.js"
 import type { AuthStore } from "./store.js"
 import type { Identity, Principal, Session } from "./types.js"
+import type { Permission } from "../authorization/policy.js"
+import type { AuthorizationTransaction } from "../db/transaction.js"
+import { time } from "../logging/timing.js"
+import type { RefreshResult } from "@gethired/contracts"
 
 export interface AuthDependencies {
   config: AuthConfig
@@ -30,21 +34,27 @@ export function createAuthService({
   })
   const limitKey = (kind: string, value: string) =>
     `${kind}:${createHmac("sha256", Buffer.from(config.cookieSecret, "hex")).update(value).digest("hex")}`
-  async function authenticate(request: Request): Promise<Principal> {
+  async function requestIdentity(request: Request): Promise<Identity> {
     const access = browser.read(request, browser.names.access)
     const binding = browser.binding(request)
     if (!access || !binding?.sessionId) throw new ApiError("UNAUTHENTICATED")
     const identity = await verify(access)
-    return store.withSession(
-      binding.sessionId,
-      identity,
-      false,
-      async (principal) => principal,
-    )
+    if (identity.sessionId !== binding.sessionId) throw new ApiError("UNAUTHENTICATED")
+    return identity
+  }
+  async function authenticate(request: Request): Promise<Principal> {
+    const identity = await requestIdentity(request)
+    return store.readSession(identity.sessionId, identity)
+  }
+  async function withAuthorization<T>(request: Request, permission: Permission,
+    work: (principal: Principal, authorization: AuthorizationTransaction) => Promise<T>): Promise<T> {
+    const identity = await time("authentication", () => requestIdentity(request))
+    return store.withAuthorization(identity.sessionId, identity, permission, work)
   }
   return {
     browser,
     authenticate,
+    withAuthorization,
     // For later business services: call only after successful work, never for polling/refresh.
     recordActivity: (principal: Principal) =>
       store.withSession(
@@ -76,6 +86,7 @@ export function createAuthService({
         throw new ApiError("SERVICE_UNAVAILABLE")
       await store.consumeLimit(limitKey("ip", rawIp), 30, 900)
       const resolved = await store.resolveIdentifier(input.identifier)
+      const credentialVersion = resolved ? await store.credentialVersion(resolved) : null
       const key = limitKey(
         "identifier",
         (resolved ?? input.identifier).toLowerCase(),
@@ -92,12 +103,12 @@ export function createAuthService({
       try {
         const identity = await verify(tokens.accessToken)
         if (
-          !resolved ||
+          !resolved || credentialVersion === null ||
           !tokens.emailVerified ||
           tokens.userId !== identity.userId
         )
           throw new ApiError("INVALID_CREDENTIALS")
-        principal = await store.createSession(identity, input.rememberMe)
+        principal = await store.createSession(identity, input.rememberMe, credentialVersion)
       } catch (error) {
         // No application session is created for an unprovisioned or inactive account.
         try {
@@ -164,7 +175,7 @@ export function createAuthService({
               tokens.refreshToken,
               principal.session,
             )
-            return { data: { session: projection(principal.session) }, headers }
+            return { data: { user: principal.user, session: projection(principal.session) } satisfies RefreshResult, headers }
           } catch (error) {
             if (error instanceof RefreshReplayError) {
               await revoke()

@@ -1,0 +1,11 @@
+version: 1
+name: session-audit
+slug: session-audit
+protocol: http
+description: Isolated session performance fixture derived from docs/GetHired.postman_collection.json and tests/session-browser-smoke.mjs
+port: 4511
+interceptRequests: true
+scenarios:
+  - name: default
+    path: default.js
+    default: true

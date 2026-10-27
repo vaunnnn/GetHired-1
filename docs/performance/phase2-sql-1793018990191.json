@@ -1,0 +1,1867 @@
+{
+  "timestamp": "2026-10-26T12:49:50.191Z",
+  "database": "PGlite; single connection; not production PostgreSQL latency or concurrency",
+  "node": "v22.14.0",
+  "reports": [
+    {
+      "injectedLatencyPerQueryMs": 0,
+      "touch": false,
+      "sample": 1,
+      "durationMs": 6,
+      "statementCount": 4,
+      "timings": {
+        "pool": {
+          "durationMs": 0.12,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 5.4,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 5.42,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 1.73,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 3.28,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 0,
+      "touch": false,
+      "sample": 2,
+      "durationMs": 4,
+      "statementCount": 4,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 3.44,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 3.46,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 1.84,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 1.5,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 0,
+      "touch": false,
+      "sample": 3,
+      "durationMs": 4,
+      "statementCount": 4,
+      "timings": {
+        "pool": {
+          "durationMs": 0.02,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 3.99,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 4,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 2.31,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 1.56,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 0,
+      "touch": false,
+      "sample": 4,
+      "durationMs": 3,
+      "statementCount": 4,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 2.74,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 2.75,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 1.62,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 1.05,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 0,
+      "touch": false,
+      "sample": 5,
+      "durationMs": 2,
+      "statementCount": 4,
+      "timings": {
+        "pool": {
+          "durationMs": 0.02,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 2.39,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 2.43,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 1.28,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 1.03,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 0,
+      "touch": true,
+      "sample": 1,
+      "durationMs": 6,
+      "statementCount": 5,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 6.04,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 6.05,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 1.5,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 4.05,
+          "count": 2
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 0,
+      "touch": true,
+      "sample": 2,
+      "durationMs": 3,
+      "statementCount": 5,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 2.83,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 2.83,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 1.19,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 1.48,
+          "count": 2
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 0,
+      "touch": true,
+      "sample": 3,
+      "durationMs": 3,
+      "statementCount": 5,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 2.94,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 2.95,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 1.03,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 1.76,
+          "count": 2
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 0,
+      "touch": true,
+      "sample": 4,
+      "durationMs": 3,
+      "statementCount": 5,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 2.54,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 2.54,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 1.19,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 1.28,
+          "count": 2
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 0,
+      "touch": true,
+      "sample": 5,
+      "durationMs": 3,
+      "statementCount": 5,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 3.09,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 3.09,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 1.79,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 1.24,
+          "count": 2
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 25,
+      "touch": false,
+      "sample": 1,
+      "durationMs": 134,
+      "statementCount": 4,
+      "timings": {
+        "pool": {
+          "durationMs": 0.07,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 134.25,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 134.26,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 104.67,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 29.41,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 25,
+      "touch": false,
+      "sample": 2,
+      "durationMs": 117,
+      "statementCount": 4,
+      "timings": {
+        "pool": {
+          "durationMs": 0.03,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 117.19,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 117.2,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 89.12,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 27.93,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 25,
+      "touch": false,
+      "sample": 3,
+      "durationMs": 137,
+      "statementCount": 4,
+      "timings": {
+        "pool": {
+          "durationMs": 0.02,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 137.4,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 137.41,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 106.67,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 30.62,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 25,
+      "touch": false,
+      "sample": 4,
+      "durationMs": 128,
+      "statementCount": 4,
+      "timings": {
+        "pool": {
+          "durationMs": 0.02,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 128.28,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 128.29,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 98.17,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 29.98,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 25,
+      "touch": false,
+      "sample": 5,
+      "durationMs": 148,
+      "statementCount": 4,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 147.43,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 147.51,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 113.59,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 33.71,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 25,
+      "touch": true,
+      "sample": 1,
+      "durationMs": 153,
+      "statementCount": 5,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 152.73,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 152.74,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 92.94,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 59.66,
+          "count": 2
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 25,
+      "touch": true,
+      "sample": 2,
+      "durationMs": 154,
+      "statementCount": 5,
+      "timings": {
+        "pool": {
+          "durationMs": 0,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 153.62,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 153.63,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 91.16,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 62.33,
+          "count": 2
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 25,
+      "touch": true,
+      "sample": 3,
+      "durationMs": 163,
+      "statementCount": 5,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 163.42,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 163.42,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 102.29,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 60.98,
+          "count": 2
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 25,
+      "touch": true,
+      "sample": 4,
+      "durationMs": 167,
+      "statementCount": 5,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 166.47,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 166.48,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 89.57,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 76.77,
+          "count": 2
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 25,
+      "touch": true,
+      "sample": 5,
+      "durationMs": 165,
+      "statementCount": 5,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 165.17,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 165.18,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 101.64,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 63.38,
+          "count": 2
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 75,
+      "touch": false,
+      "sample": 1,
+      "durationMs": 337,
+      "statementCount": 4,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 337.22,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 337.22,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 251.52,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 85.6,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 75,
+      "touch": false,
+      "sample": 2,
+      "durationMs": 336,
+      "statementCount": 4,
+      "timings": {
+        "pool": {
+          "durationMs": 0,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 335.56,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 335.56,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 251.74,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 83.72,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 75,
+      "touch": false,
+      "sample": 3,
+      "durationMs": 337,
+      "statementCount": 4,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 337.44,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 337.45,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 252.45,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 84.91,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 75,
+      "touch": false,
+      "sample": 4,
+      "durationMs": 312,
+      "statementCount": 4,
+      "timings": {
+        "pool": {
+          "durationMs": 0,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 312.09,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 312.09,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 234.35,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 77.67,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 75,
+      "touch": false,
+      "sample": 5,
+      "durationMs": 330,
+      "statementCount": 4,
+      "timings": {
+        "pool": {
+          "durationMs": 0,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 329.82,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 329.82,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 245.79,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 83.94,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 75,
+      "touch": true,
+      "sample": 1,
+      "durationMs": 414,
+      "statementCount": 5,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 414.3,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 414.31,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 247.57,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 166.59,
+          "count": 2
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 75,
+      "touch": true,
+      "sample": 2,
+      "durationMs": 410,
+      "statementCount": 5,
+      "timings": {
+        "pool": {
+          "durationMs": 0,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 409.81,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 409.82,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 244.64,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 165.05,
+          "count": 2
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 75,
+      "touch": true,
+      "sample": 3,
+      "durationMs": 399,
+      "statementCount": 5,
+      "timings": {
+        "pool": {
+          "durationMs": 0,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 399.26,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 399.27,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 233.25,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 165.9,
+          "count": 2
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 75,
+      "touch": true,
+      "sample": 4,
+      "durationMs": 421,
+      "statementCount": 5,
+      "timings": {
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 420.7,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 420.71,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 254.67,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 165.92,
+          "count": 2
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "injectedLatencyPerQueryMs": 75,
+      "touch": true,
+      "sample": 5,
+      "durationMs": 420,
+      "statementCount": 5,
+      "timings": {
+        "pool": {
+          "durationMs": 0,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 420.22,
+          "count": 1
+        },
+        "session_store": {
+          "durationMs": 420.23,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 248.75,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 171.35,
+          "count": 2
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 0,
+      "sample": 1,
+      "durationMs": 25,
+      "statementCount": 6,
+      "timings": {
+        "api": {
+          "durationMs": 8.24,
+          "count": 1
+        },
+        "authentication": {
+          "durationMs": 0.86,
+          "count": 1
+        },
+        "handler": {
+          "durationMs": 3.22,
+          "count": 1
+        },
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 7.9,
+          "count": 1
+        },
+        "authorized": {
+          "durationMs": 7.94,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 1.39,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 1.49,
+          "count": 2
+        },
+        "db_business": {
+          "durationMs": 2.53,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 0,
+      "sample": 2,
+      "durationMs": 4,
+      "statementCount": 6,
+      "timings": {
+        "api": {
+          "durationMs": 3.64,
+          "count": 1
+        },
+        "authentication": {
+          "durationMs": 0.53,
+          "count": 1
+        },
+        "handler": {
+          "durationMs": 0.83,
+          "count": 1
+        },
+        "pool": {
+          "durationMs": 0,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 3.6,
+          "count": 1
+        },
+        "authorized": {
+          "durationMs": 3.61,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 1.29,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 1.09,
+          "count": 2
+        },
+        "db_business": {
+          "durationMs": 0.78,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 0,
+      "sample": 3,
+      "durationMs": 4,
+      "statementCount": 6,
+      "timings": {
+        "api": {
+          "durationMs": 3.19,
+          "count": 1
+        },
+        "authentication": {
+          "durationMs": 0.53,
+          "count": 1
+        },
+        "handler": {
+          "durationMs": 0.78,
+          "count": 1
+        },
+        "pool": {
+          "durationMs": 0,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 3.16,
+          "count": 1
+        },
+        "authorized": {
+          "durationMs": 3.16,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 0.99,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 1.09,
+          "count": 2
+        },
+        "db_business": {
+          "durationMs": 0.73,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 0,
+      "sample": 4,
+      "durationMs": 4,
+      "statementCount": 6,
+      "timings": {
+        "api": {
+          "durationMs": 3.42,
+          "count": 1
+        },
+        "authentication": {
+          "durationMs": 0.56,
+          "count": 1
+        },
+        "handler": {
+          "durationMs": 0.82,
+          "count": 1
+        },
+        "pool": {
+          "durationMs": 0,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 3.38,
+          "count": 1
+        },
+        "authorized": {
+          "durationMs": 3.38,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 1.21,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 1.15,
+          "count": 2
+        },
+        "db_business": {
+          "durationMs": 0.77,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 0,
+      "sample": 5,
+      "durationMs": 4,
+      "statementCount": 6,
+      "timings": {
+        "api": {
+          "durationMs": 3.39,
+          "count": 1
+        },
+        "authentication": {
+          "durationMs": 0.55,
+          "count": 1
+        },
+        "handler": {
+          "durationMs": 0.88,
+          "count": 1
+        },
+        "pool": {
+          "durationMs": 0,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 3.36,
+          "count": 1
+        },
+        "authorized": {
+          "durationMs": 3.37,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 1.01,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 1.24,
+          "count": 2
+        },
+        "db_business": {
+          "durationMs": 0.82,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 25,
+      "sample": 1,
+      "durationMs": 175,
+      "statementCount": 6,
+      "timings": {
+        "api": {
+          "durationMs": 175,
+          "count": 1
+        },
+        "authentication": {
+          "durationMs": 31.42,
+          "count": 1
+        },
+        "handler": {
+          "durationMs": 28.43,
+          "count": 1
+        },
+        "pool": {
+          "durationMs": 0,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 174.96,
+          "count": 1
+        },
+        "authorized": {
+          "durationMs": 174.97,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 87.26,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 58.96,
+          "count": 2
+        },
+        "db_business": {
+          "durationMs": 28.35,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 25,
+      "sample": 2,
+      "durationMs": 211,
+      "statementCount": 6,
+      "timings": {
+        "api": {
+          "durationMs": 210.67,
+          "count": 1
+        },
+        "authentication": {
+          "durationMs": 38.65,
+          "count": 1
+        },
+        "handler": {
+          "durationMs": 31.68,
+          "count": 1
+        },
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 210.62,
+          "count": 1
+        },
+        "authorized": {
+          "durationMs": 210.62,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 105.41,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 72.89,
+          "count": 2
+        },
+        "db_business": {
+          "durationMs": 31.45,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 25,
+      "sample": 3,
+      "durationMs": 207,
+      "statementCount": 6,
+      "timings": {
+        "api": {
+          "durationMs": 205.26,
+          "count": 1
+        },
+        "authentication": {
+          "durationMs": 34.28,
+          "count": 1
+        },
+        "handler": {
+          "durationMs": 42.21,
+          "count": 1
+        },
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 205.17,
+          "count": 1
+        },
+        "authorized": {
+          "durationMs": 205.18,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 90.44,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 71.78,
+          "count": 2
+        },
+        "db_business": {
+          "durationMs": 42,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 25,
+      "sample": 4,
+      "durationMs": 204,
+      "statementCount": 6,
+      "timings": {
+        "api": {
+          "durationMs": 200.52,
+          "count": 1
+        },
+        "authentication": {
+          "durationMs": 33.12,
+          "count": 1
+        },
+        "handler": {
+          "durationMs": 40.03,
+          "count": 1
+        },
+        "pool": {
+          "durationMs": 0.02,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 200.39,
+          "count": 1
+        },
+        "authorized": {
+          "durationMs": 200.4,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 97.02,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 61.59,
+          "count": 2
+        },
+        "db_business": {
+          "durationMs": 39.3,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 25,
+      "sample": 5,
+      "durationMs": 192,
+      "statementCount": 6,
+      "timings": {
+        "api": {
+          "durationMs": 191.14,
+          "count": 1
+        },
+        "authentication": {
+          "durationMs": 32.44,
+          "count": 1
+        },
+        "handler": {
+          "durationMs": 33.72,
+          "count": 1
+        },
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 191.01,
+          "count": 1
+        },
+        "authorized": {
+          "durationMs": 191.02,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 89.55,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 66.97,
+          "count": 2
+        },
+        "db_business": {
+          "durationMs": 33.51,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 75,
+      "sample": 1,
+      "durationMs": 522,
+      "statementCount": 6,
+      "timings": {
+        "api": {
+          "durationMs": 521.66,
+          "count": 1
+        },
+        "authentication": {
+          "durationMs": 90.1,
+          "count": 1
+        },
+        "handler": {
+          "durationMs": 85.6,
+          "count": 1
+        },
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 521.61,
+          "count": 1
+        },
+        "authorized": {
+          "durationMs": 521.62,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 261.41,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 174.13,
+          "count": 2
+        },
+        "db_business": {
+          "durationMs": 85.5,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 75,
+      "sample": 2,
+      "durationMs": 522,
+      "statementCount": 6,
+      "timings": {
+        "api": {
+          "durationMs": 521.53,
+          "count": 1
+        },
+        "authentication": {
+          "durationMs": 85.46,
+          "count": 1
+        },
+        "handler": {
+          "durationMs": 87.6,
+          "count": 1
+        },
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 521.48,
+          "count": 1
+        },
+        "authorized": {
+          "durationMs": 521.49,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 256.85,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 176.61,
+          "count": 2
+        },
+        "db_business": {
+          "durationMs": 87.54,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 75,
+      "sample": 3,
+      "durationMs": 508,
+      "statementCount": 6,
+      "timings": {
+        "api": {
+          "durationMs": 507.66,
+          "count": 1
+        },
+        "authentication": {
+          "durationMs": 85.82,
+          "count": 1
+        },
+        "handler": {
+          "durationMs": 86.55,
+          "count": 1
+        },
+        "pool": {
+          "durationMs": 0.02,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 507.62,
+          "count": 1
+        },
+        "authorized": {
+          "durationMs": 507.63,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 242.59,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 177.83,
+          "count": 2
+        },
+        "db_business": {
+          "durationMs": 86.48,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 75,
+      "sample": 4,
+      "durationMs": 505,
+      "statementCount": 6,
+      "timings": {
+        "api": {
+          "durationMs": 505.04,
+          "count": 1
+        },
+        "authentication": {
+          "durationMs": 83.43,
+          "count": 1
+        },
+        "handler": {
+          "durationMs": 86.56,
+          "count": 1
+        },
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 505,
+          "count": 1
+        },
+        "authorized": {
+          "durationMs": 505,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 256.95,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 161.13,
+          "count": 2
+        },
+        "db_business": {
+          "durationMs": 86.51,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    },
+    {
+      "scenario": "authentication plus real company list repository",
+      "injectedLatencyPerQueryMs": 75,
+      "sample": 5,
+      "durationMs": 508,
+      "statementCount": 6,
+      "timings": {
+        "api": {
+          "durationMs": 507.78,
+          "count": 1
+        },
+        "authentication": {
+          "durationMs": 78.1,
+          "count": 1
+        },
+        "handler": {
+          "durationMs": 91.39,
+          "count": 1
+        },
+        "pool": {
+          "durationMs": 0.01,
+          "count": 1
+        },
+        "transaction": {
+          "durationMs": 507.73,
+          "count": 1
+        },
+        "authorized": {
+          "durationMs": 507.73,
+          "count": 1
+        },
+        "db_control": {
+          "durationMs": 255.67,
+          "count": 3
+        },
+        "db_auth": {
+          "durationMs": 160.12,
+          "count": 2
+        },
+        "db_business": {
+          "durationMs": 91.33,
+          "count": 1
+        }
+      },
+      "statements": [
+        "begin",
+        "select set_config('lock_timeout', '5s', true), set_config('statement_timeout', '10s', true)",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "with matches as ( select c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description, coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status from gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id where true ), page as (select * from matches order by lower(name), id limit $1 offset $2) select (select count(*)::int from matches) as total, coalesce((select json_agg(page order by lower(name), id) from page),'[]'::json) as data",
+        "select gethired_private.authorize_session($1, $2, $3, $4) as authorization",
+        "commit"
+      ]
+    }
+  ]
+}

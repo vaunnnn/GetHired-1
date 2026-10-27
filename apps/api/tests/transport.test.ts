@@ -63,6 +63,20 @@ test("only GET health probes bypass gateway authentication", async () => {
   await expectError(await call("/api/auth/me", { headers: { "x-gethired-client-ip": "127.0.0.1, 8.8.8.8" } }), 403, "FORBIDDEN")
 })
 
+test("B6 dynamic routes require authentication and mutations require CSRF", async () => {
+  const id = "12345678-1234-4234-8234-123456789012"
+  for (const path of ["/api/categories", "/api/admin/categories", `/api/categories/${id}/pipeline`, `/api/admin/categories/${id}/questions`])
+    await expectError(await call(path), 401, "UNAUTHENTICATED")
+  const headers = await browser()
+  for (const [path, method] of [["/api/admin/categories", "POST"], [`/api/admin/categories/${id}`, "PATCH"], [`/api/admin/categories/${id}/questions`, "POST"], [`/api/admin/questions/${id}`, "PATCH"]]) {
+    await expectError(await call(path, { method, body: "{}" }), 403, "CSRF_FAILED")
+    await expectError(await call(path, { method, headers, body: "{}" }), 401, "UNAUTHENTICATED")
+    const response = await call(path, { method: "DELETE", headers })
+    await expectError(response, 405, "METHOD_NOT_ALLOWED")
+    assert.ok(response.headers.get("allow")?.includes(method))
+  }
+})
+
 test("B4 dynamic routes preserve method contracts and uploads require CSRF/session before parsing", async () => {
   const id = "00000000-0000-0000-0000-000000000000"
   await expectError(await call(`/api/companies/${id}`), 401, "UNAUTHENTICATED")
@@ -125,4 +139,19 @@ test("transport config rejects unsafe gateway and IP-header settings", () => {
   assert.throws(() => readTransportConfig({ API_GATEWAY_SECRET: "short" }))
   assert.throws(() => readTransportConfig({ API_GATEWAY_SECRET: gateway, PORT: "65536" }))
   assert.throws(() => readTransportConfig({ API_GATEWAY_SECRET: gateway, AUTH_TRUSTED_IP_HEADER: "x-forwarded-for" }))
+})
+
+test("B5 route templates dispatch explicitly and enforce CSRF/session before work", async () => {
+  for (const path of ["signup", "signup/resend", "signup/verify", "invitations/accept", "password-reset/request", "password-reset/verify", "password-reset/complete"]) {
+    const route = `/api/auth/${path}`
+    const response = await call(route)
+    assert.equal(response.headers.get("allow"), "POST")
+    await expectError(response, 405, "METHOD_NOT_ALLOWED")
+    await expectError(await call(route, { method: "POST", headers: { "Content-Type": "application/json", Origin: origin }, body: "{}" }), 403, "CSRF_FAILED")
+  }
+  const headers = await browser(), id = "12345678-1234-1234-1234-123456789012"
+  await expectError(await call("/api/admin/students"), 401, "UNAUTHENTICATED")
+  await expectError(await call(`/api/admin/students/${id}`, { method: "PATCH", headers, body: "{}" }), 401, "UNAUTHENTICATED")
+  await expectError(await call(`/api/admin/students/${id}/invitations`, { method: "POST", headers, body: "{}" }), 401, "UNAUTHENTICATED")
+  await expectError(await call(`/api/admin/students/${id}`, { method: "DELETE", headers }), 405, "METHOD_NOT_ALLOWED")
 })

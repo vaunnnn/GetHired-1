@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-10-26T12:53:26.555Z",
+  "database": "Disposable local PostgreSQL 17.11 (Debian 17.11-1.pgdg13+2); real multiple connections; no Supabase deployment",
+  "checks": [
+    "shared session reads overlap; revocation waits and invalidates later reads",
+    "deactivation waits for polling and denies subsequent authorization",
+    "role change waits for polling and denies subsequent authorization",
+    "credential barrier waits for polling and denies subsequent authorization",
+    "refresh callbacks remain exclusive across independent connections",
+    "absolute expiry is evaluated after a real session-row lock wait",
+    "idle expiry is evaluated after a real session-row lock wait",
+    "post-callback authorization rejects absolute application expiry",
+    "post-callback authorization rejects idle application expiry",
+    "post-callback DB clock rejects provider-session expiry without extending activity",
+    "post-callback liveness rolls back business work after provider logout",
+    "confirmed replay result commits revocation and prevents another refresh callback",
+    "shared read does not update activity; authorized business read does"
+  ]
+}

@@ -193,7 +193,7 @@ export default function Landing({ onLogin }: { onLogin?: () => void } = {}) {
             className="cursor-pointer text-left focus:outline-none flex items-center gap-2 group shrink-0"
           >
             <img
-              src="/getHiredLogo.PNG"
+              src="/getHiredLogo.png"
               alt="GetHired Logo"
               className="w-9 h-9 sm:w-12 sm:h-12 object-contain shrink-0 group-hover:opacity-90 transition-opacity"
             />
@@ -460,7 +460,7 @@ export default function Landing({ onLogin }: { onLogin?: () => void } = {}) {
                       }`}
                     >
                       <img
-                        src="/getHiredLogo.PNG"
+                        src="/getHiredLogo.png"
                         alt="GetHired Logo"
                         className="w-7 h-7 sm:w-8 sm:h-8 object-contain shrink-0"
                       />
@@ -1004,7 +1004,7 @@ export default function Landing({ onLogin }: { onLogin?: () => void } = {}) {
         <div className="max-w-[1300px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-2.5">
             <img
-              src="/getHiredLogo.PNG"
+              src="/getHiredLogo.png"
               alt="GetHired Logo"
               className="w-9 h-9 sm:w-10 sm:h-10 object-contain shrink-0"
             />

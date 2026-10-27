@@ -7,7 +7,8 @@ test("B2 migrations restrict maintenance and prune only expired counters", async
   const db = new PGlite()
   try {
     await db.exec(`create role anon; create role authenticated; create schema auth;
-      create table auth.users(id uuid primary key, email_confirmed_at timestamptz, banned_until timestamptz);
+      create table auth.users(id uuid primary key, email text, email_confirmed_at timestamptz, banned_until timestamptz,
+        confirmation_token text, recovery_token text, confirmation_sent_at timestamptz, recovery_sent_at timestamptz);
       create table auth.sessions(id uuid primary key, user_id uuid references auth.users(id), not_after timestamptz);
       create table auth.refresh_tokens(session_id uuid references auth.sessions(id) on delete cascade, revoked boolean);`)
     await db.exec(await readFile(new URL("../../../supabase/preflight.sql", import.meta.url), "utf8"))

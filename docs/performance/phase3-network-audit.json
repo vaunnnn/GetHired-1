@@ -1,0 +1,109 @@
+{
+  "timestamp": "2026-10-26T13:10:02.989Z",
+  "injectedDelayPerRequestMs": 75,
+  "reports": [
+    {
+      "scenario": "refresh",
+      "durationMs": 277,
+      "requestCount": 3,
+      "trace": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "start": 1793020201646
+        },
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "start": 1793020201728
+        },
+        {
+          "path": "/api/auth/refresh",
+          "method": "POST",
+          "start": 1793020201831
+        }
+      ]
+    },
+    {
+      "scenario": "me after expiry",
+      "durationMs": 340,
+      "requestCount": 4,
+      "trace": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "start": 1793020201922
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "start": 1793020202004
+        },
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "start": 1793020202098
+        },
+        {
+          "path": "/api/auth/refresh",
+          "method": "POST",
+          "start": 1793020202181
+        }
+      ]
+    },
+    {
+      "scenario": "three concurrent mutations",
+      "durationMs": 531,
+      "requestCount": 6,
+      "trace": [
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "start": 1793020202269
+        },
+        {
+          "path": "/api/admin/companies",
+          "method": "PATCH",
+          "start": 1793020202353
+        },
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "start": 1793020202443
+        },
+        {
+          "path": "/api/admin/companies",
+          "method": "PATCH",
+          "start": 1793020202530
+        },
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "start": 1793020202616
+        },
+        {
+          "path": "/api/admin/companies",
+          "method": "PATCH",
+          "start": 1793020202712
+        }
+      ]
+    },
+    {
+      "scenario": "me outage",
+      "durationMs": 180,
+      "requestCount": 2,
+      "trace": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "start": 1793020202806
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "start": 1793020202892
+        }
+      ]
+    }
+  ]
+}

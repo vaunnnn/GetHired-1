@@ -1,7 +1,7 @@
 # GetHired backend implementation plan
 
 **Date:** 2026-10-01  
-**Status:** B0 decisions and B1 extraction are implemented. B2 live connectivity was verified on 2026-10-12; full hosted acceptance remains outstanding. B3 authorization/session integration and B4 companies, uploads, bookmarks, and dashboard integration are implemented and locally tested. Their migrations, B4 Storage setup, deployment, and hosted acceptance remain pending. See [B4 integration and deployment](backend-b4-integration.md), [B3 integration](backend-b3-integration.md), [B2 staging](backend-b2-staging.md), [B1 extraction](backend-b1-extraction.md), and [B0 contract](backend-b0-contract.md). B5-B8 remain pending.
+**Status:** B0 decisions and B1 extraction are implemented. B2 live connectivity was verified on 2026-10-12; full hosted acceptance remains outstanding. B3 authorization/session integration, B4 companies/bookmarks, B5 student registry/onboarding, and B6 categories/question bank are implemented locally. See [B6 contract, seed and deployment](backend-b6-question-bank.md), [B5 onboarding and deployment](backend-b5-onboarding.md), [B4 integration](backend-b4-integration.md), [B3 integration](backend-b3-integration.md), [B2 staging](backend-b2-staging.md), [B1 extraction](backend-b1-extraction.md), and [B0 contract](backend-b0-contract.md). B6 hosted migration, seed content approval, deployment and hosted acceptance remain pending. B7-B8 remain pending; earlier hosted checks are tracked separately in the verification documents.
 **Confirmed for this plan:** a separate Node.js API deployed to Render, retaining Supabase PostgreSQL and Supabase Auth, with student self-registration as well as administrator invitations. Students activate after verifying an eight-digit student ID email at `@usc.edu.ph`; administrator approval is not required.
 
 This extends the [middleware implementation plan](api-middleware-implementation-plan.md). Backend phases below use **B0–B8** so they cannot be confused with middleware phases 1–7. The completed middleware work is the starting point; moving it requires adaptation and verification, not rebuilding authentication from scratch.
@@ -14,8 +14,8 @@ This extends the [middleware implementation plan](api-middleware-implementation-
 | Middleware phase 2 | Request wrapper, JSON responses/errors, request IDs, limits, logs, configuration | Port behavior into the standalone HTTP service |
 | Middleware phase 3 | Five auth routes, Supabase adapter, JWT verification, cookies/CSRF, persistent sessions, shared login counters | Move into Node.js, retaining Supabase as identity issuer |
 | Database | [Auth migration](../supabase/migrations/202609290001_phase3_auth.sql) exists; hosted setup was deferred | Verify and apply to development Supabase; add incremental migrations |
-| Frontend | Live sessions, company management/browsing and bookmarks; signup/recovery unavailable; other business features still use mock data | Deploy B3/B4, then integrate B5-B7 |
-| Business API | Companies, image uploads and own bookmarks implemented; student/category/question/interview routes pending | Continue B5-B7 |
+| Frontend | API-backed sessions, companies/bookmarks, student registry/onboarding, categories/question bank and server-selected practice prompts | Deploy B6; integrate persistent attempts and feedback in B7 |
+| Business API | Companies, images, bookmarks, student registry/onboarding and categories/question bank implemented | Continue B7 |
 | Remaining middleware | Authorization, general schemas, feature audit coverage, integration | Build alongside each feature; complete release checks in B8 |
 
 Auth endpoint and B3 session flows have local test evidence. Live readiness and proxy connectivity passed; **hosted credential login and full acceptance remain unverified**. `AUTH_ENABLED=false` currently fails closed with `503`; it does not enable demo authentication.
@@ -116,7 +116,7 @@ All paths below are relative to `/api`. `Public` means no application login; gat
 | `POST /auth/refresh` | Refresh credential + active session | `{}` → `200 { session }`, rotated cookies | B1–B3, existing |
 | `POST /auth/logout` | Current/stale/absent session | `{}` → `200 { loggedOut: true }` | B1–B3, existing |
 | `POST /auth/signup` | Public | `{ firstName, lastName, email, course, yearLevel, password }` → `202 { message, challengeId }` | B5, new contract |
-| `POST /auth/signup/verify` | Bound signup challenge | `{ challengeId, code }` → `200 { accountReady, status }`; fresh login after activation | B5, new contract |
+| `POST /auth/signup/verify` | Bound signup challenge | `{ challengeId, code, newPassword }` → `200 { accountReady, status }`; fresh login after activation | B5, amended for safe verified claiming |
 | `POST /auth/signup/resend` | Bound signup challenge | `{ challengeId }` → `202 { message, challengeId }`; replaces previous challenge | B5, new contract |
 | `POST /auth/invitations/accept` | Single-use setup proof | `{ tokenHash, newPassword }` → `200 { accountReady: true }`; fresh login | B5 |
 | `POST /auth/password-reset/request` | Public | `{ email }` → generic `202 { message, challengeId }` | B5 |
@@ -296,6 +296,8 @@ Each phase produces a reviewable increment with acceptance checks. These are fut
 
 ### B5 — Student registry, self-registration, invitations, and recovery
 
+**Local implementation delivered 2026-10-13.** See [B5 contracts, retry rules, deployment and hosted acceptance](backend-b5-onboarding.md). The verification contract now resubmits the chosen password from browser memory after ownership proof; passwords are never stored in application operations. Hosted setup and acceptance remain outstanding.
+
 **Depends on:** B3; may follow B4 for the first milestone.
 
 - Apply the pending-account migration and add challenge, onboarding, recovery, and durable email operation storage.
@@ -311,6 +313,8 @@ Each phase produces a reviewable increment with acceptance checks. These are fut
 **Done when:** a new student can register, verify, and enter only under the selected activation policy; an invited student can set a password; duplicate/racing flows create one profile; inactive users cannot reactivate themselves; reset invalidates other devices. Failed email/provider work remains observable and retryable without passwords in storage or logs.
 
 ### B6 — Categories and question bank
+
+**Local implementation:** complete; see [B6 contract and verification](backend-b6-question-bank.md). Hosted rollout and content approval are pending.
 
 **Depends on:** B3; ordinarily after B5.
 

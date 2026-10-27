@@ -18,6 +18,42 @@ function json(data: unknown = {}, status = 200, initial: HeadersInit = {}) {
 const fetcher = (handler: (request: Request) => Promise<Response> | Response): typeof fetch =>
   async (input, init) => handler(new Request(input, init))
 
+test("proxy preserves numeric backend timings and correlation while dropping arbitrary descriptions", async () => {
+  const handle = createApiProxy(
+    () => config,
+    fetcher(() =>
+      json({}, 401, {
+        "Server-Timing":
+          'api;dur=12.3, authentication;dur=10, sql;desc="secret", pool;dur=NaN, handler;dur=2;desc="secret"',
+      }),
+    ),
+  )
+
+  const response = await handle(
+    new Request("https://front.example/api/auth/me"),
+  )
+
+  assert.equal(response.status, 401)
+
+  assert.equal(response.headers.get("x-request-id"), "upstream-id")
+
+  assert.match(
+    response.headers.get("server-timing")!,
+    /^api;dur=12.3, authentication;dur=10, upstream;dur=\d+(?:\.\d+)?, gateway;dur=\d+(?:\.\d+)?$/,
+  )
+
+  assert.equal(response.headers.get("server-timing")!.includes("secret"), false)
+
+  const failed = await createApiProxy(() => undefined)(
+    new Request("https://front.example/api/auth/me"),
+  )
+
+  assert.equal(failed.status, 503)
+
+  assert.match(failed.headers.get("server-timing")!, /^gateway;dur=/)
+})
+
+
 test("only the image POST route permits bounded multipart bodies above the JSON limit", async () => {
   let calls = 0
   const handle = createApiProxy(() => config, fetcher(async request => {

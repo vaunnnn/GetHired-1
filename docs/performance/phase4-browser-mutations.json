@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-10-26T13:56:52.538Z",
+  "evidence": "Actual production client/gateway, native Chrome locks and HttpOnly fixture cookies over Postman; not provider/database authorization",
+  "checks": [
+    "anonymous CSRF initialization is exclusive across two tabs and does not authorize business writes",
+    "shared native locks overlap writes and an exclusive logout waits for all of them",
+    "login in another tab waits for a shared write and invalidates the prior CSRF cache",
+    "CSRF failures and uncertain responses are surfaced without replaying writes",
+    "unavailable version storage falls back to exclusive fresh-CSRF mutations"
+  ],
+  "counters": {
+    "issued": 5,
+    "csrfCalls": 17,
+    "writeCalls": 13,
+    "active": 0,
+    "maxActive": 3,
+    "overlaps": 0
+  }
+}

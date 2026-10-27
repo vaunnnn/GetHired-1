@@ -1,4 +1,6 @@
 export * from "./companies.js"
+export * from "./students.js"
+export * from "./interviews.js"
 /** Public wire types only. Never add provider tokens or private account/session rows. */
 export interface PaginationMeta {
   page: number
@@ -46,3 +48,6 @@ export interface CurrentUser {
   user: User
   session: SessionSummary
 }
+
+/** Refresh preserves session fields and includes the verified current user. */
+export type RefreshResult = CurrentUser

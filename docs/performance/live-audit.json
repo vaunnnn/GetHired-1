@@ -1,0 +1,4903 @@
+{
+  "timestamp": "2026-10-26T12:07:35.202Z",
+  "base": "https://gethired-1.vercel.app",
+  "node": "v24.20.0",
+  "runs": [
+    {
+      "role": "admin",
+      "label": "login",
+      "usableMs": 14917,
+      "traffic": [
+        {
+          "path": "/loginPageDesign.png",
+          "method": "GET",
+          "type": "Image",
+          "start": 24562.362187,
+          "status": 200,
+          "ttfbMs": 630,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 3276,
+          "bytes": 6367863
+        },
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24563.503315,
+          "status": 200,
+          "ttfbMs": 2138,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2133,
+          "bytes": 521
+        },
+        {
+          "path": "/signup?_rsc=_H_fFy2_Q06N8BA7",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24563.489945,
+          "status": 200,
+          "ttfbMs": 2152,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2147,
+          "bytes": 675
+        },
+        {
+          "path": "/password-reset?_rsc=_H_fFy2_Q06N8BA7",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24563.489795,
+          "status": 200,
+          "ttfbMs": 2153,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2148,
+          "bytes": 477
+        },
+        {
+          "path": "/favicon.ico",
+          "method": "GET",
+          "type": "Other",
+          "start": 24565.651796,
+          "status": 404,
+          "ttfbMs": 397,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 398,
+          "bytes": 2483
+        },
+        {
+          "path": "/signup?_rsc=WzM0KPnLeHg0bjWu",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24565.648476,
+          "status": 200,
+          "ttfbMs": 413,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 412,
+          "bytes": 1687
+        },
+        {
+          "path": "/password-reset?_rsc=5W2k1YLU6sWE3kjg",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24565.650729,
+          "status": 200,
+          "ttfbMs": 411,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 410,
+          "bytes": 1561
+        },
+        {
+          "path": "/_next/static/immutable/chunks/2ybih4xuqnt71.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24566.062631,
+          "status": 200,
+          "ttfbMs": 136,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 134,
+          "bytes": 7202
+        },
+        {
+          "path": "/api/auth/login",
+          "method": "POST",
+          "type": "Fetch",
+          "start": 24565.651224,
+          "status": 200,
+          "ttfbMs": 7486,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 7486,
+          "bytes": 1631
+        },
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24573.138471,
+          "status": 200,
+          "ttfbMs": 524,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 523,
+          "bytes": 304
+        },
+        {
+          "path": "/_next/static/immutable/chunks/1-g95aor2o08h.css",
+          "method": "GET",
+          "type": "Stylesheet",
+          "start": 24576.211057,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/25kvgcvbp6c14.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24576.317978,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/20es43nb27oti.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24576.318074,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3s_y3c_o-yr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24576.31812,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/33swp7ki-9dys.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24576.318162,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/turbopack-3xvh7addvlr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24576.318201,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/2corl6wyj4669.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24576.318248,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/admin",
+          "method": "GET",
+          "type": "Document",
+          "start": 24573.670978,
+          "status": 200,
+          "ttfbMs": 2535,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2646,
+          "bytes": 5063
+        },
+        {
+          "path": "/getHiredLogo.png",
+          "method": "GET",
+          "type": "Image",
+          "start": 24576.317729,
+          "status": 200,
+          "ttfbMs": 243,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 1931,
+          "bytes": 186488
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3nl4m7jf8d6o_.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24576.318297,
+          "status": 200,
+          "ttfbMs": 2054,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2053,
+          "bytes": 7509
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3x8w0j6_qna9z.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24576.318335,
+          "status": 200,
+          "ttfbMs": 2055,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2053,
+          "bytes": 14056
+        }
+      ]
+    },
+    {
+      "role": "admin",
+      "label": "warm navigation 1",
+      "usableMs": 4373,
+      "checking": {
+        "first": null,
+        "last": null
+      },
+      "traffic": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24578.383041,
+          "status": 200,
+          "ttfbMs": 2277,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2276,
+          "bytes": 395
+        },
+        {
+          "path": "/api/admin/categories?page=1&pageSize=100",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24578.382273,
+          "status": 200,
+          "ttfbMs": 5073,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 5072,
+          "bytes": 242
+        },
+        {
+          "path": "/_next/static/immutable/chunks/1-g95aor2o08h.css",
+          "method": "GET",
+          "type": "Stylesheet",
+          "start": 24584.188657,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/25kvgcvbp6c14.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24584.189563,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/20es43nb27oti.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24584.189676,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3s_y3c_o-yr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24584.189746,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/33swp7ki-9dys.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24584.189812,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/turbopack-3xvh7addvlr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24584.189876,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/2corl6wyj4669.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24584.189948,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3nl4m7jf8d6o_.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24584.190028,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3x8w0j6_qna9z.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24584.190099,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/admin",
+          "method": "GET",
+          "type": "Document",
+          "start": 24579.921511,
+          "status": 200,
+          "ttfbMs": 4260,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 4260,
+          "bytes": 4835
+        },
+        {
+          "path": "/getHiredLogo.png",
+          "method": "GET",
+          "type": "Image",
+          "start": 24584.189298,
+          "status": 304,
+          "ttfbMs": 171,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 170,
+          "bytes": 54
+        }
+      ]
+    },
+    {
+      "role": "admin",
+      "label": "warm navigation 2",
+      "usableMs": 3150,
+      "checking": {
+        "first": null,
+        "last": null
+      },
+      "traffic": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24584.22446,
+          "status": 200,
+          "ttfbMs": 2924,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2922,
+          "bytes": 405
+        },
+        {
+          "path": "/_next/static/immutable/chunks/1-g95aor2o08h.css",
+          "method": "GET",
+          "type": "Stylesheet",
+          "start": 24588.568797,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/25kvgcvbp6c14.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24588.56947,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/20es43nb27oti.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24588.569536,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3s_y3c_o-yr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24588.569591,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/33swp7ki-9dys.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24588.569633,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/turbopack-3xvh7addvlr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24588.569684,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/2corl6wyj4669.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24588.569741,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3nl4m7jf8d6o_.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24588.569809,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3x8w0j6_qna9z.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24588.569886,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/admin",
+          "method": "GET",
+          "type": "Document",
+          "start": 24585.503194,
+          "status": 200,
+          "ttfbMs": 3059,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 3060,
+          "bytes": 4879
+        },
+        {
+          "path": "/getHiredLogo.png",
+          "method": "GET",
+          "type": "Image",
+          "start": 24588.569282,
+          "status": 304,
+          "ttfbMs": 132,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 131,
+          "bytes": 53
+        }
+      ]
+    },
+    {
+      "role": "admin",
+      "label": "warm navigation 3",
+      "usableMs": 3696,
+      "checking": {
+        "first": null,
+        "last": null
+      },
+      "traffic": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24588.596886,
+          "status": 200,
+          "ttfbMs": 2780,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2779,
+          "bytes": 361
+        },
+        {
+          "path": "/_next/static/immutable/chunks/1-g95aor2o08h.css",
+          "method": "GET",
+          "type": "Stylesheet",
+          "start": 24593.47149,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/25kvgcvbp6c14.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24593.472084,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/20es43nb27oti.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24593.472169,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3s_y3c_o-yr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24593.472222,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/33swp7ki-9dys.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24593.472263,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/turbopack-3xvh7addvlr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24593.472301,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/2corl6wyj4669.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24593.472347,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3nl4m7jf8d6o_.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24593.4724,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3x8w0j6_qna9z.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24593.472453,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/admin",
+          "method": "GET",
+          "type": "Document",
+          "start": 24589.863809,
+          "status": 200,
+          "ttfbMs": 3603,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 3602,
+          "bytes": 5063
+        },
+        {
+          "path": "/getHiredLogo.png",
+          "method": "GET",
+          "type": "Image",
+          "start": 24593.471917,
+          "status": 304,
+          "ttfbMs": 143,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 142,
+          "bytes": 135
+        }
+      ]
+    },
+    {
+      "role": "admin",
+      "label": "warm navigation 4",
+      "usableMs": 3703,
+      "checking": {
+        "first": null,
+        "last": null
+      },
+      "traffic": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24593.500504,
+          "status": 200,
+          "ttfbMs": 4185,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 4185,
+          "bytes": 352
+        },
+        {
+          "path": "/_next/static/immutable/chunks/1-g95aor2o08h.css",
+          "method": "GET",
+          "type": "Stylesheet",
+          "start": 24598.375921,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/25kvgcvbp6c14.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24598.376448,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/20es43nb27oti.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24598.376551,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3s_y3c_o-yr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24598.376635,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/33swp7ki-9dys.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24598.376671,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/turbopack-3xvh7addvlr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24598.376709,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/2corl6wyj4669.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24598.376768,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3nl4m7jf8d6o_.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24598.376804,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3x8w0j6_qna9z.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24598.376862,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/admin",
+          "method": "GET",
+          "type": "Document",
+          "start": 24594.767034,
+          "status": 200,
+          "ttfbMs": 3605,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 3604,
+          "bytes": 4811
+        },
+        {
+          "path": "/getHiredLogo.png",
+          "method": "GET",
+          "type": "Image",
+          "start": 24598.376313,
+          "status": 304,
+          "ttfbMs": 155,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 154,
+          "bytes": 77
+        }
+      ]
+    },
+    {
+      "role": "admin",
+      "label": "warm navigation 5",
+      "usableMs": 3721,
+      "checking": {
+        "first": null,
+        "last": null
+      },
+      "traffic": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24598.402677,
+          "status": 200,
+          "ttfbMs": 2776,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2776,
+          "bytes": 361
+        },
+        {
+          "path": "/_next/static/immutable/chunks/1-g95aor2o08h.css",
+          "method": "GET",
+          "type": "Stylesheet",
+          "start": 24603.311784,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/25kvgcvbp6c14.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24603.312293,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/20es43nb27oti.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24603.312455,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3s_y3c_o-yr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24603.312549,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/33swp7ki-9dys.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24603.312614,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/turbopack-3xvh7addvlr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24603.312666,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/2corl6wyj4669.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24603.312721,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3nl4m7jf8d6o_.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24603.312761,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3x8w0j6_qna9z.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24603.312803,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/admin",
+          "method": "GET",
+          "type": "Document",
+          "start": 24599.67895,
+          "status": 200,
+          "ttfbMs": 3628,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 3627,
+          "bytes": 4835
+        },
+        {
+          "path": "/getHiredLogo.png",
+          "method": "GET",
+          "type": "Image",
+          "start": 24603.312143,
+          "status": 304,
+          "ttfbMs": 157,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 156,
+          "bytes": 77
+        }
+      ]
+    },
+    {
+      "role": "admin",
+      "label": "missing access recovery 1",
+      "usableMs": 9864,
+      "checking": {
+        "first": null,
+        "last": null
+      },
+      "traffic": [
+        {
+          "path": "/_next/static/immutable/chunks/1-g95aor2o08h.css",
+          "method": "GET",
+          "type": "Stylesheet",
+          "start": 24697.332421,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/25kvgcvbp6c14.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24697.332831,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/20es43nb27oti.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24697.332898,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3s_y3c_o-yr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24697.332956,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/33swp7ki-9dys.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24697.333014,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/turbopack-3xvh7addvlr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24697.333071,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/2corl6wyj4669.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24697.333111,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3nl4m7jf8d6o_.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24697.33318,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3x8w0j6_qna9z.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24697.333225,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/admin",
+          "method": "GET",
+          "type": "Document",
+          "start": 24696.771942,
+          "status": 200,
+          "ttfbMs": 554,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 553,
+          "bytes": 2453
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24697.359711,
+          "status": 401,
+          "ttfbMs": 495,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 494,
+          "bytes": 283
+        },
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24697.855793,
+          "status": 200,
+          "ttfbMs": 505,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 504,
+          "bytes": 294
+        },
+        {
+          "path": "/api/auth/refresh",
+          "method": "POST",
+          "type": "Fetch",
+          "start": 24698.361299,
+          "status": 200,
+          "ttfbMs": 3199,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 3197,
+          "bytes": 1261
+        },
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24701.560939,
+          "status": 200,
+          "ttfbMs": 470,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 469,
+          "bytes": 268
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24702.031134,
+          "status": 200,
+          "ttfbMs": 2239,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2238,
+          "bytes": 361
+        },
+        {
+          "path": "/_next/static/immutable/chunks/1-g95aor2o08h.css",
+          "method": "GET",
+          "type": "Stylesheet",
+          "start": 24706.557047,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/25kvgcvbp6c14.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24706.557737,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/20es43nb27oti.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24706.557844,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3s_y3c_o-yr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24706.557912,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/33swp7ki-9dys.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24706.557984,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/turbopack-3xvh7addvlr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24706.558058,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/2corl6wyj4669.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24706.558139,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3nl4m7jf8d6o_.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24706.558217,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3x8w0j6_qna9z.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24706.558275,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/admin",
+          "method": "GET",
+          "type": "Document",
+          "start": 24704.279103,
+          "status": 200,
+          "ttfbMs": 2273,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2272,
+          "bytes": 4835
+        },
+        {
+          "path": "/getHiredLogo.png",
+          "method": "GET",
+          "type": "Image",
+          "start": 24706.557546,
+          "status": 304,
+          "ttfbMs": 130,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 129,
+          "bytes": 112
+        }
+      ]
+    },
+    {
+      "role": "admin",
+      "label": "missing access recovery 2",
+      "usableMs": 9981,
+      "checking": {
+        "first": null,
+        "last": null
+      },
+      "traffic": [
+        {
+          "path": "/_next/static/immutable/chunks/1-g95aor2o08h.css",
+          "method": "GET",
+          "type": "Stylesheet",
+          "start": 24708.414923,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/25kvgcvbp6c14.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24708.415319,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/20es43nb27oti.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24708.415393,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3s_y3c_o-yr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24708.415445,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/33swp7ki-9dys.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24708.415492,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/turbopack-3xvh7addvlr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24708.415537,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/2corl6wyj4669.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24708.415586,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3nl4m7jf8d6o_.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24708.415632,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3x8w0j6_qna9z.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24708.415677,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/admin",
+          "method": "GET",
+          "type": "Document",
+          "start": 24707.873574,
+          "status": 200,
+          "ttfbMs": 536,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 535,
+          "bytes": 2453
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24708.438544,
+          "status": 401,
+          "ttfbMs": 693,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 692,
+          "bytes": 283
+        },
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24709.132988,
+          "status": 200,
+          "ttfbMs": 525,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 525,
+          "bytes": 297
+        },
+        {
+          "path": "/api/auth/refresh",
+          "method": "POST",
+          "type": "Fetch",
+          "start": 24709.658787,
+          "status": 200,
+          "ttfbMs": 2974,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2973,
+          "bytes": 1256
+        },
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24712.634071,
+          "status": 200,
+          "ttfbMs": 478,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 477,
+          "bytes": 245
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24713.11254,
+          "status": 200,
+          "ttfbMs": 2319,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2318,
+          "bytes": 362
+        },
+        {
+          "path": "/_next/static/immutable/chunks/1-g95aor2o08h.css",
+          "method": "GET",
+          "type": "Stylesheet",
+          "start": 24717.767295,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/25kvgcvbp6c14.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24717.768231,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/20es43nb27oti.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24717.768342,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3s_y3c_o-yr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24717.768416,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/33swp7ki-9dys.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24717.768499,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/turbopack-3xvh7addvlr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24717.768588,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/2corl6wyj4669.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24717.768685,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3nl4m7jf8d6o_.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24717.768773,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3x8w0j6_qna9z.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24717.76885,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/admin",
+          "method": "GET",
+          "type": "Document",
+          "start": 24715.443,
+          "status": 200,
+          "ttfbMs": 2317,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2315,
+          "bytes": 4826
+        },
+        {
+          "path": "/getHiredLogo.png",
+          "method": "GET",
+          "type": "Image",
+          "start": 24717.767985,
+          "status": 304,
+          "ttfbMs": 155,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 155,
+          "bytes": 112
+        }
+      ]
+    },
+    {
+      "role": "admin",
+      "label": "missing access recovery 3",
+      "usableMs": 9870,
+      "checking": {
+        "first": null,
+        "last": null
+      },
+      "traffic": [
+        {
+          "path": "/_next/static/immutable/chunks/1-g95aor2o08h.css",
+          "method": "GET",
+          "type": "Stylesheet",
+          "start": 24719.633191,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/25kvgcvbp6c14.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24719.6336,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/20es43nb27oti.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24719.633706,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3s_y3c_o-yr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24719.633751,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/33swp7ki-9dys.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24719.633792,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/turbopack-3xvh7addvlr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24719.633864,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/2corl6wyj4669.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24719.633914,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3nl4m7jf8d6o_.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24719.633963,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3x8w0j6_qna9z.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24719.634015,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/admin",
+          "method": "GET",
+          "type": "Document",
+          "start": 24719.089366,
+          "status": 200,
+          "ttfbMs": 534,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 533,
+          "bytes": 2453
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24719.661976,
+          "status": 401,
+          "ttfbMs": 507,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 506,
+          "bytes": 260
+        },
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24720.170193,
+          "status": 200,
+          "ttfbMs": 468,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 467,
+          "bytes": 260
+        },
+        {
+          "path": "/api/auth/refresh",
+          "method": "POST",
+          "type": "Fetch",
+          "start": 24720.642907,
+          "status": 200,
+          "ttfbMs": 3195,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 3194,
+          "bytes": 1269
+        },
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24723.838863,
+          "status": 200,
+          "ttfbMs": 484,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 483,
+          "bytes": 273
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24724.323871,
+          "status": 200,
+          "ttfbMs": 2254,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2253,
+          "bytes": 369
+        },
+        {
+          "path": "/_next/static/immutable/chunks/1-g95aor2o08h.css",
+          "method": "GET",
+          "type": "Stylesheet",
+          "start": 24728.873555,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/25kvgcvbp6c14.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24728.874451,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/20es43nb27oti.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24728.874569,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3s_y3c_o-yr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24728.874647,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/33swp7ki-9dys.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24728.874721,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/turbopack-3xvh7addvlr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24728.874791,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/2corl6wyj4669.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24728.874858,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3nl4m7jf8d6o_.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24728.874929,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3x8w0j6_qna9z.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24728.874998,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/admin",
+          "method": "GET",
+          "type": "Document",
+          "start": 24726.584258,
+          "status": 200,
+          "ttfbMs": 2281,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2285,
+          "bytes": 4835
+        },
+        {
+          "path": "/getHiredLogo.png",
+          "method": "GET",
+          "type": "Image",
+          "start": 24728.87415,
+          "status": 200,
+          "ttfbMs": 162,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 163,
+          "bytes": 54
+        }
+      ]
+    },
+    {
+      "role": "student",
+      "label": "login",
+      "usableMs": 11401,
+      "traffic": [
+        {
+          "path": "/loginPageDesign.png",
+          "method": "GET",
+          "type": "Image",
+          "start": 24734.267899,
+          "status": 200,
+          "ttfbMs": 156,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 168,
+          "bytes": 107
+        },
+        {
+          "path": "/signup?_rsc=_H_fFy2_Q06N8BA7",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24734.289526,
+          "status": 200,
+          "ttfbMs": 160,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 160,
+          "bytes": 53
+        },
+        {
+          "path": "/password-reset?_rsc=_H_fFy2_Q06N8BA7",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24734.289267,
+          "status": 200,
+          "ttfbMs": 173,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 172,
+          "bytes": 77
+        },
+        {
+          "path": "/signup?_rsc=WzM0KPnLeHg0bjWu",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24734.45122,
+          "status": 200,
+          "ttfbMs": 165,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 165,
+          "bytes": 52
+        },
+        {
+          "path": "/_next/static/immutable/chunks/2ybih4xuqnt71.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24734.617486,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/password-reset?_rsc=5W2k1YLU6sWE3kjg",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24734.463493,
+          "status": 200,
+          "ttfbMs": 156,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 155,
+          "bytes": 53
+        },
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24734.355027,
+          "status": 200,
+          "ttfbMs": 535,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 534,
+          "bytes": 520
+        },
+        {
+          "path": "/api/auth/login",
+          "method": "POST",
+          "type": "Fetch",
+          "start": 24734.89144,
+          "status": 200,
+          "ttfbMs": 7146,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 7145,
+          "bytes": 1456
+        },
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24742.038963,
+          "status": 200,
+          "ttfbMs": 693,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 692,
+          "bytes": 266
+        },
+        {
+          "path": "/_next/static/immutable/chunks/1-g95aor2o08h.css",
+          "method": "GET",
+          "type": "Stylesheet",
+          "start": 24745.099636,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/25kvgcvbp6c14.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24745.100276,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/20es43nb27oti.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24745.100366,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3s_y3c_o-yr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24745.100417,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/33swp7ki-9dys.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24745.10047,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/turbopack-3xvh7addvlr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24745.100512,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/2corl6wyj4669.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24745.100568,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/dashboard",
+          "method": "GET",
+          "type": "Document",
+          "start": 24742.73781,
+          "status": 200,
+          "ttfbMs": 2358,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2357,
+          "bytes": 4119
+        },
+        {
+          "path": "/getHiredLogo.png",
+          "method": "GET",
+          "type": "Image",
+          "start": 24745.100117,
+          "status": 304,
+          "ttfbMs": 156,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 155,
+          "bytes": 112
+        },
+        {
+          "path": "/_next/static/immutable/chunks/0041kinqre5tp.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24745.100615,
+          "status": 200,
+          "ttfbMs": 598,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 597,
+          "bytes": 7434
+        },
+        {
+          "path": "/_next/static/immutable/chunks/0b_yeoxhxq0li.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24745.100656,
+          "status": 200,
+          "ttfbMs": 611,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 610,
+          "bytes": 11124
+        }
+      ]
+    },
+    {
+      "role": "student",
+      "label": "warm navigation 1",
+      "usableMs": 4732,
+      "checking": {
+        "first": null,
+        "last": null
+      },
+      "traffic": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24745.721746,
+          "status": 200,
+          "ttfbMs": 3030,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 3030,
+          "bytes": 499
+        },
+        {
+          "path": "/api/me/bookmarks?page=1&pageSize=100",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24745.720065,
+          "status": 200,
+          "ttfbMs": 5497,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 5497,
+          "bytes": 241
+        },
+        {
+          "path": "/_next/static/immutable/chunks/1-g95aor2o08h.css",
+          "method": "GET",
+          "type": "Stylesheet",
+          "start": 24751.90055,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/25kvgcvbp6c14.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24751.901283,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/20es43nb27oti.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24751.90138,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3s_y3c_o-yr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24751.901426,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/33swp7ki-9dys.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24751.901494,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/turbopack-3xvh7addvlr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24751.901556,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/2corl6wyj4669.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24751.901595,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/0041kinqre5tp.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24751.901642,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/0b_yeoxhxq0li.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24751.90168,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/dashboard",
+          "method": "GET",
+          "type": "Document",
+          "start": 24747.259656,
+          "status": 200,
+          "ttfbMs": 4636,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 4635,
+          "bytes": 3895
+        },
+        {
+          "path": "/getHiredLogo.png",
+          "method": "GET",
+          "type": "Image",
+          "start": 24751.901075,
+          "status": 304,
+          "ttfbMs": 146,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 145,
+          "bytes": 54
+        }
+      ]
+    },
+    {
+      "role": "student",
+      "label": "warm navigation 2",
+      "usableMs": 4408,
+      "checking": {
+        "first": null,
+        "last": null
+      },
+      "traffic": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24751.930665,
+          "status": 200,
+          "ttfbMs": 3499,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 3498,
+          "bytes": 417
+        },
+        {
+          "path": "/_next/static/immutable/chunks/1-g95aor2o08h.css",
+          "method": "GET",
+          "type": "Stylesheet",
+          "start": 24757.533526,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/25kvgcvbp6c14.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24757.534301,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/20es43nb27oti.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24757.534402,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3s_y3c_o-yr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24757.534463,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/33swp7ki-9dys.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24757.534528,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/turbopack-3xvh7addvlr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24757.534601,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/2corl6wyj4669.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24757.534674,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/0041kinqre5tp.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24757.53474,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/0b_yeoxhxq0li.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24757.534807,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/dashboard",
+          "method": "GET",
+          "type": "Document",
+          "start": 24753.202926,
+          "status": 200,
+          "ttfbMs": 4323,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 4322,
+          "bytes": 3889
+        },
+        {
+          "path": "/getHiredLogo.png",
+          "method": "GET",
+          "type": "Image",
+          "start": 24757.534071,
+          "status": 304,
+          "ttfbMs": 165,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 164,
+          "bytes": 78
+        }
+      ]
+    },
+    {
+      "role": "student",
+      "label": "warm navigation 3",
+      "usableMs": 5464,
+      "checking": {
+        "first": null,
+        "last": null
+      },
+      "traffic": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24757.556031,
+          "status": 200,
+          "ttfbMs": 3821,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 3820,
+          "bytes": 412
+        },
+        {
+          "path": "/_next/static/immutable/chunks/1-g95aor2o08h.css",
+          "method": "GET",
+          "type": "Stylesheet",
+          "start": 24764.190721,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/25kvgcvbp6c14.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24764.191541,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/20es43nb27oti.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24764.191622,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3s_y3c_o-yr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24764.191676,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/33swp7ki-9dys.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24764.191755,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/turbopack-3xvh7addvlr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24764.191837,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/2corl6wyj4669.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24764.191901,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/0041kinqre5tp.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24764.191952,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/0b_yeoxhxq0li.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24764.192002,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/dashboard",
+          "method": "GET",
+          "type": "Document",
+          "start": 24758.811801,
+          "status": 200,
+          "ttfbMs": 5374,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 5374,
+          "bytes": 3889
+        },
+        {
+          "path": "/getHiredLogo.png",
+          "method": "GET",
+          "type": "Image",
+          "start": 24764.19129,
+          "status": 304,
+          "ttfbMs": 137,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 136,
+          "bytes": 54
+        }
+      ]
+    },
+    {
+      "role": "student",
+      "label": "warm navigation 4",
+      "usableMs": 5445,
+      "checking": {
+        "first": null,
+        "last": null
+      },
+      "traffic": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24764.216493,
+          "status": 200,
+          "ttfbMs": 4541,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 4541,
+          "bytes": 419
+        },
+        {
+          "path": "/_next/static/immutable/chunks/1-g95aor2o08h.css",
+          "method": "GET",
+          "type": "Stylesheet",
+          "start": 24770.878866,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/25kvgcvbp6c14.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24770.87945,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/20es43nb27oti.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24770.879518,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3s_y3c_o-yr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24770.879571,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/33swp7ki-9dys.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24770.879627,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/turbopack-3xvh7addvlr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24770.879673,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/2corl6wyj4669.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24770.879716,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/0041kinqre5tp.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24770.879758,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/0b_yeoxhxq0li.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24770.879801,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/dashboard",
+          "method": "GET",
+          "type": "Document",
+          "start": 24765.507149,
+          "status": 200,
+          "ttfbMs": 5368,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 5368,
+          "bytes": 4119
+        },
+        {
+          "path": "/getHiredLogo.png",
+          "method": "GET",
+          "type": "Image",
+          "start": 24770.8793,
+          "status": 304,
+          "ttfbMs": 135,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 135,
+          "bytes": 112
+        }
+      ]
+    },
+    {
+      "role": "student",
+      "label": "warm navigation 5",
+      "usableMs": 5427,
+      "checking": {
+        "first": null,
+        "last": null
+      },
+      "traffic": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24770.903009,
+          "status": 200,
+          "ttfbMs": 4534,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 4533,
+          "bytes": 418
+        },
+        {
+          "path": "/_next/static/immutable/chunks/1-g95aor2o08h.css",
+          "method": "GET",
+          "type": "Stylesheet",
+          "start": 24777.506783,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/25kvgcvbp6c14.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24777.507688,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/20es43nb27oti.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24777.507798,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3s_y3c_o-yr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24777.507894,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/33swp7ki-9dys.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24777.507978,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/turbopack-3xvh7addvlr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24777.508042,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/2corl6wyj4669.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24777.50812,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/0041kinqre5tp.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24777.508164,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/0b_yeoxhxq0li.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24777.508226,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/dashboard",
+          "method": "GET",
+          "type": "Document",
+          "start": 24772.166463,
+          "status": 200,
+          "ttfbMs": 5335,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 5334,
+          "bytes": 3889
+        },
+        {
+          "path": "/getHiredLogo.png",
+          "method": "GET",
+          "type": "Image",
+          "start": 24777.50744,
+          "status": 304,
+          "ttfbMs": 102,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 102,
+          "bytes": 78
+        }
+      ]
+    },
+    {
+      "role": "student",
+      "label": "missing access recovery 1",
+      "usableMs": 9511,
+      "checking": {
+        "first": null,
+        "last": null
+      },
+      "traffic": [
+        {
+          "path": "/_next/static/immutable/chunks/1-g95aor2o08h.css",
+          "method": "GET",
+          "type": "Stylesheet",
+          "start": 24872.217862,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/25kvgcvbp6c14.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24872.218222,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/20es43nb27oti.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24872.218297,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3s_y3c_o-yr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24872.218363,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/33swp7ki-9dys.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24872.218408,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/turbopack-3xvh7addvlr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24872.218462,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/2corl6wyj4669.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24872.218506,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/0041kinqre5tp.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24872.21856,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/0b_yeoxhxq0li.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24872.218607,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/dashboard",
+          "method": "GET",
+          "type": "Document",
+          "start": 24871.748986,
+          "status": 200,
+          "ttfbMs": 464,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 463,
+          "bytes": 2455
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24872.247295,
+          "status": 401,
+          "ttfbMs": 440,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 440,
+          "bytes": 247
+        },
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24872.688446,
+          "status": 200,
+          "ttfbMs": 451,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 450,
+          "bytes": 240
+        },
+        {
+          "path": "/api/auth/refresh",
+          "method": "POST",
+          "type": "Fetch",
+          "start": 24873.139726,
+          "status": 200,
+          "ttfbMs": 3080,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 3080,
+          "bytes": 1049
+        },
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24876.22089,
+          "status": 200,
+          "ttfbMs": 426,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 426,
+          "bytes": 253
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24876.648187,
+          "status": 200,
+          "ttfbMs": 2193,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2192,
+          "bytes": 421
+        },
+        {
+          "path": "/_next/static/immutable/chunks/1-g95aor2o08h.css",
+          "method": "GET",
+          "type": "Stylesheet",
+          "start": 24881.190601,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/25kvgcvbp6c14.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24881.191189,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/20es43nb27oti.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24881.191264,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3s_y3c_o-yr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24881.191309,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/33swp7ki-9dys.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24881.191356,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/turbopack-3xvh7addvlr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24881.191409,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/2corl6wyj4669.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24881.191459,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/0041kinqre5tp.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24881.191509,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/0b_yeoxhxq0li.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24881.19156,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/dashboard",
+          "method": "GET",
+          "type": "Document",
+          "start": 24878.848041,
+          "status": 200,
+          "ttfbMs": 2338,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2336,
+          "bytes": 3888
+        },
+        {
+          "path": "/getHiredLogo.png",
+          "method": "GET",
+          "type": "Image",
+          "start": 24881.191012,
+          "status": 304,
+          "ttfbMs": 82,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 81,
+          "bytes": 112
+        }
+      ]
+    },
+    {
+      "role": "student",
+      "label": "missing access recovery 2",
+      "usableMs": 11439,
+      "checking": {
+        "first": null,
+        "last": null
+      },
+      "traffic": [
+        {
+          "path": "/_next/static/immutable/chunks/1-g95aor2o08h.css",
+          "method": "GET",
+          "type": "Stylesheet",
+          "start": 24882.936973,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/25kvgcvbp6c14.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24882.937369,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/20es43nb27oti.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24882.937448,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3s_y3c_o-yr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24882.937495,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/33swp7ki-9dys.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24882.937539,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/turbopack-3xvh7addvlr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24882.937595,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/2corl6wyj4669.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24882.937637,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/0041kinqre5tp.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24882.937697,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/0b_yeoxhxq0li.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24882.937755,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/dashboard",
+          "method": "GET",
+          "type": "Document",
+          "start": 24882.489537,
+          "status": 200,
+          "ttfbMs": 442,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 441,
+          "bytes": 2268
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24882.962776,
+          "status": 401,
+          "ttfbMs": 435,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 434,
+          "bytes": 302
+        },
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24883.398239,
+          "status": 200,
+          "ttfbMs": 421,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 420,
+          "bytes": 262
+        },
+        {
+          "path": "/api/auth/refresh",
+          "method": "POST",
+          "type": "Fetch",
+          "start": 24883.820193,
+          "status": 200,
+          "ttfbMs": 5096,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 5095,
+          "bytes": 1059
+        },
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24888.91635,
+          "status": 200,
+          "ttfbMs": 402,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 401,
+          "bytes": 239
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24889.319468,
+          "status": 200,
+          "ttfbMs": 2169,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2168,
+          "bytes": 419
+        },
+        {
+          "path": "/_next/static/immutable/chunks/1-g95aor2o08h.css",
+          "method": "GET",
+          "type": "Stylesheet",
+          "start": 24893.850433,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/25kvgcvbp6c14.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24893.85108,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/20es43nb27oti.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24893.851179,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3s_y3c_o-yr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24893.851239,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/33swp7ki-9dys.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24893.851288,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/turbopack-3xvh7addvlr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24893.851332,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/2corl6wyj4669.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24893.851375,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/0041kinqre5tp.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24893.851416,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/0b_yeoxhxq0li.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24893.851459,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/dashboard",
+          "method": "GET",
+          "type": "Document",
+          "start": 24891.495551,
+          "status": 200,
+          "ttfbMs": 2350,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2351,
+          "bytes": 4120
+        },
+        {
+          "path": "/getHiredLogo.png",
+          "method": "GET",
+          "type": "Image",
+          "start": 24893.850858,
+          "status": 304,
+          "ttfbMs": 151,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 150,
+          "bytes": 54
+        }
+      ]
+    },
+    {
+      "role": "student",
+      "label": "missing access recovery 3",
+      "usableMs": 10224,
+      "checking": {
+        "first": null,
+        "last": null
+      },
+      "traffic": [
+        {
+          "path": "/_next/static/immutable/chunks/1-g95aor2o08h.css",
+          "method": "GET",
+          "type": "Stylesheet",
+          "start": 24895.651453,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/25kvgcvbp6c14.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24895.651976,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/20es43nb27oti.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24895.652096,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3s_y3c_o-yr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24895.652198,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/33swp7ki-9dys.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24895.652278,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/turbopack-3xvh7addvlr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24895.652337,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/2corl6wyj4669.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24895.652414,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/0041kinqre5tp.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24895.652494,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/0b_yeoxhxq0li.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24895.652555,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/dashboard",
+          "method": "GET",
+          "type": "Document",
+          "start": 24895.158778,
+          "status": 200,
+          "ttfbMs": 487,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 486,
+          "bytes": 2224
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24895.674725,
+          "status": 401,
+          "ttfbMs": 410,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 409,
+          "bytes": 225
+        },
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24896.085533,
+          "status": 200,
+          "ttfbMs": 451,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 451,
+          "bytes": 262
+        },
+        {
+          "path": "/api/auth/refresh",
+          "method": "POST",
+          "type": "Fetch",
+          "start": 24896.537464,
+          "status": 200,
+          "ttfbMs": 3671,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 3670,
+          "bytes": 1157
+        },
+        {
+          "path": "/api/auth/csrf",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24900.208852,
+          "status": 200,
+          "ttfbMs": 435,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 434,
+          "bytes": 299
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24900.644358,
+          "status": 200,
+          "ttfbMs": 2426,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2426,
+          "bytes": 417
+        },
+        {
+          "path": "/_next/static/immutable/chunks/1-g95aor2o08h.css",
+          "method": "GET",
+          "type": "Stylesheet",
+          "start": 24905.296474,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/25kvgcvbp6c14.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24905.297062,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/20es43nb27oti.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24905.297167,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/3s_y3c_o-yr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24905.29722,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/33swp7ki-9dys.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24905.297265,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/turbopack-3xvh7addvlr3g.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24905.29731,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/2corl6wyj4669.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24905.297351,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/0041kinqre5tp.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24905.297391,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/_next/static/immutable/chunks/0b_yeoxhxq0li.js",
+          "method": "GET",
+          "type": "Script",
+          "start": 24905.297438,
+          "status": 200,
+          "ttfbMs": 0,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 0,
+          "bytes": 0
+        },
+        {
+          "path": "/dashboard",
+          "method": "GET",
+          "type": "Document",
+          "start": 24903.077336,
+          "status": 200,
+          "ttfbMs": 2214,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2213,
+          "bytes": 3889
+        },
+        {
+          "path": "/getHiredLogo.png",
+          "method": "GET",
+          "type": "Image",
+          "start": 24905.296861,
+          "status": 200,
+          "ttfbMs": 81,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 82,
+          "bytes": 135
+        }
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "role": "admin",
+      "label": "sequential reads",
+      "path": "/api/auth/csrf",
+      "summary": {
+        "n": 10,
+        "minMs": 485,
+        "medianMs": 506,
+        "p95Ms": 623,
+        "maxMs": 623
+      },
+      "samples": [
+        {
+          "status": 200,
+          "durationMs": 510
+        },
+        {
+          "status": 200,
+          "durationMs": 512
+        },
+        {
+          "status": 200,
+          "durationMs": 494
+        },
+        {
+          "status": 200,
+          "durationMs": 623
+        },
+        {
+          "status": 200,
+          "durationMs": 520
+        },
+        {
+          "status": 200,
+          "durationMs": 506
+        },
+        {
+          "status": 200,
+          "durationMs": 487
+        },
+        {
+          "status": 200,
+          "durationMs": 498
+        },
+        {
+          "status": 200,
+          "durationMs": 492
+        },
+        {
+          "status": 200,
+          "durationMs": 485
+        }
+      ]
+    },
+    {
+      "role": "admin",
+      "label": "sequential reads",
+      "path": "/api/auth/me",
+      "summary": {
+        "n": 10,
+        "minMs": 2210,
+        "medianMs": 2226,
+        "p95Ms": 2360,
+        "maxMs": 2360
+      },
+      "samples": [
+        {
+          "status": 200,
+          "durationMs": 2210
+        },
+        {
+          "status": 200,
+          "durationMs": 2226
+        },
+        {
+          "status": 200,
+          "durationMs": 2222
+        },
+        {
+          "status": 200,
+          "durationMs": 2244
+        },
+        {
+          "status": 200,
+          "durationMs": 2238
+        },
+        {
+          "status": 200,
+          "durationMs": 2360
+        },
+        {
+          "status": 200,
+          "durationMs": 2214
+        },
+        {
+          "status": 200,
+          "durationMs": 2218
+        },
+        {
+          "status": 200,
+          "durationMs": 2215
+        },
+        {
+          "status": 200,
+          "durationMs": 2278
+        }
+      ]
+    },
+    {
+      "role": "admin",
+      "label": "sequential reads",
+      "path": "/api/admin/companies?page=1&pageSize=20",
+      "summary": {
+        "n": 10,
+        "minMs": 4308,
+        "medianMs": 4349,
+        "p95Ms": 4754,
+        "maxMs": 4754
+      },
+      "samples": [
+        {
+          "status": 200,
+          "durationMs": 4342
+        },
+        {
+          "status": 200,
+          "durationMs": 4754
+        },
+        {
+          "status": 200,
+          "durationMs": 4309
+        },
+        {
+          "status": 200,
+          "durationMs": 4308
+        },
+        {
+          "status": 200,
+          "durationMs": 4319
+        },
+        {
+          "status": 200,
+          "durationMs": 4337
+        },
+        {
+          "status": 200,
+          "durationMs": 4357
+        },
+        {
+          "status": 200,
+          "durationMs": 4349
+        },
+        {
+          "status": 200,
+          "durationMs": 4389
+        },
+        {
+          "status": 200,
+          "durationMs": 4420
+        }
+      ]
+    },
+    {
+      "role": "admin",
+      "label": "4 concurrent session reads",
+      "durationMs": 4372,
+      "samples": [
+        {
+          "status": 200,
+          "durationMs": 2253
+        },
+        {
+          "status": 200,
+          "durationMs": 3670
+        },
+        {
+          "status": 200,
+          "durationMs": 4369
+        },
+        {
+          "status": 200,
+          "durationMs": 2968
+        }
+      ],
+      "traffic": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24676.128087,
+          "status": 200,
+          "ttfbMs": 2252,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2251,
+          "bytes": 360
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24676.128576,
+          "status": 200,
+          "ttfbMs": 2968,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2967,
+          "bytes": 397
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24676.128324,
+          "status": 200,
+          "ttfbMs": 3669,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 3668,
+          "bytes": 361
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24676.128446,
+          "status": 200,
+          "ttfbMs": 4369,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 4368,
+          "bytes": 403
+        }
+      ]
+    },
+    {
+      "role": "admin",
+      "label": "4 concurrent session reads",
+      "durationMs": 4343,
+      "samples": [
+        {
+          "status": 200,
+          "durationMs": 4342
+        },
+        {
+          "status": 200,
+          "durationMs": 3643
+        },
+        {
+          "status": 200,
+          "durationMs": 2942
+        },
+        {
+          "status": 200,
+          "durationMs": 2241
+        }
+      ],
+      "traffic": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24680.500075,
+          "status": 200,
+          "ttfbMs": 2241,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2240,
+          "bytes": 357
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24680.499957,
+          "status": 200,
+          "ttfbMs": 2941,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2941,
+          "bytes": 376
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24680.499806,
+          "status": 200,
+          "ttfbMs": 3642,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 3642,
+          "bytes": 348
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24680.499628,
+          "status": 200,
+          "ttfbMs": 4342,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 4341,
+          "bytes": 360
+        }
+      ]
+    },
+    {
+      "role": "admin",
+      "label": "4 concurrent session reads",
+      "durationMs": 4376,
+      "samples": [
+        {
+          "status": 200,
+          "durationMs": 3654
+        },
+        {
+          "status": 200,
+          "durationMs": 2948
+        },
+        {
+          "status": 200,
+          "durationMs": 4374
+        },
+        {
+          "status": 200,
+          "durationMs": 2231
+        }
+      ],
+      "traffic": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24684.843491,
+          "status": 200,
+          "ttfbMs": 2231,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2230,
+          "bytes": 352
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24684.843099,
+          "status": 200,
+          "ttfbMs": 2948,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2947,
+          "bytes": 359
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24684.842828,
+          "status": 200,
+          "ttfbMs": 3654,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 3653,
+          "bytes": 336
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24684.843303,
+          "status": 200,
+          "ttfbMs": 4374,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 4373,
+          "bytes": 361
+        }
+      ]
+    },
+    {
+      "role": "admin",
+      "label": "focus revalidation",
+      "traffic": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24689.218398,
+          "status": 200,
+          "ttfbMs": 2360,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2359,
+          "bytes": 361
+        }
+      ],
+      "blocked": false
+    },
+    {
+      "role": "admin",
+      "label": "focus revalidation",
+      "traffic": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24691.733652,
+          "status": 200,
+          "ttfbMs": 2304,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2303,
+          "bytes": 359
+        }
+      ],
+      "blocked": false
+    },
+    {
+      "role": "admin",
+      "label": "focus revalidation",
+      "traffic": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24694.24336,
+          "status": 200,
+          "ttfbMs": 2256,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2255,
+          "bytes": 361
+        }
+      ],
+      "blocked": false
+    },
+    {
+      "role": "student",
+      "label": "sequential reads",
+      "path": "/api/auth/csrf",
+      "summary": {
+        "n": 10,
+        "minMs": 398,
+        "medianMs": 464,
+        "p95Ms": 588,
+        "maxMs": 588
+      },
+      "samples": [
+        {
+          "status": 200,
+          "durationMs": 493
+        },
+        {
+          "status": 200,
+          "durationMs": 453
+        },
+        {
+          "status": 200,
+          "durationMs": 588
+        },
+        {
+          "status": 200,
+          "durationMs": 436
+        },
+        {
+          "status": 200,
+          "durationMs": 464
+        },
+        {
+          "status": 200,
+          "durationMs": 398
+        },
+        {
+          "status": 200,
+          "durationMs": 486
+        },
+        {
+          "status": 200,
+          "durationMs": 423
+        },
+        {
+          "status": 200,
+          "durationMs": 422
+        },
+        {
+          "status": 200,
+          "durationMs": 503
+        }
+      ]
+    },
+    {
+      "role": "student",
+      "label": "sequential reads",
+      "path": "/api/auth/me",
+      "summary": {
+        "n": 10,
+        "minMs": 2168,
+        "medianMs": 2211,
+        "p95Ms": 3830,
+        "maxMs": 3830
+      },
+      "samples": [
+        {
+          "status": 200,
+          "durationMs": 3830
+        },
+        {
+          "status": 200,
+          "durationMs": 2360
+        },
+        {
+          "status": 200,
+          "durationMs": 2211
+        },
+        {
+          "status": 200,
+          "durationMs": 2199
+        },
+        {
+          "status": 200,
+          "durationMs": 2189
+        },
+        {
+          "status": 200,
+          "durationMs": 2199
+        },
+        {
+          "status": 200,
+          "durationMs": 2388
+        },
+        {
+          "status": 200,
+          "durationMs": 2194
+        },
+        {
+          "status": 200,
+          "durationMs": 2235
+        },
+        {
+          "status": 200,
+          "durationMs": 2168
+        }
+      ]
+    },
+    {
+      "role": "student",
+      "label": "sequential reads",
+      "path": "/api/companies?page=1&pageSize=20",
+      "summary": {
+        "n": 10,
+        "minMs": 4287,
+        "medianMs": 4305,
+        "p95Ms": 4957,
+        "maxMs": 4957
+      },
+      "samples": [
+        {
+          "status": 200,
+          "durationMs": 4297
+        },
+        {
+          "status": 200,
+          "durationMs": 4287
+        },
+        {
+          "status": 200,
+          "durationMs": 4305
+        },
+        {
+          "status": 200,
+          "durationMs": 4303
+        },
+        {
+          "status": 200,
+          "durationMs": 4299
+        },
+        {
+          "status": 200,
+          "durationMs": 4322
+        },
+        {
+          "status": 200,
+          "durationMs": 4309
+        },
+        {
+          "status": 200,
+          "durationMs": 4957
+        },
+        {
+          "status": 200,
+          "durationMs": 4296
+        },
+        {
+          "status": 200,
+          "durationMs": 4445
+        }
+      ]
+    },
+    {
+      "role": "student",
+      "label": "4 concurrent session reads",
+      "durationMs": 4298,
+      "samples": [
+        {
+          "status": 200,
+          "durationMs": 2889
+        },
+        {
+          "status": 200,
+          "durationMs": 3602
+        },
+        {
+          "status": 200,
+          "durationMs": 4294
+        },
+        {
+          "status": 200,
+          "durationMs": 2188
+        }
+      ],
+      "traffic": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24851.325458,
+          "status": 200,
+          "ttfbMs": 2187,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2186,
+          "bytes": 409
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24851.324592,
+          "status": 200,
+          "ttfbMs": 2889,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2888,
+          "bytes": 396
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24851.324944,
+          "status": 200,
+          "ttfbMs": 3601,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 3600,
+          "bytes": 420
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24851.325213,
+          "status": 200,
+          "ttfbMs": 4294,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 4293,
+          "bytes": 408
+        }
+      ]
+    },
+    {
+      "role": "student",
+      "label": "4 concurrent session reads",
+      "durationMs": 4286,
+      "samples": [
+        {
+          "status": 200,
+          "durationMs": 2875
+        },
+        {
+          "status": 200,
+          "durationMs": 2175
+        },
+        {
+          "status": 200,
+          "durationMs": 4283
+        },
+        {
+          "status": 200,
+          "durationMs": 3583
+        }
+      ],
+      "traffic": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24855.622823,
+          "status": 200,
+          "ttfbMs": 2174,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2173,
+          "bytes": 419
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24855.622582,
+          "status": 200,
+          "ttfbMs": 2875,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2874,
+          "bytes": 419
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24855.623112,
+          "status": 200,
+          "ttfbMs": 3582,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 3580,
+          "bytes": 396
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24855.622949,
+          "status": 200,
+          "ttfbMs": 4283,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 4282,
+          "bytes": 420
+        }
+      ]
+    },
+    {
+      "role": "student",
+      "label": "4 concurrent session reads",
+      "durationMs": 4283,
+      "samples": [
+        {
+          "status": 200,
+          "durationMs": 2874
+        },
+        {
+          "status": 200,
+          "durationMs": 3581
+        },
+        {
+          "status": 200,
+          "durationMs": 4280
+        },
+        {
+          "status": 200,
+          "durationMs": 2180
+        }
+      ],
+      "traffic": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24859.90904,
+          "status": 200,
+          "ttfbMs": 2179,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2178,
+          "bytes": 418
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24859.908748,
+          "status": 200,
+          "ttfbMs": 2873,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2873,
+          "bytes": 418
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24859.908872,
+          "status": 200,
+          "ttfbMs": 3581,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 3580,
+          "bytes": 418
+        },
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24859.908946,
+          "status": 200,
+          "ttfbMs": 4280,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 4279,
+          "bytes": 396
+        }
+      ]
+    },
+    {
+      "role": "student",
+      "label": "focus revalidation",
+      "traffic": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24864.19128,
+          "status": 200,
+          "ttfbMs": 2333,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2332,
+          "bytes": 420
+        }
+      ],
+      "blocked": false
+    },
+    {
+      "role": "student",
+      "label": "focus revalidation",
+      "traffic": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24866.700564,
+          "status": 200,
+          "ttfbMs": 2171,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2169,
+          "bytes": 566
+        }
+      ],
+      "blocked": false
+    },
+    {
+      "role": "student",
+      "label": "focus revalidation",
+      "traffic": [
+        {
+          "path": "/api/auth/me",
+          "method": "GET",
+          "type": "Fetch",
+          "start": 24869.216789,
+          "status": 200,
+          "ttfbMs": 2183,
+          "serverTiming": null,
+          "vercelRegion": "sin1",
+          "durationMs": 2183,
+          "bytes": 419
+        }
+      ],
+      "blocked": false
+    }
+  ]
+}

@@ -1,9 +1,9 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "GetHired B1 browser API",
+    "title": "GetHired browser API",
     "version": "1.0.0",
-    "description": "Implemented authentication surface after extraction to Express. Browser requests use the Next.js same-origin proxy. The backend additionally requires a server-only X-GetHired-Gateway credential except on GET /api/health/live. Cookies remain HttpOnly/Secure/SameSite=Lax/Path=/ with no Domain. Signup, recovery, business endpoints and readiness are future phases. All controlled errors use the JSON envelope; HEAD has no response body. Unsupported methods return 405 with Allow; unknown paths return 404. AUTH_ENABLED=false returns safe 503 for auth routes."
+    "description": "Implemented authentication surface after extraction to Express. Browser requests use the Next.js same-origin proxy. The backend additionally requires a server-only X-GetHired-Gateway credential except on GET /api/health/live. Cookies remain HttpOnly/Secure/SameSite=Lax/Path=/ with no Domain. Signup, recovery, business endpoints and readiness are future phases. All controlled errors use the JSON envelope; HEAD has no response body. Unsupported methods return 405 with Allow; unknown paths return 404. AUTH_ENABLED=false returns safe 503 for auth routes. B6 category/question-bank operations are included below; see backend-b6-question-bank.md. Earlier B1 documentation of future business work is historical."
   },
   "servers": [
     {
@@ -31,6 +31,9 @@
                   "type": "string",
                   "const": "private, no-store"
                 }
+              },
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
               }
             },
             "content": {
@@ -67,6 +70,9 @@
                   "type": "string",
                   "const": "private, no-store"
                 }
+              },
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
               }
             },
             "content": {
@@ -138,6 +144,9 @@
                   "type": "string",
                   "const": "private, no-store"
                 }
+              },
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
               }
             },
             "content": {
@@ -163,7 +172,7 @@
     "/auth/refresh": {
       "post": {
         "operationId": "refresh",
-        "description": "Rotates provider credentials within the original active session deadline. Access JWT may be expired; refresh and signed browser binding remain required.",
+        "description": "Rotates provider credentials within the original active session deadline. Access JWT may be expired; refresh and signed browser binding remain required. Returns the verified current user with the existing session summary. Refresh does not rotate the signed browser binding; no post-refresh CSRF read is required. The projection is returned only after post-provider database authorization succeeds.",
         "responses": {
           "200": {
             "description": "Success",
@@ -179,6 +188,9 @@
                   "type": "string",
                   "const": "private, no-store"
                 }
+              },
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
               }
             },
             "content": {
@@ -251,6 +263,9 @@
                   "type": "string",
                   "const": "private, no-store"
                 }
+              },
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
               }
             },
             "content": {
@@ -322,6 +337,9 @@
                   "type": "string",
                   "const": "private, no-store"
                 }
+              },
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
               }
             },
             "content": {
@@ -337,6 +355,1099 @@
           }
         },
         "security": []
+      }
+    },
+    "/categories": {
+      "get": {
+        "tags": [
+          "B6"
+        ],
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "description": "Requires categories:read (student/admin). Session cookies required. See B6 contract for validation and pipeline defaults.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000,
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/B6Category"
+                      }
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "meta": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "page": {
+                          "type": "integer"
+                        },
+                        "pageSize": {
+                          "type": "integer"
+                        },
+                        "total": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "page",
+                        "pageSize",
+                        "total"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "requestId",
+                    "meta"
+                  ]
+                }
+              }
+            },
+            "headers": {
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "401": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "403": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "404": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "405": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "409": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "413": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "415": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ApiError"
+          }
+        }
+      }
+    },
+    "/admin/categories": {
+      "get": {
+        "tags": [
+          "B6"
+        ],
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "description": "Requires questions:write (admin). Session cookies required. See B6 contract for validation and pipeline defaults.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000,
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/B6Category"
+                      }
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "meta": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "page": {
+                          "type": "integer"
+                        },
+                        "pageSize": {
+                          "type": "integer"
+                        },
+                        "total": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "page",
+                        "pageSize",
+                        "total"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "requestId",
+                    "meta"
+                  ]
+                }
+              }
+            },
+            "headers": {
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "401": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "403": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "404": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "405": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "409": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "413": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "415": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ApiError"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "B6"
+        ],
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "description": "Requires questions:write (admin). Session cookies required. See B6 contract for validation and pipeline defaults.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/B6Category"
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "requestId"
+                  ]
+                }
+              }
+            },
+            "headers": {
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "401": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "403": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "404": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "405": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "409": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "413": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "415": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ApiError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/B6CategoryInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/categories/{id}": {
+      "patch": {
+        "tags": [
+          "B6"
+        ],
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "description": "Requires questions:write (admin). Session cookies required. See B6 contract for validation and pipeline defaults.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/B6Category"
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "requestId"
+                  ]
+                }
+              }
+            },
+            "headers": {
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "401": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "403": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "404": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "405": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "409": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "413": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "415": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ApiError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/B6CategoryPatch"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/categories/{id}/questions": {
+      "get": {
+        "tags": [
+          "B6"
+        ],
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "description": "Requires questions:write (admin). Session cookies required. See B6 contract for validation and pipeline defaults.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000,
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/B6Question"
+                      }
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "meta": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "page": {
+                          "type": "integer"
+                        },
+                        "pageSize": {
+                          "type": "integer"
+                        },
+                        "total": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "page",
+                        "pageSize",
+                        "total"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "requestId",
+                    "meta"
+                  ]
+                }
+              }
+            },
+            "headers": {
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "401": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "403": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "404": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "405": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "409": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "413": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "415": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ApiError"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "B6"
+        ],
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "description": "Requires questions:write (admin). Session cookies required. See B6 contract for validation and pipeline defaults.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/B6Question"
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "requestId"
+                  ]
+                }
+              }
+            },
+            "headers": {
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "401": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "403": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "404": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "405": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "409": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "413": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "415": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ApiError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/B6QuestionInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/questions/{id}": {
+      "patch": {
+        "tags": [
+          "B6"
+        ],
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "description": "Requires questions:write (admin). Session cookies required. See B6 contract for validation and pipeline defaults.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/B6Question"
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "requestId"
+                  ]
+                }
+              }
+            },
+            "headers": {
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "401": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "403": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "404": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "405": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "409": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "413": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "415": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ApiError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/B6QuestionPatch"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/categories/{id}/pipeline": {
+      "get": {
+        "tags": [
+          "B6"
+        ],
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "description": "Requires categories:read (student/admin). Session cookies required. Random server selection; no rubrics. Insufficient content returns 409 CATEGORY_UNAVAILABLE. Not a persisted attempt.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/B6SelectedPhase"
+                      }
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "requestId"
+                  ]
+                }
+              }
+            },
+            "headers": {
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "401": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "403": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "404": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "405": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "409": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "413": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "415": {
+            "$ref": "#/components/responses/ApiError"
+          },
+          "503": {
+            "$ref": "#/components/responses/ApiError"
+          }
+        }
+      }
+    },
+    "/companies": {
+      "get": {
+        "operationId": "listCompanies",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "description": "Requires companies:read. Active companies only, filtered/paginated as described in backend-b4-integration.md. Every row includes authenticated-owner bookmark state; do not share-cache this response. No owner/account override query is accepted. Unknown filters and duplicate scalar parameters are rejected.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000,
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            }
+          },
+          {
+            "in": "query",
+            "name": "niche",
+            "schema": {
+              "type": "string",
+              "default": "All",
+              "enum": [
+                "All",
+                "Web Development",
+                "Mobile Development",
+                "Data Science",
+                "Cybersecurity",
+                "Cloud & DevOps",
+                "AI / ML",
+                "UI/UX Design",
+                "IT Consulting",
+                "BPO",
+                "Telecommunications",
+                "Banking / FinTech",
+                "Software Dev",
+                "Network Engineering",
+                "IT Support"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "specialization",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "Software Dev",
+                  "React / Node.js",
+                  "Web Development",
+                  "Mobile Development",
+                  "Data Analytics",
+                  "Machine Learning",
+                  "Cybersecurity",
+                  "Cloud Computing",
+                  "DevOps",
+                  "AI",
+                  "Automation",
+                  "UI/UX Design",
+                  "IT Consulting",
+                  "BPO",
+                  "Telecommunications",
+                  "FinTech",
+                  "Blockchain",
+                  "Network Engineering",
+                  "IT Support",
+                  "QA / Testing",
+                  "Database Management"
+                ]
+              },
+              "maxItems": 30
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Private company page with owner bookmark flags",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/CompanyListing"
+                      }
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "page": {
+                          "type": "integer"
+                        },
+                        "pageSize": {
+                          "type": "integer"
+                        },
+                        "total": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "page",
+                        "pageSize",
+                        "total"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "requestId",
+                    "meta"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/ApiError"
+          }
+        }
+      }
+    },
+    "/companies/{companyId}": {
+      "get": {
+        "operationId": "getCompany",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "description": "Requires companies:read. Active company with the authenticated owner bookmark flag. Inactive/missing companies return 404.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "companyId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Private company projection",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Server-Timing": {
+                "$ref": "#/components/headers/ServerTiming"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/CompanyListing"
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "requestId"
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/ApiError"
+          }
+        }
       }
     }
   },
@@ -526,10 +1637,14 @@
             "properties": {
               "session": {
                 "$ref": "#/components/schemas/Session"
+              },
+              "user": {
+                "$ref": "#/components/schemas/User"
               }
             },
             "required": [
-              "session"
+              "session",
+              "user"
             ]
           },
           "requestId": {
@@ -634,6 +1749,496 @@
           "error",
           "requestId"
         ]
+      },
+      "B6Phase": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "label",
+          "shortLabel",
+          "types",
+          "count"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40,
+            "pattern": "^[a-z][a-z-]*$"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "shortLabel": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "types": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "enum": [
+                "Introduction",
+                "Technical",
+                "Behavioral",
+                "Situational",
+                "Motivational",
+                "Coding",
+                "Design Challenge",
+                "Candidate Questions"
+              ]
+            }
+          }
+        }
+      },
+      "B6Category": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "description": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 2000
+          },
+          "color": {
+            "type": "string",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "bg": {
+            "type": "string",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          },
+          "phases": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 8,
+            "items": {
+              "$ref": "#/components/schemas/B6Phase"
+            }
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pipeline": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "color",
+          "bg",
+          "status",
+          "phases",
+          "id",
+          "pipeline"
+        ]
+      },
+      "B6Question": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "question": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 12000
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "Introduction",
+              "Technical",
+              "Behavioral",
+              "Situational",
+              "Motivational",
+              "Coding",
+              "Design Challenge",
+              "Candidate Questions"
+            ]
+          },
+          "hint": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 4000
+          },
+          "feedback": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 12000
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "question",
+          "type",
+          "hint",
+          "feedback",
+          "status",
+          "id"
+        ]
+      },
+      "B6CategoryInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "description": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 2000
+          },
+          "color": {
+            "type": "string",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "bg": {
+            "type": "string",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          },
+          "phases": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 8,
+            "items": {
+              "$ref": "#/components/schemas/B6Phase"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "color",
+          "bg"
+        ]
+      },
+      "B6CategoryPatch": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "description": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 2000
+          },
+          "color": {
+            "type": "string",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "bg": {
+            "type": "string",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          },
+          "phases": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 8,
+            "items": {
+              "$ref": "#/components/schemas/B6Phase"
+            }
+          }
+        },
+        "required": [],
+        "minProperties": 1
+      },
+      "B6QuestionInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "question": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 12000
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "Introduction",
+              "Technical",
+              "Behavioral",
+              "Situational",
+              "Motivational",
+              "Coding",
+              "Design Challenge",
+              "Candidate Questions"
+            ]
+          },
+          "hint": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 4000
+          },
+          "feedback": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 12000
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          }
+        },
+        "required": [
+          "question",
+          "type",
+          "hint",
+          "feedback"
+        ]
+      },
+      "B6QuestionPatch": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "question": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 12000
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "Introduction",
+              "Technical",
+              "Behavioral",
+              "Situational",
+              "Motivational",
+              "Coding",
+              "Design Challenge",
+              "Candidate Questions"
+            ]
+          },
+          "hint": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 4000
+          },
+          "feedback": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 12000
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          }
+        },
+        "required": [],
+        "minProperties": 1
+      },
+      "B6SelectedPhase": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "shortLabel": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "questions": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 5,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "question": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12000
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "Introduction",
+                    "Technical",
+                    "Behavioral",
+                    "Situational",
+                    "Motivational",
+                    "Coding",
+                    "Design Challenge",
+                    "Candidate Questions"
+                  ]
+                },
+                "hint": {
+                  "type": "string",
+                  "minLength": 0,
+                  "maxLength": 4000
+                }
+              },
+              "required": [
+                "id",
+                "question",
+                "type",
+                "hint"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "shortLabel",
+          "questions"
+        ]
+      },
+      "CompanyListing": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "industry": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "specializations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "maxItems": 30
+          },
+          "location": {
+            "type": "string"
+          },
+          "slots": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "description": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "hours": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          },
+          "bookmarked": {
+            "type": "boolean",
+            "readOnly": true,
+            "description": "Whether the authenticated account owns a bookmark for this visible company. No account ID input is accepted. This is not a writable company field."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "industry",
+          "type",
+          "specializations",
+          "location",
+          "slots",
+          "description",
+          "image",
+          "website",
+          "email",
+          "phone",
+          "hours",
+          "status",
+          "bookmarked"
+        ]
       }
     },
     "securitySchemes": {
@@ -671,6 +2276,9 @@
               "type": "string",
               "const": "private, no-store"
             }
+          },
+          "Server-Timing": {
+            "$ref": "#/components/headers/ServerTiming"
           }
         },
         "content": {
@@ -680,6 +2288,15 @@
             }
           }
         }
+      }
+    },
+    "headers": {
+      "ServerTiming": {
+        "description": "Optional diagnostic durations in milliseconds. Static metric names and numeric durations only; no SQL, identities or credentials. Metrics overlap and must not be added together. The gateway appends upstream and gateway timings. See performance-observability.md.",
+        "schema": {
+          "type": "string"
+        },
+        "example": "api;dur=20, authentication;dur=15, upstream;dur=25, gateway;dur=26"
       }
     }
   }

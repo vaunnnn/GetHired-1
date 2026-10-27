@@ -1,18 +1,11 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useSession } from "./SessionProvider";
 import CompanyCard from "./CompanyCard";
 import CategoryCard, { CategoryIcon } from "./CategoryCard";
-import {
-  interviewCategories,
-  interviewQuestions,
-  codingChallenges,
-  InterviewQuestion,
-  getCategoryPipeline,
-  CODING_IDS,
-  NON_TECHNICAL_IDS,
-} from "../data";
+import { bankList, categoryView, type InterviewCategory } from "@/lib/interviews";
+import type { CompanyListing, Category, SelectedPhase } from "@gethired/contracts";
 
 import { apiClient } from "@/lib/api-client";
 import { companyView, type Company } from "@/lib/companies";
@@ -118,7 +111,7 @@ function CompanyModal({
 }: {
   company: Company;
   onClose: () => void;
-  onToggleSave: (id: string) => void;
+  onToggleSave: (id: string, saved: boolean) => void;
   onPractice: () => void;
   isComparing?: boolean;
   onToggleCompare?: (c: Company) => void;
@@ -139,12 +132,13 @@ function CompanyModal({
           <img src={company.image} alt={company.name} className="w-full h-full object-cover" />
           <button
             onClick={onClose}
+            aria-label="Close company details"
             className="absolute top-4 right-4 w-9 h-9 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-all shadow-sm"
           >
             <XIcon />
           </button>
           <button
-            onClick={() => onToggleSave(company.id)}
+            onClick={() => onToggleSave(company.id, company.saved)}
             className={`absolute top-4 left-4 flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-semibold transition-all shadow-sm ${
               company.saved ? "bg-[#0073ff] text-white" : "bg-white/90 text-gray-600 hover:bg-white"
             }`}
@@ -258,7 +252,7 @@ function CompanyModal({
             <div className="flex flex-wrap sm:flex-nowrap gap-3">
               <button
                 type="button"
-                onClick={() => onToggleSave(company.id)}
+                onClick={() => onToggleSave(company.id, company.saved)}
                 className={`flex items-center gap-2 px-5 py-3 rounded-full text-[14px] font-semibold border transition-all cursor-pointer ${
                   company.saved
                     ? "border-[#0073ff] text-[#0073ff] bg-[#dfe9ff]"
@@ -425,7 +419,7 @@ function HomeView({
   companies: Company[];
   totalSaved?: number;
   totalCompanies: number;
-  onToggleSave: (id: string) => void;
+  onToggleSave: (id: string, saved: boolean) => void;
   onViewMore: (c: Company) => void;
   compareIds?: ReadonlySet<string>;
   onToggleCompare?: (c: Company) => void;
@@ -463,7 +457,7 @@ function HomeView({
         {[
           { label: "Industry Partners",    value: totalCompanies,           Icon: <BuildingIcon size={20} /> },
           { label: "Saved Companies",      value: totalSaved ?? saved.length,               Icon: <BookmarkIcon filled={true} size={20} /> },
-          { label: "Interview Categories", value: interviewCategories.length, Icon: <MicIcon size={20} /> },
+          { label: "Interview Practice", value: "Explore", Icon: <MicIcon size={20} /> },
         ].map((s) => (
           <div key={s.label} className="bg-[#dfe9ff] rounded-[22px] p-5 flex items-center gap-4">
             <span className="text-[#0073ff]">{s.Icon}</span>
@@ -643,14 +637,22 @@ function FilterModal({
 
 /* ═══════════════════════════════ EXPLORE VIEW ═══════════════════════ */
 function ExploreView({
-  savedIds,
+  savedOverrides,
+  enabled,
+  revision,
+  onRefresh,
+  onBookmarkSnapshot,
   onToggleSave,
   onViewMore,
   compareIds,
   onToggleCompare,
 }: {
-  savedIds: ReadonlySet<string>;
-  onToggleSave: (id: string) => void;
+  savedOverrides: Readonly<Record<string, boolean>>;
+  enabled: boolean;
+  revision: number;
+  onRefresh: () => void;
+  onBookmarkSnapshot: (rows: CompanyListing[]) => void;
+  onToggleSave: (id: string, saved: boolean) => void;
   onViewMore: (c: Company) => void;
   compareIds?: ReadonlySet<string>;
   onToggleCompare?: (c: Company) => void;
@@ -664,8 +666,10 @@ function ExploreView({
 
   const query = new URLSearchParams({ q: search, niche: activeNiche });
   activeFilters.specializations.forEach(spec => query.append("specialization", spec));
-  const results = useCompanyPage<CompanyDto>("/api/companies", query.toString());
-  const filtered = results.data.map(c => companyView(c, savedIds.has(c.id)));
+  const results = useCompanyPage<CompanyListing>("/api/companies", query.toString(), revision, enabled);
+  const knownBookmarks = results.data.every(c => typeof c.bookmarked === "boolean");
+  const filtered = knownBookmarks ? results.data.map(c => companyView(c, savedOverrides[c.id] ?? c.bookmarked)) : [];
+  useEffect(() => { if (knownBookmarks) onBookmarkSnapshot(results.data); }, [results.data, knownBookmarks, onBookmarkSnapshot]);
 
   const clearAll = () => { setSearch(""); setActiveNiche("All"); setActiveFilters({ specializations: [] }); };
 
@@ -737,7 +741,7 @@ function ExploreView({
         )}
       </div>
 
-      <CompanyResults {...results} />
+      <CompanyResults {...results} error={knownBookmarks ? results.error : "Company information is temporarily unavailable. Please refresh."} reload={onRefresh} />
       {filtered.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {filtered.map((c) => (
@@ -774,86 +778,7 @@ function ExploreView({
 /* ═══════════════════════════════ INTERVIEW PHASE ENGINE ════════════ */
 
 
-interface InterviewPhaseData {
-  id: string;
-  label: string;
-  shortLabel: string;
-  questions: InterviewQuestion[];
-}
-
-const YOUR_QUESTIONS_Q: InterviewQuestion = {
-  question: "That wraps up our questions for you. The floor is yours — do you have any questions for us about the role, the team, the company culture, or day-to-day life as an intern here?",
-  type: "Candidate Questions",
-  hint: "Prepare 2–3 thoughtful questions. Strong examples: 'What does the onboarding process look like for OJT interns?', 'What tech stack will I be working with?', 'What does growth look like from the intern role?'",
-  feedback: "The best candidates ask specific, researched questions that show genuine curiosity. Asking about team culture, tech stack, mentorship, or what a typical week looks like signals enthusiasm. Vague questions ('Is the work hard?') or asking about compensation in an OJT context signals a lack of preparation. Even 'I've done my research and feel well-informed, but I'd love to know what you enjoy most about working here' is a strong closer.",
-};
-
-function makeIntroQ(catName: string): InterviewQuestion {
-  return {
-    question: `Before we dive in, please introduce yourself — your name, degree and year, any relevant projects or experience you're proud of, and what specifically drew you to ${catName} as your practicum focus.`,
-    type: "Introduction",
-    hint: "Keep it to about 90 seconds. Structure: who you are → your academic background → one standout project or skill → why this field genuinely interests you. End with energy, not a trailing 'that's about it.'",
-    feedback: "A strong introduction is structured, confident, and personal. It covers: name and course (brief), one concrete project or achievement (not a list), and a genuine reason for interest in the field (not 'it pays well'). The best intros end by connecting past experience to what they hope to do at the company. Interviewers remember candidates who sound like themselves — not like they're reading a resume.",
-  };
-}
-
-function makeSituationalFallback(catName: string): InterviewQuestion {
-  return {
-    question: `Tell me about a time you had to solve a difficult problem in a ${catName} context — whether in a class project, personal project, or any tech-related experience. Walk me through the situation, what you did, and what you learned.`,
-    type: "Behavioral",
-    hint: "Use STAR: Situation → Task → Action → Result. Be specific — a real example is always stronger than a hypothetical. Focus on YOUR actions, not the team's.",
-    feedback: "Strong answers name a specific problem (not 'we had issues with our project') and walk through what the candidate personally did — not what 'we' did. The Action portion should be detailed: what did you research, try, build, fix? The Result should be concrete (what actually happened) and followed by a genuine lesson. Vague answers like 'I worked hard and we fixed it' reveal a lack of reflection.",
-  };
-}
-
-function buildPhases(catId: string, catName: string): InterviewPhaseData[] {
-  const all  = interviewQuestions[catId] ?? [];
-  const techQ = all.filter((q) => q.type === "Technical");
-  const behQ  = all.filter((q) => ["Behavioral","Situational","Motivational"].includes(q.type));
-
-  const phases: InterviewPhaseData[] = [
-    {
-      id: "intro",
-      label: "Introduction",
-      shortLabel: "Intro",
-      questions: [makeIntroQ(catName)],
-    },
-    {
-      id: "situational",
-      label: "Situational",
-      shortLabel: "Situational",
-      questions: behQ.length > 0 ? [behQ[0]] : [makeSituationalFallback(catName)],
-    },
-  ];
-
-  if (NON_TECHNICAL_IDS.has(catId)) {
-    // Non-technical categories (BPO, Behavioral/HR) focus on customer/behavioral competencies without technical/coding
-    const remainingBeh = behQ.slice(1);
-    phases.push({
-      id: "behavioral",
-      label: "Behavioral / Interpersonal",
-      shortLabel: "Behavioral",
-      questions: remainingBeh.length > 0 ? remainingBeh : (all.length > 1 ? all.slice(1, 3) : [makeSituationalFallback(catName)]),
-    });
-  } else {
-    // Technical categories include technical domain questions
-    phases.push({
-      id: "technical",
-      label: "Technical",
-      shortLabel: "Technical",
-      questions: techQ.length > 0 ? techQ.slice(0, 2) : all.slice(0, 2),
-    });
-
-    // Only categories requiring software coding or query challenges have the coding phase
-    const challenge = codingChallenges[catId];
-    if (CODING_IDS.has(catId) && challenge) {
-      phases.push({ id: "coding", label: "Coding / Practical", shortLabel: "Coding", questions: [challenge] });
-    }
-  }
-
-  phases.push({ id: "your-questions", label: "Your Questions", shortLabel: "Q&A", questions: [YOUR_QUESTIONS_Q] });
-  return phases;
-}
+type InterviewPhaseData = SelectedPhase;
 
 /* phase-stepper icons */
 const PhaseIntroIcon  = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>;
@@ -886,9 +811,25 @@ function typeBadge(type: string) {
 }
 
 /* ═══════════════════════════════ INTERVIEW VIEW ═════════════════════ */
-interface ResultEntry { phase: string; question: string; answer: string; score: number; feedback: string; }
+interface ResultEntry { phase: string; question: string; answer: string; feedback: string; }
 
-function InterviewView() {
+function InterviewView({ cache }: { cache: { current: { rows: InterviewCategory[]; at: number } | null } }) {
+  const [interviewCategories, setInterviewCategories] = useState<InterviewCategory[]>([]);
+  const [categoryError, setCategoryError] = useState("");
+  const [categoryLoading, setCategoryLoading] = useState(true);
+  const [categoryRevision, setCategoryRevision] = useState(0);
+  const selectionVersion = useRef(0);
+  const [starting, setStarting] = useState(false);
+  useEffect(() => {
+    const age = cache.current ? Date.now() - cache.current.at : Infinity;
+    if (categoryRevision === 0 && cache.current && age >= 0 && age < 30000) {
+      setInterviewCategories(cache.current.rows); setCategoryLoading(false); return;
+    }
+    let live = true; setCategoryLoading(true); setCategoryError("");
+    bankList<Category>("/api/categories").then(rows => { if (live) { const categories = rows.map(categoryView); setInterviewCategories(categories); cache.current = { rows: categories, at: Date.now() }; } })
+      .catch(error => { if (live) setCategoryError(error.message); }).finally(() => { if (live) setCategoryLoading(false); });
+    return () => { live = false; selectionVersion.current++; };
+  }, [categoryRevision, cache]);
   const [selectedCatId, setSelectedCatId] = useState<string | null>(null);
   const [phases, setPhases]               = useState<InterviewPhaseData[]>([]);
   const [phaseIdx, setPhaseIdx]           = useState(0);
@@ -905,28 +846,26 @@ function InterviewView() {
   const totalPhases   = phases.length;
   const completedPhases = done ? totalPhases : phaseIdx;
 
-  const randomScore = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
-
-  const startInterview = (catId: string) => {
-    const cat = interviewCategories.find((c) => c.id === catId)!;
-    setSelectedCatId(catId);
-    setPhases(buildPhases(catId, cat.name));
-    setPhaseIdx(0); setQIdx(0); setAnswer(""); setShowFeedback(false); setResults([]); setDone(false);
+  const startInterview = async (catId: string) => {
+    const version = ++selectionVersion.current;
+    setStarting(true); setCategoryError("");
+    try {
+      const selected = await apiClient.get<SelectedPhase[]>(`/api/categories/${catId}/pipeline`);
+      if (version !== selectionVersion.current) return;
+      setSelectedCatId(catId); setPhases(selected);
+      setPhaseIdx(0); setQIdx(0); setAnswer(""); setShowFeedback(false); setResults([]); setDone(false);
+    } catch (error) { if (version === selectionVersion.current) setCategoryError(error instanceof Error ? error.message : "Unable to start practice."); }
+    finally { if (version === selectionVersion.current) setStarting(false); }
   };
 
   const reset = () => { setSelectedCatId(null); setPhases([]); setPhaseIdx(0); setQIdx(0); setAnswer(""); setShowFeedback(false); setResults([]); setDone(false); };
 
   const submitAnswer = () => {
-    const isQAPhase = currentPhase.id === "your-questions";
-    const minScore  = isQAPhase ? 75 : currentPhase.id === "intro" ? 78 : 68;
-    const maxScore  = isQAPhase ? 92 : 96;
-    const score = randomScore(minScore, maxScore);
     setResults((prev) => [...prev, {
       phase: currentPhase.label,
       question: currentQ.question,
       answer,
-      score,
-      feedback: currentQ.feedback,
+      feedback: "Your response is kept only for this practice session. Scoring and saved history are not available yet.",
     }]);
     setShowFeedback(true);
   };
@@ -949,7 +888,7 @@ function InterviewView() {
         <h1 className="text-[#302929] text-[38px] tracking-[-1px] mb-1" style={{ fontFamily: "'DM Serif Display', serif" }}>
           Mock Interview Practice
         </h1>
-        <p className="text-gray-400 text-[14px] mb-6">Select a category to begin a structured interview. AI evaluates every response.</p>
+        <p className="text-gray-400 text-[14px] mb-6">Select a category to begin a structured interview. Practice responses in this session. Scoring and saved history are not available yet.</p>
         
         {/* How the interview works — placed first */}
         <div className="mb-7 bg-[#dfe9ff] rounded-[28px] p-6">
@@ -970,13 +909,17 @@ function InterviewView() {
           </div>
         </div>
 
+        {categoryLoading && <p role="status">Loading categories…</p>}
+        {starting && <p role="status">Preparing your questions…</p>}
+        {categoryError && <p role="alert" className="text-red-600">{categoryError} <button onClick={() => setCategoryRevision(n => n + 1)}>Retry</button></p>}
+        {!categoryLoading && !categoryError && interviewCategories.length === 0 && <p>No interview categories are available yet.</p>}
         {/* Categories Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {interviewCategories.map((cat) => (
             <CategoryCard
               key={cat.id}
               category={cat}
-              pipeline={getCategoryPipeline(cat.id)}
+              pipeline={cat.pipeline}
               onSelect={() => startInterview(cat.id)}
             />
           ))}
@@ -987,7 +930,6 @@ function InterviewView() {
 
   /* ── Results screen ── */
   if (done) {
-    const avg = Math.round(results.reduce((s, r) => s + r.score, 0) / results.length);
     return (
       <div>
         <button onClick={reset} className="flex items-center gap-2 text-gray-400 hover:text-[#0073ff] text-[13px] transition-colors mb-6">
@@ -997,15 +939,15 @@ function InterviewView() {
         {/* Overall score banner */}
         <div className="bg-[#4869ff] rounded-[32px] p-7 flex items-center gap-6 mb-6">
           <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shrink-0 shadow-lg">
-            <span className="text-[#4869ff] text-[28px] font-bold" style={{ fontFamily: "'DM Serif Display', serif" }}>{avg}</span>
+            <span className="text-[#4869ff] text-[28px] font-bold" style={{ fontFamily: "'DM Serif Display', serif" }}>{results.length}</span>
           </div>
           <div>
-            <div className="text-white/60 text-[11px] uppercase tracking-widest mb-1">Overall Score</div>
+            <div className="text-white/60 text-[11px] uppercase tracking-widest mb-1">Responses practiced</div>
             <div className="text-white text-[24px] font-semibold" style={{ fontFamily: "'DM Serif Display', serif" }}>
-              {avg >= 90 ? "Outstanding Interview!" : avg >= 80 ? "Strong Performance." : avg >= 70 ? "Good Effort — Keep Practicing." : "Room to Grow. Keep at it."}
+              Practice complete
             </div>
             <div className="text-white/60 text-[13px] mt-1">
-              {category?.name} · {results.length} questions evaluated by AI
+              {category?.name} · {results.length} responses practiced
             </div>
           </div>
         </div>
@@ -1019,17 +961,15 @@ function InterviewView() {
                 <div>
                   <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">{r.phase}</span>
                 </div>
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-[15px] font-bold shadow-sm ${
-                  r.score >= 88 ? "bg-[#d1fae5] text-[#059669]" : r.score >= 75 ? "bg-[#dfe9ff] text-[#0073ff]" : "bg-[#fee2e2] text-[#dc2626]"
-                }`} style={{ fontFamily: "'DM Serif Display', serif" }}>
-                  {r.score}
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-[15px] font-bold shadow-sm bg-[#dfe9ff] text-[#0073ff]" style={{ fontFamily: "'DM Serif Display', serif" }}>
+                  ✓
                 </div>
               </div>
               <p className="text-[12px] text-gray-500 leading-relaxed line-clamp-2 mb-2">{r.question}</p>
               <div className="bg-gray-50 rounded-[14px] p-3">
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <span className="text-[#0073ff]"><BotIcon size={13} /></span>
-                  <span className="text-[11px] font-semibold text-[#302929]">AI Feedback</span>
+                  <span className="text-[11px] font-semibold text-[#302929]">Practice note</span>
                 </div>
                 <p className="text-[11px] text-gray-500 leading-relaxed line-clamp-3">{r.feedback}</p>
               </div>
@@ -1136,7 +1076,7 @@ function InterviewView() {
               disabled={answer.trim().length < minLen}
               className="bg-[#0073ff] text-white text-[13px] font-semibold px-7 py-2.5 rounded-full hover:bg-[#0060dd] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Submit for AI Evaluation
+              Record response
             </button>
           </div>
         </div>
@@ -1148,13 +1088,13 @@ function InterviewView() {
             return (
               <div className="bg-[#4869ff] rounded-[28px] p-6 flex items-center gap-5">
                 <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center shrink-0 shadow">
-                  <span className="text-[#4869ff] text-[20px] font-bold" style={{ fontFamily: "'DM Serif Display', serif" }}>{latest.score}</span>
+                  <span className="text-[#4869ff] text-[20px] font-bold" style={{ fontFamily: "'DM Serif Display', serif" }}>✓</span>
                 </div>
                 <div>
                   <div className="text-white font-semibold text-[15px]">
-                    {latest.score >= 90 ? "Excellent response!" : latest.score >= 80 ? "Strong answer." : latest.score >= 70 ? "Good effort." : "Keep practicing."}
+                    Response recorded for this session
                   </div>
-                  <div className="text-white/60 text-[12px] mt-0.5">{currentPhase.label} · AI evaluation complete</div>
+                  <div className="text-white/60 text-[12px] mt-0.5">{currentPhase.label} · Response recorded</div>
                 </div>
               </div>
             );
@@ -1170,9 +1110,9 @@ function InterviewView() {
           <div className="bg-white rounded-[28px] p-6 shadow-sm border-l-4 border-[#0073ff]">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-[#0073ff]"><BotIcon size={15} /></span>
-              <span className="text-[13px] font-semibold text-[#302929]">AI Feedback</span>
+              <span className="text-[13px] font-semibold text-[#302929]">Practice note</span>
             </div>
-            <p className="text-[13px] text-gray-500 leading-relaxed">{currentQ.feedback}</p>
+            <p className="text-[13px] text-gray-500 leading-relaxed">{"Your response is kept only for this practice session. Scoring and saved history are not available yet."}</p>
           </div>
 
           {/* Navigation */}
@@ -1204,29 +1144,32 @@ function InterviewView() {
 export default function Dashboard() {
   const { user, logout: handleLogout } = useSession();
   const [view, setView] = useState<DashView>("home");
+  const [exploreOpened, setExploreOpened] = useState(false);
+  const interviewCache = useRef<{ rows: InterviewCategory[]; at: number } | null>(null);
+  useEffect(() => { if (view === "explore") setExploreOpened(true); }, [view]);
   const [revision, setRevision] = useState(0);
-  const bookmarks = useCompanyPage<Bookmark>("/api/me/bookmarks", "", revision);
-  const partners = useCompanyPage<CompanyDto>("/api/companies", "pageSize=1", revision);
-  const companies = bookmarks.data.map(b => companyView(b.company, true));
+  const [partnerRevision, setPartnerRevision] = useState(0);
+  const bookmarks = useCompanyPage<Bookmark>("/api/me/bookmarks", "", revision, view === "home");
+  const partners = useCompanyPage<CompanyDto>("/api/companies", "pageSize=1", partnerRevision, view === "home");
   const [bookmarkError, setBookmarkError] = useState("");
   const savingBookmark = useRef(false);
-  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
-  useEffect(() => {
-    let cancelled = false;
-    // Read all bookmark IDs so Explore never mistakes an off-page save for an unsaved company.
-    void (async () => {
-      const ids = new Set<string>();
-      for (let page = 1; ; page++) {
-        const result = await apiClient.list<Bookmark>(`/api/me/bookmarks?page=${page}&pageSize=100`);
-        result.data.forEach(b => ids.add(b.companyId));
-        if (page * result.meta!.pageSize >= result.meta!.total) break;
-      }
-      if (!cancelled) setSavedIds(ids);
-    })().catch(error => { if (!cancelled) setBookmarkError(error.message); });
-    return () => { cancelled = true; };
-  }, [revision]);
+  const bookmarkVersion = useRef(0);
+  const [savedOverrides, setSavedOverrides] = useState<Record<string, boolean>>({});
+  const companies = bookmarks.data.map(b => companyView(b.company, savedOverrides[b.companyId] ?? true));
   const [collapsed, setCollapsed] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const onBookmarkSnapshot = React.useCallback((rows: CompanyListing[]) => {
+    setSavedOverrides(previous => {
+      if (!rows.some(row => Object.hasOwn(previous, row.id))) return previous;
+      const next = { ...previous }; rows.forEach(row => { delete next[row.id]; }); return next;
+    });
+    setSelectedCompany(previous => {
+      const fresh = rows.find(row => row.id === previous?.id);
+      return previous && fresh && previous.saved !== fresh.bookmarked ? { ...previous, saved: fresh.bookmarked } : previous;
+    });
+  }, []);
+  const refreshCompanies = () => { setSavedOverrides({}); setRevision(n => n + 1); setPartnerRevision(n => n + 1); };
+  useEffect(() => { onBookmarkSnapshot(bookmarks.data.map(row => ({ ...row.company, bookmarked: true }))); }, [bookmarks.data, onBookmarkSnapshot]);
   const [profileOpen, setProfileOpen] = useState(false);
 
   // Company Comparison State
@@ -1235,6 +1178,16 @@ export default function Dashboard() {
   const [compareNotification, setCompareNotification] = useState<string | null>(null);
 
   const compareIds = new Set(compareCompanies.keys());
+
+  const savedIds = useMemo(() => {
+    const set = new Set<string>();
+    bookmarks.data.forEach(b => set.add(b.company.id));
+    for (const [id, isSaved] of Object.entries(savedOverrides)) {
+      if (isSaved) set.add(id);
+      else set.delete(id);
+    }
+    return set;
+  }, [bookmarks.data, savedOverrides]);
 
   useEffect(() => {
     if (!compareNotification) return;
@@ -1278,20 +1231,32 @@ export default function Dashboard() {
     yearLevel: user.student?.yearLevel ?? "",
   };
 
-  const toggleSave = async (id: string) => {
+  const toggleSave = async (id: string, saved: boolean) => {
     if (savingBookmark.current) return;
     savingBookmark.current = true;
     setBookmarkError("");
-    const saved = savedIds.has(id);
     try {
       await apiClient.mutate(`/api/me/bookmarks/${id}`, saved ? "DELETE" : "PUT", saved ? undefined : {});
-      setSavedIds(previous => { const next = new Set(previous); saved ? next.delete(id) : next.add(id); return next; });
+      bookmarkVersion.current++;
+      setSavedOverrides(previous => ({ ...previous, [id]: !saved }));
+      setSelectedCompany(previous => previous?.id === id ? { ...previous, saved: !saved } : previous);
       setRevision(n => n + 1);
     } catch (error) { setBookmarkError(error instanceof Error ? error.message : "Unable to update bookmark."); }
     finally { savingBookmark.current = false; }
   };
   const viewCompany = async (company: Company) => {
-    try { setSelectedCompany(companyView(await apiClient.get<CompanyDto>(`/api/companies/${company.id}`), savedIds.has(company.id))); }
+    try {
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const version = bookmarkVersion.current;
+        const fresh = await apiClient.get<CompanyListing>(`/api/companies/${company.id}`);
+        if (version !== bookmarkVersion.current) continue;
+        if (typeof fresh.bookmarked !== "boolean") throw new Error("Company information is temporarily unavailable. Please refresh.");
+        setSavedOverrides(previous => ({ ...previous, [company.id]: fresh.bookmarked }));
+        setSelectedCompany(companyView(fresh, fresh.bookmarked));
+        return;
+      }
+      throw new Error("Your saved companies changed. Please try again.");
+    }
     catch (error) { setBookmarkError(error instanceof Error ? error.message : "Company unavailable."); }
   };
 
@@ -1321,14 +1286,14 @@ export default function Dashboard() {
           >
             {collapsed ? (
               <img
-                src="/getHiredLogo.PNG"
+                src="/getHiredLogo.png"
                 alt="GetHired Logo"
                 className="w-11 h-11 object-contain shrink-0"
               />
             ) : (
               <>
                 <img
-                  src="/getHiredLogo.PNG"
+                  src="/getHiredLogo.png"
                   alt="GetHired Logo"
                   className="w-10 h-10 object-contain shrink-0"
                 />
@@ -1380,7 +1345,7 @@ export default function Dashboard() {
           {/* Mobile brand header */}
           <div className="flex items-center gap-2 md:hidden">
             <img
-              src="/getHiredLogo.PNG"
+              src="/getHiredLogo.png"
               alt="GetHired Logo"
               className="w-8 h-8 object-contain shrink-0"
             />
@@ -1407,8 +1372,8 @@ export default function Dashboard() {
 
         <div className="flex-1 overflow-y-auto px-4 sm:px-7 pb-24 md:pb-7">
           {bookmarkError && <p role="alert" className="text-red-600 py-3">{bookmarkError}</p>}
-          {view === "home" && <CompanyResults {...bookmarks} reload={() => { bookmarks.reload(); setRevision(n => n + 1); }} />}
-          {view === "home" && !bookmarks.loading && !bookmarks.error && (
+          {view === "home" && <CompanyResults {...bookmarks} reload={refreshCompanies} />}
+          {view === "home" && !bookmarks.error && (
             <HomeView
               totalCompanies={partners.meta.total}
               totalSaved={bookmarks.meta.total}
@@ -1419,16 +1384,22 @@ export default function Dashboard() {
               onToggleCompare={toggleCompare}
             />
           )}
-          {view === "explore" && (
-            <ExploreView
-              savedIds={savedIds}
-              onToggleSave={toggleSave}
-              onViewMore={viewCompany}
-              compareIds={compareIds}
-              onToggleCompare={toggleCompare}
-            />
+          {(view === "explore" || exploreOpened) && (
+            <div hidden={view !== "explore"}>
+              <ExploreView
+                enabled={view === "explore"}
+                savedOverrides={savedOverrides}
+                revision={revision}
+                onRefresh={refreshCompanies}
+                onBookmarkSnapshot={onBookmarkSnapshot}
+                onToggleSave={toggleSave}
+                onViewMore={viewCompany}
+                compareIds={compareIds}
+                onToggleCompare={toggleCompare}
+              />
+            </div>
           )}
-          {view === "interview" && <InterviewView />}
+          {view === "interview" && <InterviewView cache={interviewCache} />}
         </div>
       </div>
 
@@ -1463,7 +1434,7 @@ export default function Dashboard() {
 
       {selectedCompany && (
         <CompanyModal
-          company={{ ...selectedCompany, saved: savedIds.has(selectedCompany.id) }}
+          company={{ ...selectedCompany, saved: savedOverrides[selectedCompany.id] ?? selectedCompany.saved }}
           onClose={() => setSelectedCompany(null)}
           onToggleSave={toggleSave}
           onPractice={() => { setSelectedCompany(null); setView("interview"); }}
@@ -1553,10 +1524,10 @@ export default function Dashboard() {
           onClose={() => setCompareModalOpen(false)}
           onRemove={removeCompare}
           onClear={clearCompare}
-          onToggleSave={toggleSave}
+          onToggleSave={(id) => void toggleSave(id, savedIds.has(id))}
           onViewDetails={(c) => {
             setCompareModalOpen(false);
-            setSelectedCompany(companyView(c, savedIds.has(c.id)));
+            void viewCompany(c);
           }}
           onPracticeInterview={() => {
             setCompareModalOpen(false);

@@ -1,0 +1,581 @@
+{
+  "info": {
+    "description": "Run requests individually in order. Start both servers and configure local environments first. Keep cookies enabled. Set identifier and password locally. Fetch CSRF again after login. Protected reads require the appropriate account role. Refresh and logout send empty JSON objects. No gateway secret is needed through the frontend proxy.",
+    "name": "GetHired - Local API starter",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api"
+    },
+    {
+      "key": "origin",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "identifier",
+      "value": ""
+    },
+    {
+      "key": "password",
+      "type": "string",
+      "value": ""
+    },
+    {
+      "key": "csrfToken",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Liveness",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/health/live",
+        "header": [
+          {
+            "key": "Origin",
+            "value": "{{origin}}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "02 - Readiness",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/health/ready",
+        "header": [
+          {
+            "key": "Origin",
+            "value": "{{origin}}"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/auth/csrf",
+        "header": [
+          {
+            "key": "Origin",
+            "value": "{{origin}}"
+          }
+        ]
+      },
+      "name": "03 - Get CSRF before login",
+      "event": [
+        {
+          "script": {
+            "exec": [
+              "pm.test(\"CSRF bootstrap succeeds\", function () { pm.response.to.have.status(200); });",
+              "if (pm.response.code === 200) { pm.collectionVariables.set(\"csrfToken\", pm.response.json().data.csrfToken); }"
+            ],
+            "type": "text/javascript"
+          },
+          "listen": "test"
+        }
+      ]
+    },
+    {
+      "name": "04 - Login",
+      "request": {
+        "body": {
+          "raw": "{\"identifier\":\"{{identifier}}\",\"password\":\"{{password}}\",\"rememberMe\":false}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          },
+          "mode": "raw"
+        },
+        "method": "POST",
+        "url": "{{baseUrl}}/auth/login",
+        "header": [
+          {
+            "key": "Origin",
+            "value": "{{origin}}"
+          },
+          {
+            "key": "X-CSRF-Token",
+            "value": "{{csrfToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/auth/csrf",
+        "header": [
+          {
+            "key": "Origin",
+            "value": "{{origin}}"
+          }
+        ]
+      },
+      "name": "05 - Get fresh CSRF after login",
+      "event": [
+        {
+          "script": {
+            "exec": [
+              "pm.test(\"CSRF bootstrap succeeds\", function () { pm.response.to.have.status(200); });",
+              "if (pm.response.code === 200) { pm.collectionVariables.set(\"csrfToken\", pm.response.json().data.csrfToken); }"
+            ],
+            "type": "text/javascript"
+          },
+          "listen": "test"
+        }
+      ]
+    },
+    {
+      "name": "06 - Current account",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/auth/me",
+        "header": [
+          {
+            "key": "Origin",
+            "value": "{{origin}}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "07 - Companies",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/companies",
+        "header": [
+          {
+            "key": "Origin",
+            "value": "{{origin}}"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Company bookmark flags are private, read-only owner projections\", function () {",
+              "  pm.response.to.have.status(200);",
+              "  pm.expect(pm.response.headers.get(\"Cache-Control\")).to.eql(\"private, no-store\");",
+              "  pm.response.json().data.forEach(function(company) { pm.expect(company.bookmarked).to.be.a(\"boolean\"); });",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 - Bookmarks (student)",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/me/bookmarks",
+        "header": [
+          {
+            "key": "Origin",
+            "value": "{{origin}}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "09 - Companies (admin)",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/admin/companies",
+        "header": [
+          {
+            "key": "Origin",
+            "value": "{{origin}}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "10 - Students (admin)",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/admin/students",
+        "header": [
+          {
+            "key": "Origin",
+            "value": "{{origin}}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "11 - Refresh session",
+      "request": {
+        "body": {
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          },
+          "mode": "raw"
+        },
+        "method": "POST",
+        "url": "{{baseUrl}}/auth/refresh",
+        "header": [
+          {
+            "key": "Origin",
+            "value": "{{origin}}"
+          },
+          {
+            "key": "X-CSRF-Token",
+            "value": "{{csrfToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Refresh returns a verified user and the existing session summary\", function () {",
+              "  pm.response.to.have.status(200);",
+              "  const current = pm.response.json().data;",
+              "  pm.expect(current.user.id).to.be.a(\"string\");",
+              "  pm.expect(current.user.role).to.be.oneOf([\"student\", \"admin\"]);",
+              "  pm.expect(current.session.expiresAt).to.be.a(\"string\");",
+              "  pm.expect(current.session.rememberMe).to.be.a(\"boolean\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 - Logout",
+      "request": {
+        "body": {
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          },
+          "mode": "raw"
+        },
+        "method": "POST",
+        "url": "{{baseUrl}}/auth/logout",
+        "header": [
+          {
+            "key": "Origin",
+            "value": "{{origin}}"
+          },
+          {
+            "key": "X-CSRF-Token",
+            "value": "{{csrfToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      }
+    },
+    {
+      "name": "B6 question bank",
+      "description": "Use the existing login and CSRF flow first. Admin requests need an admin session. Set categoryId/questionId from created resources. Run mutations only against a test database.",
+      "item": [
+        {
+          "name": "GET /categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/categories"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected success status', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Envelope has request ID and data', () => { pm.expect(body.requestId).to.be.a('string'); pm.expect(body).to.have.property('data'); });",
+                  "pm.test('No private rubric fields', () => pm.expect(JSON.stringify(body)).not.to.match(/\"feedback\"\\s*:/));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /admin/categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/categories"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected success status', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Envelope has request ID and data', () => { pm.expect(body.requestId).to.be.a('string'); pm.expect(body).to.have.property('data'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /admin/categories",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrfToken}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{origin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/categories",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"B6 test\",\n  \"description\": \"Test category\",\n  \"color\": \"#112233\",\n  \"bg\": \"#ffffff\",\n  \"phases\": [\n    {\n      \"id\": \"intro\",\n      \"label\": \"Introduction\",\n      \"shortLabel\": \"Intro\",\n      \"types\": [\n        \"Introduction\"\n      ],\n      \"count\": 1\n    }\n  ]\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected success status', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test('Envelope has request ID and data', () => { pm.expect(body.requestId).to.be.a('string'); pm.expect(body).to.have.property('data'); });",
+                  "if (pm.response.code === 201) pm.collectionVariables.set('categoryId', body.data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /admin/categories/{id}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrfToken}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{origin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/categories/{{categoryId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"active\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected success status', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Envelope has request ID and data', () => { pm.expect(body.requestId).to.be.a('string'); pm.expect(body).to.have.property('data'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /admin/categories/{id}/questions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/categories/{{categoryId}}/questions"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected success status', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Envelope has request ID and data', () => { pm.expect(body.requestId).to.be.a('string'); pm.expect(body).to.have.property('data'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /admin/categories/{id}/questions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrfToken}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{origin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/categories/{{categoryId}}/questions",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"Introduce yourself\",\n  \"type\": \"Introduction\",\n  \"hint\": \"Be specific\",\n  \"feedback\": \"Private test rubric\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected success status', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test('Envelope has request ID and data', () => { pm.expect(body.requestId).to.be.a('string'); pm.expect(body).to.have.property('data'); });",
+                  "if (pm.response.code === 201) pm.collectionVariables.set('questionId', body.data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /admin/questions/{id}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrfToken}}"
+              },
+              {
+                "key": "Origin",
+                "value": "{{origin}}"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/questions/{{questionId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"active\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected success status', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Envelope has request ID and data', () => { pm.expect(body.requestId).to.be.a('string'); pm.expect(body).to.have.property('data'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /categories/{id}/pipeline",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/categories/{{categoryId}}/pipeline"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expected success status', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Envelope has request ID and data', () => { pm.expect(body.requestId).to.be.a('string'); pm.expect(body).to.have.property('data'); });",
+                  "pm.test('No private rubric fields', () => pm.expect(JSON.stringify(body)).not.to.match(/\"feedback\"\\s*:/));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { InterviewCategory } from "@/data";
+import type { InterviewCategory } from "@/lib/interviews";
 
 export interface CategoryCardProps {
   category: InterviewCategory;

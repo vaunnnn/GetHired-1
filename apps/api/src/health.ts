@@ -1,7 +1,7 @@
 import { ApiError } from "./api/errors.js"
 import type { SqlPool } from "./auth/store.js"
 
-export const REQUIRED_SCHEMA = "202610120002"
+export const REQUIRED_SCHEMA = "202610260001"
 
 function failureReason(error: unknown): string {
   const code = typeof error === "object" && error !== null && "code" in error ? error.code : undefined

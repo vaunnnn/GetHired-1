@@ -2,6 +2,7 @@ export const API_ERRORS = {
   INVALID_JSON: [400, "Send a valid JSON object."],
   VALIDATION_ERROR: [400, "Check the highlighted fields."],
   INVALID_RECOVERY_CODE: [400, "The recovery code is invalid or has expired."],
+  INVALID_VERIFICATION_CODE: [400, "The verification code is invalid or has expired."],
   UNAUTHENTICATED: [401, "Sign in to continue."],
   SESSION_EXPIRED: [401, "Your session has expired. Sign in again."],
   INVALID_CREDENTIALS: [401, "The sign-in details are invalid."],
@@ -10,6 +11,7 @@ export const API_ERRORS = {
   NOT_FOUND: [404, "The requested resource was not found."],
   METHOD_NOT_ALLOWED: [405, "This method is not supported."],
   CONFLICT: [409, "The request conflicts with the current resource state."],
+  CATEGORY_UNAVAILABLE: [409, "This category does not yet have enough active questions. Please choose another category."],
   ATTEMPT_COMPLETED: [409, "This interview attempt is already complete."],
   ATTEMPT_INCOMPLETE: [
     409,

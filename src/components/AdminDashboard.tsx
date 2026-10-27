@@ -2,19 +2,12 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { useSession } from "./SessionProvider";
+import StudentRegistry from "./StudentRegistry";
 import CompanyCard from "./CompanyCard";
 import CategoryCard, { CategoryIcon } from "./CategoryCard";
-import {
-  interviewCategories as defaultCategories,
-  interviewQuestions as defaultQuestions,
-  codingChallenges as defaultChallenges,
-  initialStudents,
-  Student,
-  InterviewCategory,
-  InterviewQuestion,
-  generateDefaultPassword,
-  getCategoryPipeline,
-} from "../data";
+import { bankList, categoryView, questionView, type InterviewCategory, type InterviewQuestion } from "@/lib/interviews";
+import { DEFAULT_PHASES, QUESTION_TYPES, type Category, type Question, type PhaseConfig } from "@gethired/contracts";
+import PipelineEditor from "./PipelineEditor";
 
 import { apiClient } from "@/lib/api-client";
 import { companyView, type Company } from "@/lib/companies";
@@ -485,7 +478,7 @@ export default function AdminDashboard() {
   const query = new URLSearchParams({ q: companySearch });
   if (companyStatus !== "all") query.set("status", companyStatus);
   if (selectedNiche !== "All") query.set("specialization", selectedNiche);
-  const companyResults = useCompanyPage<CompanyDto>("/api/admin/companies", query.toString(), companyRevision);
+  const companyResults = useCompanyPage<CompanyDto>("/api/admin/companies", query.toString(), companyRevision, activeTab === "companies");
   const companies = companyResults.data.map(c => companyView(c));
   const [companyError, setCompanyError] = useState("");
   const [companyBusy, setCompanyBusy] = useState(false);
@@ -510,30 +503,13 @@ export default function AdminDashboard() {
     specializations: ["Software Dev"],
   });
 
-  // States for Students
-  const [students, setStudents] = useState<Student[]>(initialStudents);
-  const [studentSearch, setStudentSearch] = useState("");
-  const [selectedCourseFilter, setSelectedCourseFilter] = useState("All");
-  const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
-  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
-
-  // Student Form state
-  const [studForm, setStudForm] = useState({
-    id: "",
-    firstName: "",
-    lastName: "",
-    course: "BS Information Technology",
-    yearLevel: "4th Year",
-    email: "",
-  });
-
   // States for Interview Categories & Questions
-  const [categories, setCategories] = useState<InterviewCategory[]>(defaultCategories);
-  const [questionsMap, setQuestionsMap] = useState<Record<string, InterviewQuestion[]>>(defaultQuestions);
+  const [categories, setCategories] = useState<InterviewCategory[]>([]);
+  const [questionsMap, setQuestionsMap] = useState<Record<string, InterviewQuestion[]>>({});
   const [selectedCategoryForQuestions, setSelectedCategoryForQuestions] = useState<InterviewCategory | null>(null);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<InterviewCategory | null>(null);
+  const [phaseForm, setPhaseForm] = useState<PhaseConfig[]>(DEFAULT_PHASES);
   const [catForm, setCatForm] = useState({
     name: "",
     description: "",
@@ -550,6 +526,40 @@ export default function AdminDashboard() {
     hint: "",
     feedback: "",
   });
+
+  const [bankRevision, setBankRevision] = useState(0);
+  const [bankError, setBankError] = useState("");
+  const [bankLoading, setBankLoading] = useState(true);
+  const bankLock = useRef(false);
+  const loadedCategories = useRef({ revision: -1, at: 0 });
+  const loadedQuestions = useRef<Record<string, { revision: number; at: number }>>({});
+  useEffect(() => {
+    const age = Date.now() - loadedCategories.current.at;
+    if (activeTab !== "interviews" || loadedCategories.current.revision === bankRevision && age >= 0 && age < 30000) return;
+    let live = true;
+    setBankLoading(true); setBankError("");
+    bankList<Category>("/api/admin/categories").then(rows => { if (live) { setCategories(rows.map(categoryView)); loadedCategories.current = { revision: bankRevision, at: Date.now() }; } })
+      .catch(error => { if (live) setBankError(error.message); }).finally(() => { if (live) setBankLoading(false); });
+    return () => { live = false; };
+  }, [bankRevision, activeTab]);
+  useEffect(() => {
+    if (activeTab !== "interviews" || !selectedCategoryForQuestions) return;
+    let live = true;
+    const id = selectedCategoryForQuestions.id;
+    const cached = loadedQuestions.current[id];
+    const age = cached ? Date.now() - cached.at : Infinity;
+    if (cached?.revision === bankRevision && age >= 0 && age < 30000) return;
+    bankList<Question>(`/api/admin/categories/${id}/questions`).then(rows => { if (live) { setQuestionsMap(prev => ({ ...prev, [id]: rows.map(questionView) })); loadedQuestions.current[id] = { revision: bankRevision, at: Date.now() }; } })
+      .catch(error => { if (live) setBankError(error.message); });
+    return () => { live = false; };
+  }, [selectedCategoryForQuestions?.id, bankRevision, activeTab]);
+  const bankWrite = async (path: string, method: "POST" | "PATCH", body: unknown, done?: () => void) => {
+    if (bankLock.current) return;
+    bankLock.current = true; setBankError("");
+    try { await apiClient.mutate(path, method, body); setBankRevision(n => n + 1); done?.(); }
+    catch (error) { setBankError(error instanceof Error ? error.message : "Unable to save changes."); }
+    finally { bankLock.current = false; }
+  };
 
   // Confirmation Modal state for Deactivation / Reactivation
   const [confirmModal, setConfirmModal] = useState<ConfirmActionState | null>(null);
@@ -608,15 +618,6 @@ export default function AdminDashboard() {
     });
   };
 
-  const handleRequestDeleteStudent = (s: Student) => {
-    setConfirmModal({
-      type: "delete",
-      target: "student",
-      id: s.id,
-      name: `${s.firstName} ${s.lastName}`,
-    });
-  };
-
   const handleConfirmAction = async () => {
     if (!confirmModal) return;
     const { type, target, id, idx } = confirmModal;
@@ -631,19 +632,10 @@ export default function AdminDashboard() {
       } catch (error) { setCompanyError(error instanceof Error ? error.message : "Unable to update company."); }
       finally { companyLock.current = false; }
     } else if (target === "category") {
-      setCategories((prev) =>
-        prev.map((cat) => (cat.id === id ? { ...cat, deactivated: type === "deactivate" } : cat))
-      );
+      await bankWrite(`/api/admin/categories/${id}`, "PATCH", { status: type === "deactivate" ? "inactive" : "active" });
     } else if (target === "question" && selectedCategoryForQuestions && idx !== undefined) {
-      setQuestionsMap((prev) => {
-        const list = [...(prev[selectedCategoryForQuestions.id] || [])];
-        if (list[idx]) {
-          list[idx] = { ...list[idx], deactivated: type === "deactivate" };
-        }
-        return { ...prev, [selectedCategoryForQuestions.id]: list };
-      });
-    } else if (target === "student" && id) {
-      setStudents((prev) => prev.filter((s) => s.id !== id));
+      const question = questionsMap[selectedCategoryForQuestions.id]?.[idx];
+      if (question?.id) await bankWrite(`/api/admin/questions/${question.id}`, "PATCH", { status: type === "deactivate" ? "inactive" : "active" });
     }
 
     setConfirmModal(null);
@@ -730,77 +722,10 @@ export default function AdminDashboard() {
     }
   };
 
-  /* ── Student Actions ── */
-  const handleOpenAddStudent = () => {
-    setEditingStudent(null);
-    setStudForm({
-      id: `24100${Math.floor(Math.random() * 800 + 100)}`,
-      firstName: "",
-      lastName: "",
-      course: "BS Information Technology",
-      yearLevel: "4th Year",
-      email: "",
-    });
-    setIsStudentModalOpen(true);
-  };
-
-  const handleOpenEditStudent = (s: Student) => {
-    setEditingStudent(s);
-    setStudForm({
-      id: s.id,
-      firstName: s.firstName,
-      lastName: s.lastName,
-      course: s.course,
-      yearLevel: s.yearLevel,
-      email: s.email,
-    });
-    setIsStudentModalOpen(true);
-  };
-
-
-  const handleSaveStudent = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!studForm.id || !studForm.firstName || !studForm.lastName) return;
-
-    const defaultPwd = generateDefaultPassword(studForm.id, studForm.firstName);
-    const emailComputed = studForm.email || `${studForm.id.trim()}@usc.edu.ph`;
-
-    if (editingStudent) {
-      setStudents((prev) =>
-        prev.map((s) =>
-          s.id === editingStudent.id
-            ? {
-                ...s,
-                ...studForm,
-                email: emailComputed,
-                defaultPassword: generateDefaultPassword(studForm.id, studForm.firstName),
-              }
-            : s
-        )
-      );
-    } else {
-      const newStudent: Student = {
-        id: studForm.id,
-        firstName: studForm.firstName,
-        lastName: studForm.lastName,
-        course: studForm.course,
-        yearLevel: studForm.yearLevel,
-        email: emailComputed,
-        defaultPassword: defaultPwd,
-      };
-      setStudents((prev) => [newStudent, ...prev]);
-    }
-    setIsStudentModalOpen(false);
-  };
-
-  const handleCopyPassword = (pwd: string, id: string) => {
-    navigator.clipboard.writeText(pwd);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
-
   /* ── Interview Actions ── */
   const handleOpenAddCategory = () => {
+    setPhaseForm(DEFAULT_PHASES);
+    setBankError("");
     setEditingCategory(null);
     setCatForm({
       name: "",
@@ -812,6 +737,8 @@ export default function AdminDashboard() {
   };
 
   const handleOpenEditCategory = (cat: InterviewCategory) => {
+    setPhaseForm(cat.phases);
+    setBankError("");
     setEditingCategory(cat);
     setCatForm({
       name: cat.name,
@@ -822,39 +749,9 @@ export default function AdminDashboard() {
     setIsCategoryModalOpen(true);
   };
 
-  const handleSaveCategory = (e: React.FormEvent) => {
+  const handleSaveCategory = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!catForm.name) return;
-
-    if (editingCategory) {
-      setCategories((prev) =>
-        prev.map((c) => (c.id === editingCategory.id ? { ...c, ...catForm } : c))
-      );
-      if (selectedCategoryForQuestions?.id === editingCategory.id) {
-        setSelectedCategoryForQuestions((prev) => (prev ? { ...prev, ...catForm } : null));
-      }
-    } else {
-      const newId = catForm.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-      const newCat: InterviewCategory = {
-        id: newId,
-        name: catForm.name,
-        description: catForm.description,
-        color: catForm.color || "#0066FF",
-        bg: catForm.bg || "#dfe9ff",
-      };
-      setCategories((prev) => [...prev, newCat]);
-      setQuestionsMap((prev) => ({ ...prev, [newId]: [] }));
-    }
-    setIsCategoryModalOpen(false);
-  };
-
-  const handleDeleteCategory = (id: string) => {
-    if (confirm("Delete this interview category and all its questions?")) {
-      setCategories((prev) => prev.filter((c) => c.id !== id));
-      if (selectedCategoryForQuestions?.id === id) {
-        setSelectedCategoryForQuestions(null);
-      }
-    }
+    await bankWrite(editingCategory ? `/api/admin/categories/${editingCategory.id}` : "/api/admin/categories", editingCategory ? "PATCH" : "POST", { ...catForm, phases: phaseForm }, () => setIsCategoryModalOpen(false));
   };
 
   const handleOpenAddQuestion = () => {
@@ -874,51 +771,16 @@ export default function AdminDashboard() {
     setIsQuestionModalOpen(true);
   };
 
-  const handleSaveQuestion = (e: React.FormEvent) => {
+  const handleSaveQuestion = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedCategoryForQuestions || !questionForm.question) return;
-
-    const catId = selectedCategoryForQuestions.id;
-    const currentList = questionsMap[catId] || [];
-
-    if (editingQuestionIdx !== null) {
-      const updated = [...currentList];
-      updated[editingQuestionIdx] = { ...questionForm };
-      setQuestionsMap({ ...questionsMap, [catId]: updated });
-    } else {
-      setQuestionsMap({ ...questionsMap, [catId]: [...currentList, questionForm] });
-    }
-    setIsQuestionModalOpen(false);
-  };
-
-  const handleDeleteQuestion = (idx: number) => {
     if (!selectedCategoryForQuestions) return;
-    const catId = selectedCategoryForQuestions.id;
-    const currentList = questionsMap[catId] || [];
-    setQuestionsMap({
-      ...questionsMap,
-      [catId]: currentList.filter((_, i) => i !== idx),
-    });
+    const id = editingQuestionIdx === null ? undefined : questionsMap[selectedCategoryForQuestions.id]?.[editingQuestionIdx]?.id;
+    const { question, type, hint, feedback } = questionForm;
+    await bankWrite(id ? `/api/admin/questions/${id}` : `/api/admin/categories/${selectedCategoryForQuestions.id}/questions`, id ? "PATCH" : "POST", { question, type, hint, feedback }, () => setIsQuestionModalOpen(false));
   };
 
   /* Filtered Data */
   const filteredCompanies = companies;
-
-  const filteredStudents = students.filter((s) => {
-    const matchesSearch =
-      s.id.toLowerCase().includes(studentSearch.toLowerCase()) ||
-      `${s.firstName} ${s.lastName}`.toLowerCase().includes(studentSearch.toLowerCase()) ||
-      s.email.toLowerCase().includes(studentSearch.toLowerCase());
-    const matchesCourse = selectedCourseFilter === "All" || s.course === selectedCourseFilter;
-    return matchesSearch && matchesCourse;
-  });
-  const uniqueCourses = [
-    "All",
-    "BS Computer Science",
-    "BS Information Technology",
-    "BS Information Systems",
-    "BS Data Science",
-  ];
 
   return (
     <div className="h-screen flex bg-[#f5f7ff] overflow-hidden text-slate-800" style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif" }}>
@@ -938,7 +800,7 @@ export default function AdminDashboard() {
             }`}
           >
             <img
-              src="/getHiredLogo.PNG"
+              src="/getHiredLogo.png"
               alt="GetHired Logo"
               className="w-10 h-10 object-contain shrink-0"
             />
@@ -958,7 +820,7 @@ export default function AdminDashboard() {
           <nav className={`flex flex-col gap-1.5 flex-1 ${collapsed ? "px-0" : "px-2"}`}>
             {[
               { id: "companies",  label: "Companies",  badge: companyResults.meta.total, Icon: BuildingIcon },
-              { id: "students",   label: "Students",   badge: students.length,  Icon: UsersIcon },
+              { id: "students",   label: "Students",   badge: undefined,  Icon: UsersIcon },
               { id: "interviews", label: "Interviews", badge: categories.length, Icon: MicIcon },
             ].map(({ id, label, badge, Icon }) => (
               <button
@@ -1016,7 +878,7 @@ export default function AdminDashboard() {
             {/* Mobile logo icon */}
             <div className="flex items-center gap-1.5 md:hidden shrink-0">
               <img
-                src="/getHiredLogo.PNG"
+                src="/getHiredLogo.png"
                 alt="GetHired Logo"
                 className="w-7 h-7 object-contain"
               />
@@ -1118,151 +980,12 @@ export default function AdminDashboard() {
           )}
 
           {/* ════════════════════ TAB 2: STUDENTS ════════════════════ */}
-          {activeTab === "students" && (
-            <div className="flex flex-col flex-1 min-h-0">
-              {/* Notice Banner about Password Formula */}
-              <div className="mb-4 p-4 bg-blue-50/80 border border-blue-100 rounded-[26px] flex items-start gap-3 shrink-0">
-                <div className="w-7 h-7 rounded-full bg-[#0066FF] text-white flex items-center justify-center shrink-0 mt-0.5">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                  </svg>
-                </div>
-                <div className="text-[12.5px] text-blue-900 leading-relaxed">
-                  <span className="font-bold">Student Credential Policy:</span> All DCISM student accounts have their default password pre-filled as{" "}
-                  <code className="bg-blue-100/80 px-2 py-0.5 rounded-full text-[11.5px] font-mono font-semibold text-[#0066FF]">
-                    idnumber_firstname
-                  </code>{" "}
-                  (e.g., <code className="bg-blue-100/80 px-2 py-0.5 rounded-full text-[11.5px] font-mono text-[#0066FF]">21100123_ishie</code>). Students can independently update their password at any time via the Forgot Password prompt on the login screen.
-                </div>
-              </div>
+          {activeTab === "students" && <StudentRegistry />}
 
-              {/* Filters and Add Student Button */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 shrink-0">
-                <div className="flex flex-wrap items-center gap-3 flex-1 max-w-2xl">
-                  {/* Search student */}
-                  <div className="relative flex-1 min-w-[240px]">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
-                      <SearchIcon size={16} />
-                    </span>
-                    <input
-                      type="text"
-                      placeholder="Search by ID, name, or email..."
-                      value={studentSearch}
-                      onChange={(e) => setStudentSearch(e.target.value)}
-                      className="w-full bg-white border border-slate-200 rounded-full pl-10 pr-4 py-2 text-[13.5px] outline-none focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF]/10 transition-all"
-                    />
-                  </div>
-
-                  {/* Course filter dropdown */}
-                  <AdminFilterDropdown
-                    value={selectedCourseFilter}
-                    options={uniqueCourses}
-                    onChange={setSelectedCourseFilter}
-                    label="Degree Program / Course"
-                  />
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handleOpenAddStudent}
-                  className="inline-flex items-center gap-2 bg-[#0066FF] hover:bg-[#0052cc] text-white text-[13.5px] font-semibold px-5 py-2 rounded-full shadow-sm hover:shadow-md transition-all cursor-pointer active:scale-98 shrink-0"
-                >
-                  <PlusIcon size={16} />
-                  <span>Add Student</span>
-                </button>
-              </div>
-
-              {/* Minimalist Student Table List */}
-              <div className="bg-white rounded-[32px] border border-slate-200/80 shadow-2xs overflow-hidden flex flex-col flex-1 min-h-0">
-                <div className="px-6 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
-                  <div className="text-[13px] font-bold uppercase tracking-wider text-slate-500">
-                    Enrolled Students ({filteredStudents.length})
-                  </div>
-                  <div className="text-[12px] text-slate-400">
-                    DCISM Official Registry
-                  </div>
-                </div>
-
-                <div className="overflow-x-auto overflow-y-auto flex-1 min-h-0">
-                  <table className="w-full min-w-[720px] text-left border-collapse text-[13.5px]">
-                    <thead className="sticky top-0 z-10 bg-slate-50 border-b border-slate-200/80 shadow-2xs">
-                      <tr className="text-slate-400 text-[11.5px] uppercase font-bold tracking-wider">
-                        <th className="py-3.5 px-6">Student ID</th>
-                        <th className="py-3.5 px-6">Full Name</th>
-                        <th className="py-3.5 px-6">Course & Year</th>
-                        <th className="py-3.5 px-6">Generated Default Password</th>
-                        <th className="py-3.5 px-6 text-right">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {filteredStudents.map((s) => (
-                        <tr key={s.id} className="hover:bg-slate-50/60 transition-colors">
-                          <td className="py-4 px-6 font-mono font-bold text-[#0F172A]">
-                            {s.id}
-                          </td>
-                          <td className="py-4 px-6">
-                            <div className="font-semibold text-[#0F172A]">{s.firstName} {s.lastName}</div>
-                            <div className="text-[11.5px] text-slate-400">{s.email}</div>
-                          </td>
-                          <td className="py-4 px-6">
-                            <div className="font-medium text-slate-700">{s.course}</div>
-                            <div className="text-[11.5px] text-slate-400">{s.yearLevel}</div>
-                          </td>
-                          <td className="py-4 px-6">
-                            <div className="flex items-center gap-2">
-                              <code className="bg-slate-100 px-3 py-1 rounded-full text-[11.5px] font-mono text-slate-700 select-all">
-                                {s.defaultPassword}
-                              </code>
-                              <button
-                                type="button"
-                                onClick={() => handleCopyPassword(s.defaultPassword, s.id)}
-                                className="text-slate-400 hover:text-[#0066FF] transition-colors p-1 cursor-pointer"
-                                title="Copy default password"
-                              >
-                                {copiedId === s.id ? <CheckIcon size={14} /> : <CopyIcon size={13} />}
-                              </button>
-                            </div>
-                          </td>
-                          <td className="py-4 px-6 text-right">
-                            <div className="flex items-center justify-end gap-1.5">
-                              <button
-                                type="button"
-                                onClick={() => handleOpenEditStudent(s)}
-                                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-blue-50 text-slate-600 hover:text-[#0066FF] flex items-center justify-center transition-colors cursor-pointer"
-                                title="Edit Student"
-                              >
-                                <EditIcon size={14} />
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleRequestDeleteStudent(s)}
-                                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 flex items-center justify-center transition-colors cursor-pointer"
-                                title="Delete Student"
-                              >
-                                <TrashIcon size={14} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-
-                      {filteredStudents.length === 0 && (
-                        <tr>
-                          <td colSpan={6} className="text-center py-12 text-slate-400">
-                            No students match your query.
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ════════════════════ TAB 3: INTERVIEWS ════════════════════ */}
           {activeTab === "interviews" && (
             <div>
+              {bankLoading && <p role="status">Loading categories…</p>}
+              {bankError && <p role="alert" className="text-red-600">{bankError} <button onClick={() => setBankRevision(n => n + 1)}>Retry</button></p>}
               {/* If a category is selected to manage its questions */}
               {selectedCategoryForQuestions ? (
                 <div>
@@ -1419,8 +1142,7 @@ export default function AdminDashboard() {
                       <CategoryCard
                         key={cat.id}
                         category={cat}
-                        pipeline={getCategoryPipeline(cat.id)}
-                        questionCount={(questionsMap[cat.id] || []).length}
+                        pipeline={cat.pipeline}
                         isAdmin={true}
                         onEdit={handleOpenEditCategory}
                         onDeactivate={handleRequestDeactivateCategory}
@@ -1441,7 +1163,7 @@ export default function AdminDashboard() {
       <nav aria-label="Admin Mobile Navigation" className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-2 py-1.5 flex items-center justify-around shadow-lg">
         {[
           { id: "companies",  label: "Companies",  badge: companyResults.meta.total, Icon: BuildingIcon },
-          { id: "students",   label: "Students",   badge: students.length,  Icon: UsersIcon },
+          { id: "students",   label: "Students",   badge: undefined,  Icon: UsersIcon },
           { id: "interviews", label: "Interviews", badge: categories.length, Icon: MicIcon },
         ].map(({ id, label, badge, Icon }) => (
           <button
@@ -1694,119 +1416,6 @@ export default function AdminDashboard() {
         />
       )}
 
-      {/* ── Add / Edit Student Modal ── */}
-      {isStudentModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/40 backdrop-blur-xs overflow-y-auto">
-          <div className="bg-white rounded-[28px] sm:rounded-[32px] w-full max-w-[500px] p-5 sm:p-7 shadow-2xl border border-slate-100 my-auto max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="text-[20px] font-bold text-[#0F172A]" style={{ fontFamily: "'DM Serif Display', serif" }}>
-                {editingStudent ? "Edit Student Record" : "Enroll Student to DCISM Database"}
-              </h3>
-              <button
-                type="button"
-                onClick={() => setIsStudentModalOpen(false)}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer"
-              >
-                <XIcon />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveStudent} className="space-y-4">
-              <div>
-                <label className="block text-[12.5px] font-semibold text-slate-700 mb-1">Student ID (8 Digits, e.g. 21100123)</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. 21100123"
-                  value={studForm.id}
-                  onChange={(e) => setStudForm({ ...studForm, id: e.target.value })}
-                  className="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-[13.5px] font-mono outline-none focus:border-[#0066FF]"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div>
-                  <label className="block text-[12.5px] font-semibold text-slate-700 mb-1">First Name</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Ishie"
-                    value={studForm.firstName}
-                    onChange={(e) => setStudForm({ ...studForm, firstName: e.target.value })}
-                    className="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-[13.5px] outline-none focus:border-[#0066FF]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[12.5px] font-semibold text-slate-700 mb-1">Last Name</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Boo"
-                    value={studForm.lastName}
-                    onChange={(e) => setStudForm({ ...studForm, lastName: e.target.value })}
-                    className="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-[13.5px] outline-none focus:border-[#0066FF]"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[12.5px] font-semibold text-slate-700 mb-1">Degree Program</label>
-                <FormSelect
-                  value={studForm.course || "BS Information Technology"}
-                  options={[
-                    "BS Computer Science",
-                    "BS Information Technology",
-                    "BS Information Systems",
-                    "BS Data Science",
-                  ]}
-                  onChange={(val) => setStudForm({ ...studForm, course: val })}
-                />
-              </div>
-
-              <div>
-                <label className="block text-[12.5px] font-semibold text-slate-700 mb-1">Year Level</label>
-                <FormSelect
-                  value={studForm.yearLevel || "4th Year"}
-                  options={["1st Year", "2nd Year", "3rd Year", "4th Year"]}
-                  onChange={(val) => setStudForm({ ...studForm, yearLevel: val })}
-                />
-              </div>
-
-              {/* Password Formula Box */}
-              <div className="p-3.5 bg-blue-50/70 border border-blue-100 rounded-xl">
-                <div className="text-[11.5px] font-semibold text-blue-800 mb-1">
-                  Default Pre-filled Password:
-                </div>
-                <code className="text-[13px] font-mono font-bold text-[#0066FF]">
-                  {studForm.id && studForm.firstName
-                    ? generateDefaultPassword(studForm.id, studForm.firstName)
-                    : "idnumber_firstname"}
-                </code>
-                <div className="text-[11px] text-slate-400 mt-1">
-                  Students can change this password upon login via Forgot Password.
-                </div>
-              </div>
-
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setIsStudentModalOpen(false)}
-                  className="flex-1 py-3 border border-slate-200 text-slate-600 text-[13.5px] font-semibold rounded-full hover:bg-slate-50 transition-all cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-3 bg-[#0066FF] hover:bg-[#0052cc] text-white text-[13.5px] font-semibold rounded-full shadow-md shadow-blue-500/20 transition-all cursor-pointer"
-                >
-                  Save Student
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
       {/* ── Add / Edit Category Modal ── */}
       {isCategoryModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/40 backdrop-blur-xs overflow-y-auto">
@@ -1825,6 +1434,8 @@ export default function AdminDashboard() {
             </div>
 
             <form onSubmit={handleSaveCategory} className="space-y-4">
+            {bankError && <p role="alert" className="text-red-600">{bankError}</p>}
+              <PipelineEditor value={phaseForm} onChange={setPhaseForm} />
               <div>
                 <label className="block text-[12.5px] font-semibold text-slate-700 mb-1">Category Name</label>
                 <input
@@ -1923,12 +1534,13 @@ export default function AdminDashboard() {
             </div>
 
             <form onSubmit={handleSaveQuestion} className="space-y-4">
+            {bankError && <p role="alert" className="text-red-600">{bankError}</p>}
               <div>
                 <label className="block text-[12.5px] font-semibold text-slate-700 mb-1">Question Type</label>
                 <FormSelect
                   value={questionForm.type || "Technical"}
-                  options={["Technical", "Behavioral", "Situational", "Coding"]}
-                  onChange={(val) => setQuestionForm({ ...questionForm, type: val })}
+                  options={[...QUESTION_TYPES]}
+                  onChange={(val) => setQuestionForm({ ...questionForm, type: val as Question["type"] })}
                 />
               </div>
 
@@ -1938,6 +1550,7 @@ export default function AdminDashboard() {
                   required
                   rows={3}
                   placeholder="Type the question interviewer will ask..."
+                  aria-describedby="bank-question-error"
                   value={questionForm.question}
                   onChange={(e) => setQuestionForm({ ...questionForm, question: e.target.value })}
                   className="w-full border border-slate-200 rounded-xl p-3 text-[13.5px] outline-none focus:border-[#0066FF]"

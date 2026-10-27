@@ -9,7 +9,8 @@
     "start": "node dist/server.js",
     "typecheck": "tsc -p tsconfig.test.json --noEmit",
     "test": "node --import tsx --test tests/*.test.ts",
-    "cleanup:company-images": "node dist/jobs/company-images.js"
+    "cleanup:company-images": "node dist/jobs/company-images.js",
+    "retry:onboarding": "node dist/jobs/onboarding.js"
   },
   "dependencies": {
     "@gethired/contracts": "*",

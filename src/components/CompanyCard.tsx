@@ -6,7 +6,7 @@ import type { Company } from "@/lib/companies";
 export interface CompanyCardProps {
   company: Company;
   isAdmin?: boolean;
-  onToggleSave?: (id: string) => void;
+  onToggleSave?: (id: string, saved: boolean) => void;
   onViewMore?: (c: Company) => void;
   onEdit?: (c: Company) => void;
   onDelete?: (id: string) => void;
@@ -203,7 +203,7 @@ export default function CompanyCard({
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              onToggleSave(company.id);
+              onToggleSave(company.id, company.saved);
             }}
             className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-sm cursor-pointer ${
               company.saved

@@ -1,0 +1,56 @@
+{
+  "timestamp": "2026-10-26T17:19:03.805Z",
+  "scope": "Public health GET only; no authenticated traffic or load.",
+  "probes": [
+    {
+      "origin": "https://gethired-1.vercel.app",
+      "path": "/api/health/live",
+      "failed": true,
+      "durationMs": 20026
+    },
+    {
+      "origin": "https://gethired-1.vercel.app",
+      "path": "/api/health/ready",
+      "status": 200,
+      "durationMs": 19635,
+      "edgeRegionHint": "sin1",
+      "serverTiming": null
+    },
+    {
+      "origin": "https://gethired-gold.vercel.app",
+      "path": "/api/health/live",
+      "status": 404,
+      "durationMs": 494,
+      "edgeRegionHint": "sin1",
+      "serverTiming": null
+    },
+    {
+      "origin": "https://gethired-gold.vercel.app",
+      "path": "/api/health/ready",
+      "status": 404,
+      "durationMs": 165,
+      "edgeRegionHint": "sin1",
+      "serverTiming": null
+    }
+  ],
+  "localAccess": {
+    "vercelCli": false,
+    "vercelProjectLink": false,
+    "vercelAuthFiles": false,
+    "databaseCredentials": false,
+    "localApiTarget": "loopback"
+  },
+  "placement": {
+    "frontend": "Vercel configured; response region hints identify edge only",
+    "api": "Historical documentation and commit 4c41fb4 describe Render; hosted configuration unverified",
+    "database": "Historical session pooler hostname indicates ap-southeast-1; actual project region unverified",
+    "authProvider": "Historical Supabase project documented; hosted configuration unverified"
+  },
+  "changes": {
+    "region": false,
+    "poolSize": false,
+    "migrationApplied": false,
+    "deployment": false
+  },
+  "releaseStatus": "pending hosted configuration, credentials, commit parity and 30-sample comparison"
+}

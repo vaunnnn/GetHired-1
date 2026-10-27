@@ -1,5 +1,8 @@
 # B4 companies, images, and bookmarks
 
+2026-10-26 update: [performance-phase4.md](performance-phase4.md) documents the
+read-only owner bookmark flag, loading/tab caches, CSRF reuse and mutation locks.
+
 Implemented locally on 2026-10-12. Hosted migration, Storage setup, deployment,
 and hosted acceptance have **not** been performed by this implementation task.
 
@@ -29,7 +32,9 @@ and hosted acceptance have **not** been performed by this implementation task.
 - Both dashboards use live company APIs, with server filtering/pagination,
   loading/empty/error states and refresh controls. Student saves derive from
   own bookmarks; no local-storage company authority. Home pages saved companies;
-  Explore loads bookmark IDs through paginated own reads to show off-page saves.
+  Explore derives saved state from the read-only `bookmarked` flag on each visible
+  company; it no longer downloads all bookmark/company pages. Public company detail
+  reads include that flag too. Admin company projections and write inputs do not.
   Admin forms upload cropped files, then associate the returned image ID.
   Arbitrary image-URL inputs have been removed. No mock partners are seeded.
 

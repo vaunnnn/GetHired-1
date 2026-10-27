@@ -1,5 +1,20 @@
 # Vercel services deployment
 
+**Configuration correction (2026-10-27):** The current `vercel.json` builds
+Next.js only. Commit `4c41fb4` removed the Express service, binding and service
+rewrites, retaining the Next.js gateway to a separately hosted API. For this
+current topology, configure `API_BASE_URL` as the API's exact HTTPS origin on
+Vercel and deploy Express separately. Keep matching gateway secrets and verified
+IP forwarding. Never manually configure `API_SERVICE_URL`.
+
+The sections below describe the former multi-service setup and apply only if
+that infrastructure is explicitly restored and reviewed. They do not describe
+the current configuration. Historical [B2 setup](backend-b2-staging.md) describes
+Render and Supabase; hosted placement still requires verification. See the
+[Phase 5 runbook](performance-phase5.md) before changing placement or deploying.
+
+## Former multi-service configuration
+
 Deploy this repository as one project with the project root at the repository root.
 Use Node.js 22.x. The root `vercel.json` builds Next.js and Express independently,
 including their shared contracts workspace. Allow the API service to access files

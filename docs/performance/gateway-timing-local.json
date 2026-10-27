@@ -1,0 +1,25 @@
+{
+  "timestamp": "2026-10-26T12:30:22.070Z",
+  "evidence": "Production gateway against local Postman fixture; no live provider or database",
+  "node": "v22.14.0",
+  "reports": [
+    {
+      "mode": "current",
+      "status": 200,
+      "serverTiming": "upstream;dur=104.61, gateway;dur=105.24",
+      "requestCount": 1
+    },
+    {
+      "mode": "expired",
+      "status": 401,
+      "serverTiming": "upstream;dur=79.1, gateway;dur=79.44",
+      "requestCount": 1
+    },
+    {
+      "mode": "outage",
+      "status": 503,
+      "serverTiming": "upstream;dur=86.86, gateway;dur=87.24",
+      "requestCount": 1
+    }
+  ]
+}
