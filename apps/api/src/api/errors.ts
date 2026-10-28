@@ -13,6 +13,11 @@ export const API_ERRORS = {
   CONFLICT: [409, "The request conflicts with the current resource state."],
   CATEGORY_UNAVAILABLE: [409, "This category does not yet have enough active questions. Please choose another category."],
   ATTEMPT_COMPLETED: [409, "This interview attempt is already complete."],
+  ANSWER_LOCKED: [409, "Submitted answers cannot be changed."],
+  ANSWER_CONFLICT: [409, "This answer changed in another tab. Reload the saved answer before continuing."],
+  EVALUATION_PENDING: [409, "This answer is being evaluated. Check again shortly."],
+  EVALUATION_QUOTA: [503, "The free evaluation quota is currently exhausted. Your answer is saved. Please retry later."],
+  EVALUATION_UNAVAILABLE: [503, "Evaluation is unavailable. Your answer is saved. Please retry evaluation."],
   ATTEMPT_INCOMPLETE: [
     409,
     "Answer every question before completing this attempt.",
