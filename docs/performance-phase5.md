@@ -1,5 +1,14 @@
 # Phase 5: placement verification and incremental release
 
+2026-10-29 clarification: the user now confirms `https://gethired-1.vercel.app`
+and its backing services are isolated staging. This supersedes the target
+classification uncertainty in the historical 2026-10-27 notes below. Hosted
+interview HTTP acceptance has passed, and a separate disposable local PostgreSQL
+interview concurrency/load audit is recorded in
+[interview verification](interview-concurrency-verification.md). Neither proves
+the broader Phase 5 performance release gates. The existing cohort runner's
+known-host guard has not been changed or bypassed by that local audit.
+
 Status, 2026-10-27: local release tools are prepared; hosted validation and
 deployment are pending. The user confirmed only `https://gethired-1.vercel.app/`
 is available, with no staging deployment or configured credential source. No

@@ -14,6 +14,7 @@
     "start:api": "npm run start --workspace @gethired/api",
     "test:http": "node tests/backend-http-smoke.mjs",
     "test:browser": "node tests/session-browser-smoke.mjs",
+    "test:interviews:postgres": "npm run build --workspace @gethired/contracts && node --import tsx tests/interview-postgres-audit.ts",
     "start": "next start",
     "format": "oxfmt",
     "typecheck": "npm run build --workspace @gethired/contracts && tsc --noEmit && npm run typecheck --workspace @gethired/api",

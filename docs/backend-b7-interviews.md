@@ -10,6 +10,11 @@ acceptance is still pending. See [procedure](hosted-interview-acceptance.md) and
 [sanitized evidence](hosted-interview-acceptance-2026-10-29.json). The migration
 and rollout notes below describe the original 2026-10-28 checkpoint.
 
+Concurrency checkpoint 2026-10-29: the real PostgreSQL multi-connection audit
+passed eight correctness cases and 240 full local load flows at 1/2/5 workers.
+See [measurements and limits](interview-concurrency-verification.md). Hosted
+capacity and visual browser acceptance are not established by the local audit.
+
 ## Student behavior
 
 Selecting a category resumes its unfinished attempt or creates one. Start over abandons
