@@ -2,6 +2,14 @@
 
 Implemented 2026-10-28 after explicit approval in `MOCK_INTERVIEW_PROGRESS.md`.
 
+Hosted checkpoint 2026-10-29: real authenticated HTTP acceptance through
+`https://gethired-1.vercel.app` passed, including four Gemini evaluations, both
+MCQ outcomes, persistence, locked submissions and completed history. The six-question
+test category is inactive; completed results remain available. Visual browser
+acceptance is still pending. See [procedure](hosted-interview-acceptance.md) and
+[sanitized evidence](hosted-interview-acceptance-2026-10-29.json). The migration
+and rollout notes below describe the original 2026-10-28 checkpoint.
+
 ## Student behavior
 
 Selecting a category resumes its unfinished attempt or creates one. Start over abandons
