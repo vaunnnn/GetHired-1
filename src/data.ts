@@ -1,19 +1,21 @@
 export interface Company {
-  id: number;
-  name: string;
-  industry: string;
-  type: string;
-  specializations: string[];
-  location: string;
-  slots: number;
-  description: string;
-  image: string;
-  saved: boolean;
-  website: string;
-  email: string;
-  phone: string;
-  hours: string;
-  deactivated?: boolean;
+  id: number
+  name: string
+  industry: string
+  type: string
+  specializations: string[]
+  location: string
+  slots: number
+  description: string
+  image: string
+  saved: boolean
+  website: string
+  email: string
+  phone: string
+  hours: string
+  deactivated?: boolean
+  verified?: boolean
+  verified_on?: string
 }
 
 export const companies: Company[] = [
@@ -58,7 +60,11 @@ export const companies: Company[] = [
     name: "Skanlog",
     industry: "Enterprise Logistics Tech",
     type: "Logistics / Software",
-    specializations: ["Enterprise Dev", "Cloud / DevOps", "Supply Chain Systems"],
+    specializations: [
+      "Enterprise Dev",
+      "Cloud / DevOps",
+      "Supply Chain Systems",
+    ],
     location: "Mandaue City, Cebu",
     slots: 4,
     description:
@@ -130,7 +136,11 @@ export const companies: Company[] = [
     name: "PwC Philippines",
     industry: "IT Consulting",
     type: "Consulting / Analytics",
-    specializations: ["Data Analytics", "Business Intelligence", "IT Audit & Risk"],
+    specializations: [
+      "Data Analytics",
+      "Business Intelligence",
+      "IT Audit & Risk",
+    ],
     location: "Bonifacio Global City, Taguig",
     slots: 4,
     description:
@@ -161,4 +171,4 @@ export const companies: Company[] = [
     phone: "+63 2 8667 6248",
     hours: "Mon – Fri, 8:00 AM – 5:00 PM",
   },
-];
+]

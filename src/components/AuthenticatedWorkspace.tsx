@@ -1,18 +1,18 @@
-"use client";
+"use client"
 
-import dynamic from "next/dynamic";
-import type { CurrentUser } from "@gethired/contracts";
-import SessionProvider from "./SessionProvider";
+import dynamic from "next/dynamic"
+import type { CurrentUser } from "@gethired/contracts"
+import SessionProvider from "./SessionProvider"
 
-const Dashboard = dynamic(() => import("./Dashboard"));
-const AdminDashboard = dynamic(() => import("./AdminDashboard"));
+const Dashboard = dynamic(() => import("./Dashboard"))
+const AdminDashboard = dynamic(() => import("./AdminDashboard"))
 
 export default function AuthenticatedWorkspace({
   role,
   initial,
 }: {
-  role: "student" | "admin";
-  initial: CurrentUser;
+  role: "student" | "admin"
+  initial: CurrentUser
 }) {
   if (initial.user.role !== role)
     return (
@@ -26,10 +26,13 @@ export default function AuthenticatedWorkspace({
           Go to your workspace
         </a>
       </main>
-    );
+    )
   return (
-    <SessionProvider key={`${initial.user.id}:${initial.user.role}`} initial={initial}>
+    <SessionProvider
+      key={`${initial.user.id}:${initial.user.role}`}
+      initial={initial}
+    >
       {role === "admin" ? <AdminDashboard /> : <Dashboard />}
     </SessionProvider>
-  );
+  )
 }

@@ -6,9 +6,25 @@ import type { ProxyConfig } from "./config"
 
 const MAX_BODY_BYTES = 64 * 1024
 const MAX_RESPONSE_BYTES = 2 * 1024 * 1024
-const inputHeaders = ["accept", "content-type", "content-encoding", "cookie", "origin", "x-csrf-token",
-  "sec-fetch-site", "sec-fetch-mode", "sec-fetch-dest"]
-const outputHeaders = ["content-type", "cache-control", "x-request-id", "x-content-type-options", "allow", "retry-after"]
+const inputHeaders = [
+  "accept",
+  "content-type",
+  "content-encoding",
+  "cookie",
+  "origin",
+  "x-csrf-token",
+  "sec-fetch-site",
+  "sec-fetch-mode",
+  "sec-fetch-dest",
+]
+const outputHeaders = [
+  "content-type",
+  "cache-control",
+  "x-request-id",
+  "x-content-type-options",
+  "allow",
+  "retry-after",
+]
 
 const timingNames = new Set([
   "api",
@@ -38,14 +54,31 @@ function safeUpstreamTiming(value: string | null) {
 }
 
 class ProxyFailure extends Error {
-  constructor(readonly status: number, readonly code: string, message: string) { super(message) }
+  constructor(
+    readonly status: number,
+    readonly code: string,
+    message: string,
+  ) {
+    super(message)
+  }
 }
-const unavailable = () => new ProxyFailure(503, "SERVICE_UNAVAILABLE", "The service is temporarily unavailable. Try again later.")
+const unavailable = () =>
+  new ProxyFailure(
+    503,
+    "SERVICE_UNAVAILABLE",
+    "The service is temporarily unavailable. Try again later.",
+  )
 
-async function readBytes(stream: ReadableStream<Uint8Array> | null, limit: number, signal: AbortSignal) {
+async function readBytes(
+  stream: ReadableStream<Uint8Array> | null,
+  limit: number,
+  signal: AbortSignal,
+) {
   if (!stream) return new Uint8Array()
   const reader = stream.getReader()
-  const abort = () => { void reader.cancel().catch(() => {}) }
+  const abort = () => {
+    void reader.cancel().catch(() => {})
+  }
   signal.addEventListener("abort", abort, { once: true })
   let length = 0
   const chunks: Uint8Array[] = []
@@ -58,13 +91,20 @@ async function readBytes(stream: ReadableStream<Uint8Array> | null, limit: numbe
       length += value.byteLength
       if (length > limit) {
         void reader.cancel().catch(() => {})
-        throw new ProxyFailure(413, "PAYLOAD_TOO_LARGE", "The request body exceeds the size limit.")
+        throw new ProxyFailure(
+          413,
+          "PAYLOAD_TOO_LARGE",
+          "The request body exceeds the size limit.",
+        )
       }
       chunks.push(value)
     }
     const bytes = new Uint8Array(length)
     let offset = 0
-    for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length }
+    for (const chunk of chunks) {
+      bytes.set(chunk, offset)
+      offset += chunk.length
+    }
     return bytes
   } finally {
     signal.removeEventListener("abort", abort)

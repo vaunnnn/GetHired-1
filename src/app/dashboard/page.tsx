@@ -1,7 +1,7 @@
-import ProtectedPage from "@/components/ProtectedPage";
+import ProtectedPage from "@/components/ProtectedPage"
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic"
 
 export default function DashboardPage() {
-  return <ProtectedPage role="student" />;
+  return <ProtectedPage role="student" />
 }
