@@ -1,4 +1,5 @@
 import { Pool } from "pg"
+import { getDatabaseSslConfig } from "../auth/store.js"
 import { cleanCompanyImages } from "../modules/companies/cleanup.js"
 import { imageStorage } from "../modules/companies/images.js"
 
@@ -8,7 +9,7 @@ try {
   const url = new URL(connectionString ?? "")
   if (!["postgres:", "postgresql:"].includes(url.protocol) || !url.hostname || !url.username || url.search || url.hash) throw new Error("Invalid configuration")
   const storage = imageStorage()
-  pool = new Pool({ connectionString, ssl: { rejectUnauthorized: true }, max: 1, connectionTimeoutMillis: 5000, statement_timeout: 30000 })
+  pool = new Pool({ connectionString, ssl: getDatabaseSslConfig(), max: 1, connectionTimeoutMillis: 5000, statement_timeout: 30000 })
   pool.on("error", () => {})
   const result = await cleanCompanyImages(pool, storage)
   console.log(JSON.stringify({ event: "company_images.cleanup", ...result }))

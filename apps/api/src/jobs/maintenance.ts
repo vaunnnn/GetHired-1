@@ -1,4 +1,5 @@
 import { Pool } from "pg"
+import { getDatabaseSslConfig } from "../auth/store.js"
 
 // Separate process and credential: never called by the HTTP runtime.
 const connectionString = process.env.MAINTENANCE_DATABASE_URL
@@ -13,7 +14,7 @@ if (!validConnection(connectionString)) {
   console.error("MAINTENANCE_DATABASE_URL must be a PostgreSQL URL without query options.")
   process.exitCode = 1
 } else {
-  const pool = new Pool({ connectionString, ssl: { rejectUnauthorized: true }, max: 1,
+  const pool = new Pool({ connectionString, ssl: getDatabaseSslConfig(), max: 1,
     connectionTimeoutMillis: 5000, statement_timeout: 30000, query_timeout: 35000 })
   pool.on("error", () => {})
   try {

@@ -213,28 +213,27 @@ export function createAuthStore(pool: SqlPool): AuthStore {
   }
 }
 
-function loadSupabaseCa(): string | undefined {
+export function getDatabaseSslConfig(): { rejectUnauthorized: boolean; ca?: string } {
   try {
     const certPath = new URL("../../supabase-ca.crt", import.meta.url)
-    if (existsSync(certPath)) return readFileSync(certPath, "utf8")
+    if (existsSync(certPath)) return { rejectUnauthorized: true, ca: readFileSync(certPath, "utf8") }
   } catch {
     /* Safe fallback to default roots */
   }
   if (process.env.NODE_EXTRA_CA_CERTS && existsSync(process.env.NODE_EXTRA_CA_CERTS)) {
     try {
-      return readFileSync(process.env.NODE_EXTRA_CA_CERTS, "utf8")
+      return { rejectUnauthorized: true, ca: readFileSync(process.env.NODE_EXTRA_CA_CERTS, "utf8") }
     } catch {
       /* Safe fallback to default roots */
     }
   }
-  return undefined
+  return { rejectUnauthorized: true }
 }
 
 export function createDatabasePool(config: AuthConfig): Pool {
-  const ca = loadSupabaseCa()
   const pool = new Pool({
     connectionString: config.databaseUrl,
-    ssl: ca ? { rejectUnauthorized: true, ca } : { rejectUnauthorized: true },
+    ssl: getDatabaseSslConfig(),
     max: 5,
     connectionTimeoutMillis: 5000,
     idleTimeoutMillis: 30000,

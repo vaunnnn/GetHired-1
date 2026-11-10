@@ -1,38 +1,48 @@
-"use client";
+"use client" /* ─── Minimalist Back Arrow to Landing Page ─── */ /* ─── Two Independent Columns: Left Picture & Right Form ─── */ /* Picture Column (Bottom on mobile: order-2, Left on desktop: order-1) */ /* Wizard Form Column (First on mobile: order-1, Right on desktop: order-2) */ /* Heading & Subtitle */ /* Form Fields */ /* Username or ID number */ /* Password */ /* Remember Me & Forgot Password */ /* Submit CTA Button */ /* Signup Link */
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { apiClient } from "@/lib/api-client";
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { apiClient } from "@/lib/api-client"
 
 interface Props {
-  onBack?: () => void;
+  onBack?: () => void
 }
 
 export default function Login({ onBack }: Props = {}) {
-  const router = useRouter();
-  const handleBack = onBack ?? (() => router.push("/"));
+  const router = useRouter()
+  const handleBack = onBack ?? (() => router.push("/"))
 
-  const [identifier, setIdentifier] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [remember, setRemember] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [identifier, setIdentifier] = useState("")
+  const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [remember, setRemember] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (loading) return;
-    setLoading(true);
-    setError("");
+    e.preventDefault()
+    if (loading) return
+    setLoading(true)
+    setError("")
     try {
-      const current = await apiClient.login({ identifier, password, rememberMe: remember });
-      window.location.replace(current.user.role === "admin" ? "/admin" : "/dashboard");
+      const current = await apiClient.login({
+        identifier,
+        password,
+        rememberMe: remember,
+      })
+      window.location.replace(
+        current.user.role === "admin" ? "/admin" : "/dashboard",
+      )
     } catch (failure) {
-      setError(failure instanceof Error ? failure.message : "Sign in failed. Please try again.");
-      setLoading(false);
+      setError(
+        failure instanceof Error
+          ? failure.message
+          : "Sign in failed. Please try again.",
+      )
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div
@@ -41,8 +51,7 @@ export default function Login({ onBack }: Props = {}) {
         fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif",
       }}
     >
-
-      {/* ─── Minimalist Back Arrow to Landing Page ─── */}
+      {}
       <div className="absolute top-6 left-6 sm:top-8 sm:left-10 z-30">
         <button
           type="button"
@@ -67,10 +76,9 @@ export default function Login({ onBack }: Props = {}) {
         </button>
       </div>
 
-      {/* ─── Two Independent Columns: Left Picture & Right Form ─── */}
+      {}
       <main className="relative z-10 w-full min-h-screen grid grid-cols-1 lg:grid-cols-2 items-center px-6 sm:px-12 lg:px-16 xl:px-24 pt-24 pb-12 sm:py-14 lg:py-0 gap-12 lg:gap-0">
-        
-        {/* Picture Column (Bottom on mobile: order-2, Left on desktop: order-1) */}
+        {}
         <div className="w-full flex items-center justify-center lg:justify-start order-2 lg:order-1">
           <div className="relative w-full max-w-[420px] sm:max-w-[540px] lg:max-w-[620px] flex items-center justify-center lg:justify-start lg:translate-x-7 xl:translate-x-8">
             <img
@@ -81,10 +89,10 @@ export default function Login({ onBack }: Props = {}) {
           </div>
         </div>
 
-        {/* Wizard Form Column (First on mobile: order-1, Right on desktop: order-2) */}
+        {}
         <div className="w-full flex items-center justify-center lg:-translate-x-12 xl:-translate-x-16 order-1 lg:order-2">
           <div className="w-full max-w-[420px] sm:max-w-[440px]">
-            {/* Heading & Subtitle */}
+            {}
             <div className="mb-8">
               <h1
                 className="text-[#0F172A] font-bold text-[38px] sm:text-[44px] tracking-tight leading-[1.12]"
@@ -97,12 +105,22 @@ export default function Login({ onBack }: Props = {}) {
               </p>
             </div>
 
-            {/* Form Fields */}
+            {}
             <form onSubmit={handleLogin} className="space-y-5 w-full">
-              {error && <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
-              {/* Username or ID number */}
+              {error && (
+                <p
+                  role="alert"
+                  className="rounded-xl bg-red-50 p-3 text-sm text-red-700"
+                >
+                  {error}
+                </p>
+              )}
+              {}
               <div className="w-full">
-                <label htmlFor="identifier" className="block text-[#0F172A] text-[14px] font-semibold mb-2">
+                <label
+                  htmlFor="identifier"
+                  className="block text-[#0F172A] text-[14px] font-semibold mb-2"
+                >
                   Email or student ID
                 </label>
                 <div className="relative w-full">
@@ -136,9 +154,12 @@ export default function Login({ onBack }: Props = {}) {
                 </div>
               </div>
 
-              {/* Password */}
+              {}
               <div className="w-full">
-                <label htmlFor="password" className="block text-[#0F172A] text-[14px] font-semibold mb-2">
+                <label
+                  htmlFor="password"
+                  className="block text-[#0F172A] text-[14px] font-semibold mb-2"
+                >
                   Password
                 </label>
                 <div className="relative w-full">
@@ -173,7 +194,9 @@ export default function Login({ onBack }: Props = {}) {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-4.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1.5 cursor-pointer"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
                   >
                     {showPassword ? (
                       <svg
@@ -210,7 +233,7 @@ export default function Login({ onBack }: Props = {}) {
                 </div>
               </div>
 
-              {/* Remember Me & Forgot Password */}
+              {}
               <div className="flex items-center justify-between pt-1">
                 <button
                   type="button"
@@ -250,7 +273,7 @@ export default function Login({ onBack }: Props = {}) {
                 </Link>
               </div>
 
-              {/* Submit CTA Button */}
+              {}
               <div className="pt-3">
                 <button
                   type="submit"
@@ -266,7 +289,10 @@ export default function Login({ onBack }: Props = {}) {
                         stroke="currentColor"
                         strokeWidth={2.5}
                       >
-                        <path strokeLinecap="round" d="M21 12a9 9 0 1 1-6.2-8.56" />
+                        <path
+                          strokeLinecap="round"
+                          d="M21 12a9 9 0 1 1-6.2-8.56"
+                        />
                       </svg>
                       <span>Signing you in...</span>
                     </>
@@ -290,18 +316,22 @@ export default function Login({ onBack }: Props = {}) {
                 </button>
               </div>
 
-              {/* Signup Link */}
+              {}
               <div className="text-center pt-2">
                 <p className="text-[13.5px] text-slate-500">
                   Don&apos;t have an account?{" "}
-                  <Link href="/signup" className="font-medium text-blue-600 hover:underline">Create an account</Link>
+                  <Link
+                    href="/signup"
+                    className="font-medium text-blue-600 hover:underline"
+                  >
+                    Create an account
+                  </Link>
                 </p>
               </div>
             </form>
           </div>
         </div>
       </main>
-
     </div>
-  );
+  )
 }

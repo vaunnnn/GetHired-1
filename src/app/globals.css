@@ -1,23 +1,29 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Serif+Text&family=Poppins:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 @import 'tailwindcss';
 
 @theme {
-  --font-display: 'DM Serif Display', serif;
-  --font-serif: 'DM Serif Text', serif;
-  --font-sans: 'Plus Jakarta Sans', 'Inter', sans-serif;
-  --font-inter: 'Inter', sans-serif;
-  --font-jakarta: 'Plus Jakarta Sans', sans-serif;
+  --font-sans: 'Poppins', sans-serif;
+  --font-display: 'Poppins', sans-serif;
+  --font-serif: 'Poppins', sans-serif;
+  --font-inter: 'Poppins', sans-serif;
+  --font-jakarta: 'Poppins', sans-serif;
 
   --color-primary: #0073ff;
   --color-secondary: #4869ff;
   --color-hero-bg: #b8d0ff;
   --color-section-bg: #dfe9ff;
-  --color-heading: #302929;
+  --color-heading: #334155;
 }
 
 html,
 body {
   height: 100%;
+  font-family: 'Poppins', sans-serif;
+  color: #334155;
+}
+
+h1, h2, h3, h4, h5, h6, p, span, button, input, select, textarea, div {
+  font-family: 'Poppins', sans-serif !important;
 }
 
 * {

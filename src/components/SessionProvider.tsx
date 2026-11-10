@@ -1,4 +1,6 @@
-"use client";
+"use client"
+
+// Initial is authoritative from SSR or successful recovery; no duplicate mount read.
 
 import {
   createContext,
@@ -7,110 +9,119 @@ import {
   useRef,
   useState,
   type ReactNode,
-} from "react";
-import type { CurrentUser } from "@gethired/contracts";
-import { apiClient } from "@/lib/api-client";
-import { createSessionRevalidation } from "@/lib/session-revalidation";
+} from "react"
+import type { CurrentUser } from "@gethired/contracts"
+import { apiClient } from "@/lib/api-client"
+import { createSessionRevalidation } from "@/lib/session-revalidation"
 
-const SessionContext = createContext<
-  (CurrentUser & { logout: () => Promise<void> }) | null
->(null);
+const SessionContext = createContext<CurrentUser & {
+  logout: () => Promise<void>
+} | null>(null)
 
 export function useSession() {
-  const session = useContext(SessionContext);
-  if (!session) throw new Error("SessionProvider is required.");
-  return session;
+  const session = useContext(SessionContext)
+  if (!session) throw new Error("SessionProvider is required.")
+  return session
 }
 
 export default function SessionProvider({
   initial,
   children,
 }: {
-  initial: CurrentUser;
-  children: ReactNode;
+  initial: CurrentUser
+  children: ReactNode
 }) {
-  const [current, setCurrent] = useState(initial);
-  const [error, setError] = useState("");
-  const [checking, setChecking] = useState(false);
-  const [denied, setDenied] = useState(false);
-  const loggingOut = useRef(false);
-  const revalidation = useRef<ReturnType<
-    typeof createSessionRevalidation
-  > | null>(null);
+  const [current, setCurrent] = useState(initial)
+  const [error, setError] = useState("")
+  const [checking, setChecking] = useState(false)
+  const [denied, setDenied] = useState(false)
+  const loggingOut = useRef(false)
+  const revalidation =
+    useRef<ReturnType<typeof createSessionRevalidation> | null>(null)
   useEffect(() => {
     const checker = createSessionRevalidation({
       initial,
       read: () => apiClient.me(),
       onCurrent(next) {
-        setCurrent(next);
-        setError("");
+        setCurrent(next)
+        setError("")
       },
       onDenied() {
-        setDenied(true);
-        window.location.replace("/login");
+        setDenied(true)
+        window.location.replace("/login")
       },
       onAccountChange(next) {
-        setDenied(true);
+        setDenied(true)
         window.location.replace(
-          next.user.role === "admin" ? "/admin" : "/dashboard",
-        );
+          next.user.role ===
+            "admin"
+            ? "/admin"
+            : "/dashboard",
+        )
       },
       onUnavailable(failure) {
         setError(
-          failure instanceof Error
+          failure instanceof
+            Error
             ? failure.message
             : "Unable to verify your session. Please try again.",
-        );
+        )
       },
-    });
-    revalidation.current = checker;
+    })
+    revalidation.current = checker
     const onVisible = () => {
-      if (document.visibilityState !== "hidden" && !loggingOut.current)
-        void checker.check();
-    };
+      if (
+        document.visibilityState !==
+          "hidden" &&
+        !loggingOut.current
+      )
+        void checker.check()
+    }
     const unsubscribe = apiClient.subscribeSessionChanges((reason) => {
-      if (reason === "denied") {
-        checker.stop();
-        setDenied(true);
-        window.location.replace("/login");
-        return;
+      if (
+        reason ===
+        "denied"
+      ) {
+        checker.stop()
+        setDenied(true)
+        window.location.replace("/login")
+        return
       }
-      checker.invalidate();
-      if (!loggingOut.current) void checker.check();
-    });
-    window.addEventListener("focus", onVisible);
-    window.addEventListener("pageshow", onVisible);
-    document.addEventListener("visibilitychange", onVisible);
-    const timer = window.setInterval(onVisible, 60000);
-    void checker.check();
-    // Initial is authoritative from SSR or successful recovery; no duplicate mount read.
+      checker.invalidate()
+      if (!loggingOut.current) void checker.check()
+    })
+    window.addEventListener("focus", onVisible)
+    window.addEventListener("pageshow", onVisible)
+    document.addEventListener("visibilitychange", onVisible)
+    const timer = window.setInterval(onVisible, 60000)
+    void checker.check()
     return () => {
-      checker.stop();
-      revalidation.current = null;
-      unsubscribe();
-      window.clearInterval(timer);
-      window.removeEventListener("focus", onVisible);
-      window.removeEventListener("pageshow", onVisible);
-      document.removeEventListener("visibilitychange", onVisible);
-    };
-  }, [initial]);
+      checker.stop()
+      revalidation.current = null
+      unsubscribe()
+      window.clearInterval(timer)
+      window.removeEventListener("focus", onVisible)
+      window.removeEventListener("pageshow", onVisible)
+      document.removeEventListener("visibilitychange", onVisible)
+    }
+  }, [initial])
 
   async function logout() {
-    if (loggingOut.current) return;
-    loggingOut.current = true;
-    setChecking(true);
+    if (loggingOut.current) return
+    loggingOut.current = true
+    setChecking(true)
     try {
-      await apiClient.logout();
-      window.location.replace("/login");
+      await apiClient.logout()
+      window.location.replace("/login")
     } catch (failure) {
       setError(
         failure instanceof Error
           ? failure.message
           : "Sign out failed. Please try again.",
-      );
-      loggingOut.current = false;
-      setChecking(false);
-      void revalidation.current?.check(true);
+      )
+      loggingOut.current = false
+      setChecking(false)
+      void revalidation.current?.check(true)
     }
   }
 
@@ -122,7 +133,7 @@ export default function SessionProvider({
       >
         Returning to your sign-in page…
       </main>
-    );
+    )
   return (
     <SessionContext.Provider value={{ ...current, logout }}>
       <div className="contents" inert={checking} aria-hidden={checking}>
@@ -137,7 +148,7 @@ export default function SessionProvider({
           <button
             className="mt-2 font-semibold text-blue-600"
             onClick={() => {
-              void revalidation.current?.check(true);
+              void revalidation.current?.check(true)
             }}
           >
             Try again
@@ -153,5 +164,5 @@ export default function SessionProvider({
         </div>
       )}
     </SessionContext.Provider>
-  );
+  )
 }
