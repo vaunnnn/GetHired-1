@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs"
 import { Pool, type QueryResultRow } from "pg"
 import { ApiError } from "../api/errors.js"
 import { transaction as runTransaction } from "../db/transaction.js"
@@ -212,10 +213,22 @@ export function createAuthStore(pool: SqlPool): AuthStore {
   }
 }
 
+export function getDatabaseSslConfig(): { rejectUnauthorized: boolean; ca?: string } {
+  const caPath = process.env.NODE_EXTRA_CA_CERTS
+  if (caPath) {
+    try {
+      return { rejectUnauthorized: true, ca: readFileSync(caPath, "utf8") }
+    } catch {
+      /* Fallback if path is invalid or unreadable */
+    }
+  }
+  return { rejectUnauthorized: true }
+}
+
 export function createDatabasePool(config: AuthConfig): Pool {
   const pool = new Pool({
     connectionString: config.databaseUrl,
-    ssl: { rejectUnauthorized: true },
+    ssl: getDatabaseSslConfig(),
     max: 5,
     connectionTimeoutMillis: 5000,
     idleTimeoutMillis: 30000,
