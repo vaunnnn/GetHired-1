@@ -769,18 +769,6 @@ export default function AdminDashboard() {
       "companies",
   )
   const companies = companyResults.data.map((c) => companyView(c))
-  const [verificationOverrides, setVerificationOverrides] = useState<
-    Record<string, { verified: boolean; verified_on?: string }>
-  >(() => {
-    if (typeof window === "undefined") return {}
-    try {
-      return JSON.parse(
-        localStorage.getItem("gethired_verified_overrides") || "{}",
-      )
-    } catch {
-      return {}
-    }
-  })
   const [companyError, setCompanyError] = useState("")
   const [companyBusy, setCompanyBusy] = useState(false)
   const companyLock = useRef(false)
@@ -1066,20 +1054,19 @@ export default function AdminDashboard() {
   const handleOpenEditCompany = (c: Company) => {
     setCompanyError("")
     setEditingCompany(c)
-    const override = verificationOverrides[c.id]
-    const isV =
-      override !== undefined ? override.verified : c.verified !== false
+    const isV = c.verified !== false
     setCompForm({
       ...c,
       verified: isV,
       verified_on:
-        override?.verified_on ||
         c.verified_on ||
-        new Date().toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        }),
+        (isV
+          ? new Date().toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })
+          : ""),
     })
     setIsCompanyModalOpen(true)
   }
@@ -1091,6 +1078,7 @@ export default function AdminDashboard() {
     setCompanyBusy(true)
     setCompanyError("")
     try {
+      const isVerified = compForm.verified !== false
       const input: CompanyInput = {
         name: compForm.name ?? "",
         industry: compForm.industry ?? "",
@@ -1103,6 +1091,15 @@ export default function AdminDashboard() {
         email: compForm.email ?? "",
         phone: compForm.phone ?? "",
         hours: compForm.hours ?? "",
+        verified: isVerified,
+        verified_on: isVerified
+          ? compForm.verified_on ||
+            new Date().toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })
+          : null,
       }
       if (compForm.image?.startsWith("data:")) {
         const blob = await (await fetch(compForm.image)).blob()
@@ -1122,33 +1119,6 @@ export default function AdminDashboard() {
         editingCompany ? "PATCH" : "POST",
         input,
       )
-
-      if (editingCompany) {
-        setVerificationOverrides((prev) => {
-          const next = {
-            ...prev,
-            [editingCompany.id]: {
-              verified: compForm.verified !== false,
-              verified_on:
-                compForm.verified !== false
-                  ? compForm.verified_on ||
-                    new Date().toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })
-                  : undefined,
-            },
-          }
-          try {
-            localStorage.setItem(
-              "gethired_verified_overrides",
-              JSON.stringify(next),
-            )
-          } catch {}
-          return next
-        })
-      }
 
       setCompanyRevision((n) => n + 1)
       setIsCompanyModalOpen(false)
@@ -1306,17 +1276,7 @@ export default function AdminDashboard() {
       () => setIsQuestionModalOpen(false),
     )
   }
-  const filteredCompanies = companies.map((c) => {
-    const override = verificationOverrides[c.id]
-    if (override !== undefined) {
-      return {
-        ...c,
-        verified: override.verified,
-        verified_on: override.verified_on ?? c.verified_on,
-      }
-    }
-    return c
-  })
+  const filteredCompanies = companies
 
   return (
     <div

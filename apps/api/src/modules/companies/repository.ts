@@ -8,7 +8,8 @@ import type { companyQuery } from "./validation.js"
 
 type Query = ReturnType<typeof companyQuery>
 const projection = `c.id, c.name, c.industry, c.type, c.specializations, c.location, c.slots, c.description,
-  coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status`
+  coalesce(i.url, '/getHiredLogo.png') as image, c.website, c.email, c.phone, c.hours, c.status,
+  c.verified, c.verified_on`
 const joined = `gethired_private.companies c left join gethired_private.company_images i on i.id = c.image_id`
 async function get(client: SqlClient, id: string, admin = false): Promise<Company> {
   const result = await client.query(`select ${projection} from ${joined} where c.id=$1 ${admin ? "" : "and c.status='active'"}`, [id])

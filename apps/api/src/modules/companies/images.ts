@@ -40,7 +40,7 @@ export async function parseImage(request: Request): Promise<Buffer> {
       if (done) break
       size += value.byteLength
       if (size > COMPANY_MULTIPART_MAX_BYTES) fail("PAYLOAD_TOO_LARGE")
-      if (failure) { void reader.cancel().catch(() => {}); break }
+      if (failure) { try { while (!(await reader.read()).done) {} } catch {}; break }
       parser.write(value)
     }
     parser.end()

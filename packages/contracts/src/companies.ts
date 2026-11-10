@@ -13,8 +13,15 @@ export interface Company {
   phone: string
   hours: string
   status: "active" | "inactive"
+  verified: boolean
+  verified_on?: string | null
 }
-export type CompanyInput = Omit<Company, "id" | "image" | "status"> & { imageId?: string | null; status?: Company["status"] }
+export type CompanyInput = Omit<Company, "id" | "image" | "status" | "verified" | "verified_on"> & {
+  imageId?: string | null
+  status?: Company["status"]
+  verified?: boolean
+  verified_on?: string | null
+}
 export interface Bookmark { companyId: string; createdAt: string; company: Company }
 /** Private projection for /companies reads; derived from the authenticated owner. */
 export interface CompanyListing extends Company { bookmarked: boolean }

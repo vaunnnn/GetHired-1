@@ -20,6 +20,8 @@ const shape = {
     return [...new Set(v.map(oneOf(COMPANY_SPECIALIZATIONS)))]
   },
   imageId: optional((v: unknown) => v === null ? null : uuid(v)), status: optional(oneOf(["active", "inactive"] as const)),
+  verified: optional((v: unknown) => { if (typeof v !== "boolean") throw new ApiError("VALIDATION_ERROR"); return v }),
+  verified_on: optional((v: unknown) => { if (v === null || v === undefined || v === "") return null; return text(0, 120)(v) }),
 }
 export function companyInput(value: unknown, patch = false): Partial<CompanyInput> {
   const parsers = patch ? Object.fromEntries(Object.entries(shape).map(([key, parser]) => [key, optional(parser as Parser<unknown>)])) : shape

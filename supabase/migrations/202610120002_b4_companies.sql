@@ -18,6 +18,8 @@ create table gethired_private.companies (
   image_id uuid references gethired_private.company_images(id),
   website text not null, email text not null, phone text not null, hours text not null,
   status text not null default 'active' check (status in ('active','inactive')),
+  verified boolean not null default true,
+  verified_on text check (verified_on is null or length(verified_on) <= 120),
   created_at timestamptz not null default clock_timestamp(),
   updated_at timestamptz not null default clock_timestamp()
 );

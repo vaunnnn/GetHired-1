@@ -90,7 +90,9 @@ async function readBytes(
       if (done) break
       length += value.byteLength
       if (length > limit) {
-        void reader.cancel().catch(() => {})
+        try {
+          while (!(await reader.read()).done) {}
+        } catch {}
         throw new ProxyFailure(
           413,
           "PAYLOAD_TOO_LARGE",
@@ -188,7 +190,13 @@ export function createApiProxy(
       try {
         const length = request.headers.get("content-length")
         if (length && /^\d+$/.test(length) && Number(length) > bodyLimit) {
-          void request.body?.cancel().catch(() => {})
+          if (request.body) {
+            const r = request.body.getReader()
+            try {
+              while (!(await r.read()).done) {}
+            } catch {}
+            r.releaseLock()
+          }
           throw new ProxyFailure(
             413,
             "PAYLOAD_TOO_LARGE",
