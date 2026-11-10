@@ -1,4 +1,5 @@
-﻿"use client"
+"use client"
+
 // Initial is authoritative from SSR or successful recovery; no duplicate mount read.
 
 import {

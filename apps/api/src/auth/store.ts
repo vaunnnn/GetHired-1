@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs"
+import { existsSync, readFileSync } from "node:fs"
 import { Pool, type QueryResultRow } from "pg"
 import { ApiError } from "../api/errors.js"
 import { transaction as runTransaction } from "../db/transaction.js"
@@ -214,12 +214,17 @@ export function createAuthStore(pool: SqlPool): AuthStore {
 }
 
 export function getDatabaseSslConfig(): { rejectUnauthorized: boolean; ca?: string } {
-  const caPath = process.env.NODE_EXTRA_CA_CERTS
-  if (caPath) {
+  try {
+    const certPath = new URL("../../supabase-ca.crt", import.meta.url)
+    if (existsSync(certPath)) return { rejectUnauthorized: true, ca: readFileSync(certPath, "utf8") }
+  } catch {
+    /* Safe fallback to default roots */
+  }
+  if (process.env.NODE_EXTRA_CA_CERTS && existsSync(process.env.NODE_EXTRA_CA_CERTS)) {
     try {
-      return { rejectUnauthorized: true, ca: readFileSync(caPath, "utf8") }
+      return { rejectUnauthorized: true, ca: readFileSync(process.env.NODE_EXTRA_CA_CERTS, "utf8") }
     } catch {
-      /* Fallback if path is invalid or unreadable */
+      /* Safe fallback to default roots */
     }
   }
   return { rejectUnauthorized: true }

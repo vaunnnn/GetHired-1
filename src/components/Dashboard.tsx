@@ -1,20 +1,6 @@
 "use client"
 
-/* ═══════════════════════════════ ICON SYSTEM ════════════════════════ */ /* Banner */ /* Scrollable body */ /* Badges */ /* Name */ /* Location */ /* Description */ /* Specializations */ /* Contact & Hours */ /* Hours */ /* Website */ /* Email */ /* Phone */ /* Actions */
-
-/* ═══════════════════════════════ PROFILE MODAL ══════════════════════ */
-
-/* ═══════════════════════════════ HOME VIEW ══════════════════════════ */ /* Quick stats — always first */ /* Horizontally scrollable saved companies: minimum 3 in display on desktop */
-
-/* ═══════════════════════════════ TECH NICHES ════════════════════════ */
-
-/* ═══════════════════════════════ FILTER MODAL ═══════════════════════ */ /* Header */ /* Specializations */ /* Actions */
-
-/* ═══════════════════════════════ EXPLORE VIEW ═══════════════════════ */ /* Search bar + Filter button */ /* Filter button */ /* Tech niche nav — horizontal scroll */ /* Result count + clear */
-
-/* ═══════════════════════════════ INTERVIEW PHASE ENGINE ════════════ */ /* Resume remains available from history. */ /* ═══ Desktop Sidebar ═══ */ /* Logo — click to collapse */ /* Nav */ /* Log out — centered */ /* ═══ Main ═══ */ /* Mobile brand header */ /* ═══ Mobile Bottom Navigation Bar ═══ */
-
-import React, { useState, useRef, useEffect } from "react"
+import React, { useState, useRef, useEffect, useMemo } from "react"
 import { useSession } from "./SessionProvider"
 import CompanyCard from "./CompanyCard"
 import InterviewWorkspace from "./InterviewWorkspace"
@@ -30,6 +16,7 @@ import {
   type Bookmark,
 } from "@gethired/contracts"
 import CompanyResults, { useCompanyPage } from "./CompanyResults"
+import CompareModal from "./CompareModal"
 
 type DashView = "home" | "explore" | "interview"
 
@@ -280,11 +267,15 @@ function CompanyModal({
   onClose,
   onToggleSave,
   onPractice,
+  isComparing = false,
+  onToggleCompare,
 }: {
   company: Company
   onClose: () => void
   onToggleSave: (id: string, saved: boolean) => void
   onPractice: () => void
+  isComparing?: boolean
+  onToggleCompare?: (c: Company) => void
 }) {
   const isVerified = company.verified !== false
   const verifiedDate = company.verified_on || "Accredited"
@@ -476,8 +467,9 @@ function CompanyModal({
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/50 flex gap-3 shrink-0">
+        <div className="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/50 flex flex-wrap sm:flex-nowrap gap-3 shrink-0">
           <button
+            type="button"
             onClick={() => onToggleSave(company.id, company.saved)}
             className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-semibold border transition-all cursor-pointer ${
               company.saved
@@ -488,9 +480,34 @@ function CompanyModal({
             <BookmarkIcon filled={company.saved} size={15} />
             <span>{company.saved ? "Saved" : "Save Partner"}</span>
           </button>
+          {onToggleCompare && (
+            <button
+              type="button"
+              onClick={() => onToggleCompare(company)}
+              className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-semibold border transition-all cursor-pointer ${
+                isComparing
+                  ? "border-[#0066FF] text-[#0066FF] bg-[#EEF5FF]"
+                  : "border-slate-200 bg-white text-slate-600 hover:border-[#0066FF] hover:text-[#0066FF]"
+              }`}
+            >
+              <span
+                className={`w-3.5 h-3.5 rounded flex items-center justify-center border transition-all ${
+                  isComparing ? "bg-[#0066FF] border-[#0066FF] text-white" : "border-slate-300 bg-white"
+                }`}
+              >
+                {isComparing && (
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                )}
+              </span>
+              <span>{isComparing ? "Comparing" : "Compare"}</span>
+            </button>
+          )}
           <button
+            type="button"
             onClick={onPractice}
-            className="flex-1 bg-[#0066FF] hover:bg-[#0052cc] text-white text-[13.5px] font-semibold py-2.5 rounded-full shadow-md shadow-blue-500/20 transition-all cursor-pointer active:scale-98"
+            className="flex-1 bg-[#0066FF] hover:bg-[#0052cc] text-white text-[13.5px] font-semibold py-2.5 rounded-full shadow-md shadow-blue-500/20 transition-all cursor-pointer active:scale-98 text-center"
           >
             Practice Interview →
           </button>
@@ -642,6 +659,8 @@ function HomeView({
   onToggleSave,
   onViewMore,
   onNavigateExplore,
+  compareIds,
+  onToggleCompare,
 }: {
   companies: Company[]
   totalSaved?: number
@@ -649,6 +668,8 @@ function HomeView({
   onToggleSave: (id: string, saved: boolean) => void
   onViewMore: (c: Company) => void
   onNavigateExplore?: () => void
+  compareIds?: ReadonlySet<string>
+  onToggleCompare?: (c: Company) => void
 }) {
   const { user } = useSession()
   const saved = companies.filter((c) => c.saved)
@@ -795,6 +816,8 @@ function HomeView({
                   company={c}
                   onToggleSave={onToggleSave}
                   onViewMore={onViewMore}
+                  isComparing={compareIds?.has(c.id)}
+                  onToggleCompare={onToggleCompare}
                 />
               </div>
             ))}
@@ -933,6 +956,8 @@ function ExploreView({
   onBookmarkSnapshot,
   onToggleSave,
   onViewMore,
+  compareIds,
+  onToggleCompare,
 }: {
   savedOverrides: Readonly<Record<string, boolean>>
   enabled: boolean
@@ -941,6 +966,8 @@ function ExploreView({
   onBookmarkSnapshot: (rows: CompanyListing[]) => void
   onToggleSave: (id: string, saved: boolean) => void
   onViewMore: (c: Company) => void
+  compareIds?: ReadonlySet<string>
+  onToggleCompare?: (c: Company) => void
 }) {
   const [search, setSearch] = useState("")
   const [activeNiche, setActiveNiche] = useState("All")
@@ -1077,6 +1104,8 @@ function ExploreView({
               company={c}
               onToggleSave={onToggleSave}
               onViewMore={onViewMore}
+              isComparing={compareIds?.has(c.id)}
+              onToggleCompare={onToggleCompare}
             />
           ))}
         </div>
@@ -1155,12 +1184,29 @@ export default function Dashboard() {
   const [savedOverrides, setSavedOverrides] = useState<Record<string, boolean>>(
     {},
   )
+  const [authoritativeBookmarks, setAuthoritativeBookmarks] = useState<
+    Record<string, boolean>
+  >({})
   const companies = bookmarks.data.map((b) =>
     companyView(b.company, savedOverrides[b.companyId] ?? true),
   )
   const [collapsed, setCollapsed] = useState(false)
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null)
   const onBookmarkSnapshot = React.useCallback((rows: CompanyListing[]) => {
+    setAuthoritativeBookmarks((previous) => {
+      let changed = false
+      const next = { ...previous }
+      for (const row of rows) {
+        if (
+          typeof row.bookmarked === "boolean" &&
+          next[row.id] !== row.bookmarked
+        ) {
+          next[row.id] = row.bookmarked
+          changed = true
+        }
+      }
+      return changed ? next : previous
+    })
     setSavedOverrides((previous) => {
       if (!rows.some((row) => Object.hasOwn(previous, row.id))) return previous
       const next = { ...previous }
@@ -1175,6 +1221,20 @@ export default function Dashboard() {
         ? { ...previous, saved: fresh.bookmarked }
         : previous
     })
+    setCompareCompanies((previous) => {
+      let changed = false
+      const next = new Map(previous)
+      for (const row of rows) {
+        if (typeof row.bookmarked === "boolean" && next.has(row.id)) {
+          const existing = next.get(row.id)!
+          if (existing.saved !== row.bookmarked) {
+            next.set(row.id, { ...existing, saved: row.bookmarked })
+            changed = true
+          }
+        }
+      }
+      return changed ? next : previous
+    })
   }, [])
   const refreshCompanies = () => {
     setSavedOverrides({})
@@ -1187,6 +1247,86 @@ export default function Dashboard() {
     )
   }, [bookmarks.data, onBookmarkSnapshot])
   const [profileOpen, setProfileOpen] = useState(false)
+
+  // Company Comparison State
+  const [compareCompanies, setCompareCompanies] = useState<Map<string, Company>>(
+    new Map(),
+  )
+  const [compareModalOpen, setCompareModalOpen] = useState(false)
+  const [compareNotification, setCompareNotification] = useState<string | null>(
+    null,
+  )
+
+  const compareIds = new Set(compareCompanies.keys())
+
+  const savedIds = useMemo(() => {
+    const set = new Set<string>()
+    bookmarks.data.forEach((b) => set.add(b.company.id))
+    for (const [id, isSaved] of Object.entries(authoritativeBookmarks)) {
+      if (isSaved) set.add(id)
+      else set.delete(id)
+    }
+    compareCompanies.forEach((company, id) => {
+      if (
+        authoritativeBookmarks[id] === undefined &&
+        savedOverrides[id] === undefined
+      ) {
+        if (company.saved) set.add(id)
+        else set.delete(id)
+      }
+    })
+    for (const [id, isSaved] of Object.entries(savedOverrides)) {
+      if (isSaved) set.add(id)
+      else set.delete(id)
+    }
+    return set
+  }, [bookmarks.data, authoritativeBookmarks, compareCompanies, savedOverrides])
+
+  useEffect(() => {
+    if (!compareNotification) return
+    const timer = setTimeout(() => setCompareNotification(null), 3500)
+    return () => clearTimeout(timer)
+  }, [compareNotification])
+
+  const toggleCompare = (company: Company) => {
+    setCompareCompanies((prev) => {
+      const next = new Map(prev)
+      if (next.has(company.id)) {
+        next.delete(company.id)
+      } else {
+        if (next.size >= 4) {
+          setCompareNotification("You can compare up to 4 companies at a time.")
+          return prev
+        }
+        const isSaved =
+          savedOverrides[company.id] ??
+          authoritativeBookmarks[company.id] ??
+          company.saved
+        next.set(company.id, { ...company, saved: isSaved })
+      }
+      return next
+    })
+    setAuthoritativeBookmarks((prev) => {
+      const isSaved =
+        savedOverrides[company.id] ?? prev[company.id] ?? company.saved
+      return prev[company.id] === isSaved
+        ? prev
+        : { ...prev, [company.id]: isSaved }
+    })
+  }
+
+  const removeCompare = (id: string) => {
+    setCompareCompanies((prev) => {
+      const next = new Map(prev)
+      next.delete(id)
+      return next
+    })
+  }
+
+  const clearCompare = () => {
+    setCompareCompanies(new Map())
+    setCompareModalOpen(false)
+  }
   const profile: ProfileData = {
     name: user.displayName,
     studentId: user.student?.studentNumber ?? "",
@@ -1207,9 +1347,17 @@ export default function Dashboard() {
       )
       bookmarkVersion.current++
       setSavedOverrides((previous) => ({ ...previous, [id]: !saved }))
+      setAuthoritativeBookmarks((previous) => ({ ...previous, [id]: !saved }))
       setSelectedCompany((previous) =>
         previous?.id === id ? { ...previous, saved: !saved } : previous,
       )
+      setCompareCompanies((previous) => {
+        if (!previous.has(id)) return previous
+        const next = new Map(previous)
+        const existing = next.get(id)!
+        next.set(id, { ...existing, saved: !saved })
+        return next
+      })
       setRevision((n) => n + 1)
     } catch (error) {
       setBookmarkError(
@@ -1235,7 +1383,21 @@ export default function Dashboard() {
           ...previous,
           [company.id]: fresh.bookmarked,
         }))
+        setAuthoritativeBookmarks((previous) => ({
+          ...previous,
+          [company.id]: fresh.bookmarked,
+        }))
         setSelectedCompany(companyView(fresh, fresh.bookmarked))
+        setCompareCompanies((previous) => {
+          if (!previous.has(company.id)) return previous
+          const next = new Map(previous)
+          const existing = next.get(company.id)!
+          if (existing.saved !== fresh.bookmarked) {
+            next.set(company.id, { ...existing, saved: fresh.bookmarked })
+            return next
+          }
+          return previous
+        })
         return
       }
       throw new Error("Your saved companies changed. Please try again.")
@@ -1399,6 +1561,7 @@ export default function Dashboard() {
               {bookmarkError}
             </p>
           )}
+          {view === "home" && <CompanyResults {...bookmarks} reload={refreshCompanies} />}
           {view === "home" && !bookmarks.error && (
             <HomeView
               totalCompanies={partners.meta.total}
@@ -1407,6 +1570,8 @@ export default function Dashboard() {
               onToggleSave={toggleSave}
               onViewMore={viewCompany}
               onNavigateExplore={() => setView("explore")}
+              compareIds={compareIds}
+              onToggleCompare={toggleCompare}
             />
           )}
           {(view === "explore" || exploreOpened) && (
@@ -1419,6 +1584,8 @@ export default function Dashboard() {
                 onBookmarkSnapshot={onBookmarkSnapshot}
                 onToggleSave={toggleSave}
                 onViewMore={viewCompany}
+                compareIds={compareIds}
+                onToggleCompare={toggleCompare}
               />
             </div>
           )}
@@ -1476,11 +1643,102 @@ export default function Dashboard() {
             setSelectedCompany(null)
             setView("interview")
           }}
+          isComparing={compareIds.has(selectedCompany.id)}
+          onToggleCompare={toggleCompare}
         />
       )}
 
       {profileOpen && (
         <ProfileModal profile={profile} onClose={() => setProfileOpen(false)} />
+      )}
+
+      {/* ═══ Floating Comparison Dock ═══ */}
+      {compareCompanies.size > 0 && (
+        <div className="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-40 max-w-[95vw] sm:max-w-2xl w-auto animate-in slide-in-from-bottom-5 duration-200">
+          <div className="bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-2xl rounded-full px-3.5 sm:px-5 py-2.5 flex items-center gap-2.5 sm:gap-3.5">
+            <div className="flex items-center gap-1.5 overflow-x-auto max-w-[180px] sm:max-w-[280px] py-0.5">
+              {Array.from(compareCompanies.values()).map((c) => (
+                <div
+                  key={c.id}
+                  className="flex items-center gap-1.5 bg-slate-100/90 border border-slate-200/60 rounded-full pl-1.5 pr-2 py-1 shrink-0"
+                >
+                  <img src={c.image} alt={c.name} className="w-5 h-5 rounded-full object-cover shrink-0" />
+                  <span className="text-[11.5px] font-medium text-slate-700 max-w-[65px] sm:max-w-[85px] truncate">{c.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeCompare(c.id)}
+                    className="text-slate-400 hover:text-red-500 transition-colors ml-0.5 cursor-pointer text-[12px] leading-none"
+                    title="Remove"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <span className="text-[11px] font-semibold text-slate-400 shrink-0 hidden sm:inline">
+              {compareCompanies.size}/4
+            </span>
+
+            <div className="h-4 w-px bg-slate-200 shrink-0" />
+
+            <button
+              type="button"
+              onClick={clearCompare}
+              className="text-[12px] text-slate-400 hover:text-slate-600 font-medium hover:underline shrink-0 cursor-pointer"
+            >
+              Clear
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setCompareModalOpen(true)}
+              className="bg-[#0073ff] hover:bg-[#005cd6] text-white text-[12.5px] font-semibold px-4 py-2 rounded-full shadow-sm flex items-center gap-1.5 transition-all active:scale-95 shrink-0 cursor-pointer"
+            >
+              <span>Compare</span>
+              <span className="w-4 h-4 rounded-full bg-white/20 text-[10px] flex items-center justify-center font-bold">
+                {compareCompanies.size}
+              </span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ Compare Notification Toast ═══ */}
+      {compareNotification && (
+        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-[#302929] text-white text-[13px] px-5 py-2.5 rounded-full shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-top-3">
+          <span>{compareNotification}</span>
+          <button
+            type="button"
+            onClick={() => setCompareNotification(null)}
+            className="text-white/70 hover:text-white cursor-pointer ml-1 text-sm leading-none"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* ═══ Comparison Modal ═══ */}
+      {compareModalOpen && (
+        <CompareModal
+          companies={Array.from(compareCompanies.values()).map(c => ({
+            ...c,
+            saved: savedIds.has(c.id),
+          }))}
+          savedIds={savedIds}
+          onClose={() => setCompareModalOpen(false)}
+          onRemove={removeCompare}
+          onClear={clearCompare}
+          onToggleSave={(id) => void toggleSave(id, savedIds.has(id))}
+          onViewDetails={(c) => {
+            setCompareModalOpen(false);
+            void viewCompany(c);
+          }}
+          onPracticeInterview={() => {
+            setCompareModalOpen(false);
+            setView("interview");
+          }}
+        />
       )}
     </div>
   )
