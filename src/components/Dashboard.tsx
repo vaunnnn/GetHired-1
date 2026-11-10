@@ -795,10 +795,22 @@ export default function Dashboard() {
   const savingBookmark = useRef(false);
   const bookmarkVersion = useRef(0);
   const [savedOverrides, setSavedOverrides] = useState<Record<string, boolean>>({});
+  const [authoritativeBookmarks, setAuthoritativeBookmarks] = useState<Record<string, boolean>>({});
   const companies = bookmarks.data.map(b => companyView(b.company, savedOverrides[b.companyId] ?? true));
   const [collapsed, setCollapsed] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const onBookmarkSnapshot = React.useCallback((rows: CompanyListing[]) => {
+    setAuthoritativeBookmarks(previous => {
+      let changed = false;
+      const next = { ...previous };
+      for (const row of rows) {
+        if (typeof row.bookmarked === "boolean" && next[row.id] !== row.bookmarked) {
+          next[row.id] = row.bookmarked;
+          changed = true;
+        }
+      }
+      return changed ? next : previous;
+    });
     setSavedOverrides(previous => {
       if (!rows.some(row => Object.hasOwn(previous, row.id))) return previous;
       const next = { ...previous }; rows.forEach(row => { delete next[row.id]; }); return next;
@@ -806,6 +818,20 @@ export default function Dashboard() {
     setSelectedCompany(previous => {
       const fresh = rows.find(row => row.id === previous?.id);
       return previous && fresh && previous.saved !== fresh.bookmarked ? { ...previous, saved: fresh.bookmarked } : previous;
+    });
+    setCompareCompanies(previous => {
+      let changed = false;
+      const next = new Map(previous);
+      for (const row of rows) {
+        if (typeof row.bookmarked === "boolean" && next.has(row.id)) {
+          const existing = next.get(row.id)!;
+          if (existing.saved !== row.bookmarked) {
+            next.set(row.id, { ...existing, saved: row.bookmarked });
+            changed = true;
+          }
+        }
+      }
+      return changed ? next : previous;
     });
   }, []);
   const refreshCompanies = () => { setSavedOverrides({}); setRevision(n => n + 1); setPartnerRevision(n => n + 1); };
@@ -822,12 +848,22 @@ export default function Dashboard() {
   const savedIds = useMemo(() => {
     const set = new Set<string>();
     bookmarks.data.forEach(b => set.add(b.company.id));
+    for (const [id, isSaved] of Object.entries(authoritativeBookmarks)) {
+      if (isSaved) set.add(id);
+      else set.delete(id);
+    }
+    compareCompanies.forEach((company, id) => {
+      if (authoritativeBookmarks[id] === undefined && savedOverrides[id] === undefined) {
+        if (company.saved) set.add(id);
+        else set.delete(id);
+      }
+    });
     for (const [id, isSaved] of Object.entries(savedOverrides)) {
       if (isSaved) set.add(id);
       else set.delete(id);
     }
     return set;
-  }, [bookmarks.data, savedOverrides]);
+  }, [bookmarks.data, authoritativeBookmarks, compareCompanies, savedOverrides]);
 
   useEffect(() => {
     if (!compareNotification) return;
@@ -845,9 +881,14 @@ export default function Dashboard() {
           setCompareNotification("You can compare up to 4 companies at a time.");
           return prev;
         }
-        next.set(company.id, company);
+        const isSaved = savedOverrides[company.id] ?? authoritativeBookmarks[company.id] ?? company.saved;
+        next.set(company.id, { ...company, saved: isSaved });
       }
       return next;
+    });
+    setAuthoritativeBookmarks(prev => {
+      const isSaved = savedOverrides[company.id] ?? prev[company.id] ?? company.saved;
+      return prev[company.id] === isSaved ? prev : { ...prev, [company.id]: isSaved };
     });
   };
 
@@ -879,7 +920,15 @@ export default function Dashboard() {
       await apiClient.mutate(`/api/me/bookmarks/${id}`, saved ? "DELETE" : "PUT", saved ? undefined : {});
       bookmarkVersion.current++;
       setSavedOverrides(previous => ({ ...previous, [id]: !saved }));
+      setAuthoritativeBookmarks(previous => ({ ...previous, [id]: !saved }));
       setSelectedCompany(previous => previous?.id === id ? { ...previous, saved: !saved } : previous);
+      setCompareCompanies(previous => {
+        if (!previous.has(id)) return previous;
+        const next = new Map(previous);
+        const existing = next.get(id)!;
+        next.set(id, { ...existing, saved: !saved });
+        return next;
+      });
       setRevision(n => n + 1);
     } catch (error) { setBookmarkError(error instanceof Error ? error.message : "Unable to update bookmark."); }
     finally { savingBookmark.current = false; }
@@ -892,7 +941,18 @@ export default function Dashboard() {
         if (version !== bookmarkVersion.current) continue;
         if (typeof fresh.bookmarked !== "boolean") throw new Error("Company information is temporarily unavailable. Please refresh.");
         setSavedOverrides(previous => ({ ...previous, [company.id]: fresh.bookmarked }));
+        setAuthoritativeBookmarks(previous => ({ ...previous, [company.id]: fresh.bookmarked }));
         setSelectedCompany(companyView(fresh, fresh.bookmarked));
+        setCompareCompanies(previous => {
+          if (!previous.has(company.id)) return previous;
+          const next = new Map(previous);
+          const existing = next.get(company.id)!;
+          if (existing.saved !== fresh.bookmarked) {
+            next.set(company.id, { ...existing, saved: fresh.bookmarked });
+            return next;
+          }
+          return previous;
+        });
         return;
       }
       throw new Error("Your saved companies changed. Please try again.");
@@ -1159,7 +1219,10 @@ export default function Dashboard() {
       {/* ═══ Comparison Modal ═══ */}
       {compareModalOpen && (
         <CompareModal
-          companies={Array.from(compareCompanies.values())}
+          companies={Array.from(compareCompanies.values()).map(c => ({
+            ...c,
+            saved: savedIds.has(c.id),
+          }))}
           savedIds={savedIds}
           onClose={() => setCompareModalOpen(false)}
           onRemove={removeCompare}
