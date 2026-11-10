@@ -17,7 +17,7 @@ acceptance has not yet been completed.
 | --- | --- |
 | Supabase | `https://vbddvogwnyvgeejaxpgv.supabase.co` |
 | Render API | `https://gethired-113w.onrender.com` |
-| Vercel frontend | `https://gethired-gold.vercel.app` |
+| Vercel frontend | `https://gethired-1.vercel.app` (confirmed 2026-10-29) |
 | Session pooler | `aws-0-ap-southeast-1.pooler.supabase.com:5432` |
 
 The user also reported creating both restricted logins. Runtime pooler username:

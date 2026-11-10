@@ -19,8 +19,8 @@ test("B6 rejects mass assignment, ambiguous filters and invalid pipeline configu
   for (const value of ["status=inactive", "page=0", "pageSize=101", "page=1&page=2", "ownerId=123"])
     assert.throws(() => query(value), { code: "VALIDATION_ERROR" })
   assert.throws(() => questionInput({ question: "Q", type: "Other", hint: "", feedback: "" }), { code: "VALIDATION_ERROR" })
-  assert.equal(questionInput({ question: "Q", type: "Design Challenge", hint: "", feedback: "" }).type, "Design Challenge")
-  const questions = Array.from({ length: 3 }, (_, n) => ({ id: String(n), question: "Q", hint: "Hint", type: "Technical", feedback: "SECRET", status: "active" } as Question))
+  assert.equal(questionInput({ question: "Q", type: "Design Challenge", hint: "", feedback: "Required design criteria" }).type, "Design Challenge")
+  const questions = Array.from({ length: 3 }, (_, n) => ({ id: String(n), question: "Q", hint: "Hint", type: "Technical", feedback: "SECRET", status: "active", responseDefinition: { format: "written" } } as Question))
   const result = selectPipeline([DEFAULT_PHASES[1]], questions)
   assert.equal(new Set(result[0].questions.map(q => q.id)).size, 2)
   assert.ok(!JSON.stringify(result).includes("SECRET"))
@@ -35,7 +35,7 @@ test("B6 PostgreSQL persists edits, excludes rubrics, rejects inactive/short ban
       create table auth.users(id uuid primary key, email_confirmed_at timestamptz, banned_until timestamptz);
       create table auth.sessions(id uuid primary key, user_id uuid references auth.users(id), not_after timestamptz);
       create table auth.refresh_tokens(session_id uuid references auth.sessions(id) on delete cascade, revoked boolean);`)
-    for (const name of ["202609290001_phase3_auth.sql", "202610050001_b2_operations.sql", "202610120001_b3_feature_foundation.sql", "202610140001_b6_question_bank.sql"])
+    for (const name of ["202609290001_phase3_auth.sql", "202610050001_b2_operations.sql", "202610120001_b3_feature_foundation.sql", "202610140001_b6_question_bank.sql", "202610270001_question_response_definitions.sql", "202610270002_question_response_rules.sql"])
       await db.exec(await readFile(new URL(`../../../supabase/migrations/${name}`, import.meta.url), "utf8"))
     await db.exec("alter table gethired_private.accounts add column credentials_blocked boolean not null default false; alter table gethired_private.accounts add column credential_version integer not null default 0")
   await db.exec(await readFile(new URL("../../../supabase/migrations/202610260001_session_authorization.sql", import.meta.url), "utf8"))
@@ -60,7 +60,7 @@ test("B6 PostgreSQL persists edits, excludes rubrics, rejects inactive/short ban
     for (const cat of seeded.data as Category[]) {
       const pipeline = await repo.pipeline(student, cat.id)
       assert.ok(pipeline.every(p => p.questions.length > 0))
-      assert.ok(pipeline.flatMap(p => p.questions).every(q => Object.keys(q).sort().join() === "hint,id,question,type"))
+      assert.ok(pipeline.flatMap(p => p.questions).every(q => Object.keys(q).sort().join() === "hint,id,question,responseDefinition,type"))
     }
     await assert.rejects(repo.save(student, randomUUID(), input, "category"), { code: "FORBIDDEN" })
     await assert.rejects(repo.list(student, query(), true), { code: "FORBIDDEN" })
@@ -83,6 +83,34 @@ test("B6 PostgreSQL persists edits, excludes rubrics, rejects inactive/short ban
     assert.equal((await repo.list(admin, query("status=inactive", true), true)).meta.total, 1)
     const empty = await repo.list(admin, query("page=100", true), true)
     assert.equal(empty.data.length, 0); assert.equal(empty.meta.total, 13)
+    const mixed = await repo.save(admin, randomUUID(), categoryInput({ ...input, name: "Mixed formats", phases: [
+      { id: "mixed", label: "Mixed", shortLabel: "Mixed", types: ["Technical", "Situational", "Coding"], count: 4 },
+    ] }), "category") as Category
+    const responseDefinition = { format: "multiple_choice", options: [{ id: "a", text: "0" }, { id: "b", text: "1" }], correctOptionId: "b" }
+    const coding = await repo.save(admin, randomUUID(), questionInput({ question: "Trace this code", type: "Coding", hint: "", feedback: "", responseDefinition }), "question", undefined, mixed.id) as Question
+    for (const type of ["Technical", "Situational"]) await repo.save(admin, randomUUID(), questionInput({ question: "Choose one", type, hint: "", feedback: "", responseDefinition }), "question", undefined, mixed.id)
+    await repo.save(admin, randomUUID(), questionInput({ question: "Explain your solution", type: "Coding", hint: "", feedback: "Explain correctness and tradeoffs." }), "question", undefined, mixed.id)
+    const savedCoding = (await createBankRepository(pool).list(admin, query(), true, mixed.id)).data.find(q => q.id === coding.id) as Question
+    assert.deepEqual(savedCoding.responseDefinition, responseDefinition)
+    const preview = await repo.pipeline(student, mixed.id)
+    assert.equal(preview[0].questions.length, 4)
+    assert.equal(preview[0].questions.filter(q => q.responseDefinition.format === "multiple_choice").length, 3)
+    assert.equal(preview[0].questions.filter(q => q.responseDefinition.format === "written").length, 1)
+    assert.ok(!JSON.stringify(preview).includes("correctOptionId"))
+    assert.ok(!JSON.stringify(preview).includes("feedback"))
+    assert.deepEqual(preview[0].questions.find(q => q.id === coding.id)?.responseDefinition, { format: "multiple_choice", options: responseDefinition.options })
+    for (const patch of [{ type: "Behavioral" }, { feedback: "MCQ explanation" }, { responseDefinition: { format: "written" } }])
+      await assert.rejects(repo.save(admin, randomUUID(), questionInput(patch, true), "question", coding.id), { code: "VALIDATION_ERROR" })
+    const updatedDefinition = { ...responseDefinition, correctOptionId: "a", options: [{ id: "a", text: "Updated output" }, responseDefinition.options[1]] }
+    await repo.save(admin, randomUUID(), questionInput({ responseDefinition: updatedDefinition }, true), "question", coding.id)
+    assert.deepEqual(((await repo.list(admin, query(), true, mixed.id)).data.find(q => q.id === coding.id) as Question).responseDefinition, updatedDefinition)
+    await repo.save(admin, randomUUID(), questionInput({ responseDefinition: { format: "written" }, status: "inactive" }, true), "question", coding.id)
+    await assert.rejects(repo.save(admin, randomUUID(), questionInput({ status: "active" }, true), "question", coding.id), { code: "VALIDATION_ERROR" })
+    await assert.rejects(repo.pipeline(student, mixed.id), { code: "CATEGORY_UNAVAILABLE" })
+    await repo.save(admin, randomUUID(), questionInput({ status: "active", feedback: "Explain the code output." }, true), "question", coding.id)
+    await assert.rejects(repo.save(admin, randomUUID(), questionInput({ responseDefinition }, true), "question", coding.id), { code: "VALIDATION_ERROR" })
+    await repo.save(admin, randomUUID(), questionInput({ responseDefinition, feedback: "" }, true), "question", coding.id)
+    assert.equal((await repo.pipeline(student, mixed.id))[0].questions.length, 4)
     await db.exec("reset role; revoke insert on gethired_private.audit_events from gethired_runtime; set role gethired_runtime")
     await assert.rejects(repo.save(admin, randomUUID(), { question: "Must roll back" }, "question", question.id), { code: "SERVICE_UNAVAILABLE" })
     assert.equal(((await repo.list(admin, query(), true, cat.id)).data[0] as Question).question, "Updated intro")
@@ -91,4 +119,18 @@ test("B6 PostgreSQL persists edits, excludes rubrics, rejects inactive/short ban
     await db.exec("reset role; set role anon")
     for (const table of ["categories", "questions"]) await assert.rejects(db.query(`select * from gethired_private.${table}`))
   } finally { await db.close() }
+})
+
+test("question rules require active written rubrics and prohibit MCQ explanations and unsupported types", () => {
+  const base = { question: "Question", type: "Technical", hint: "", feedback: "" }
+  const responseDefinition = { format: "multiple_choice", options: [{ id: "a", text: "A" }, { id: "b", text: "B" }], correctOptionId: "a" }
+  assert.throws(() => questionInput(base), { code: "VALIDATION_ERROR" })
+  assert.equal(questionInput({ ...base, status: "inactive" }).status, "inactive")
+  for (const type of ["Technical", "Situational", "Coding"])
+    assert.equal(questionInput({ ...base, type, responseDefinition }).type, type)
+  for (const type of ["Introduction", "Behavioral", "Motivational", "Design Challenge", "Candidate Questions"])
+    assert.throws(() => questionInput({ ...base, type, responseDefinition }), { code: "VALIDATION_ERROR" })
+  assert.throws(() => questionInput({ ...base, responseDefinition, feedback: "Explanation" }), { code: "VALIDATION_ERROR" })
+  assert.throws(() => questionInput({ ...base, responseDefinition: { ...responseDefinition, correctOptionId: "missing" } }), { code: "VALIDATION_ERROR" })
+  assert.throws(() => questionInput({ responseDefinition: { correctOptionId: "b" } }, true), { code: "VALIDATION_ERROR" })
 })

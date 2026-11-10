@@ -28,7 +28,8 @@ export default function createApp(transport: TransportConfig) {
       const match = url.pathname.match(/^(\/api\/(?:admin\/companies|companies|me\/bookmarks))\/([^/]+)$/)
       const studentMatch = url.pathname.match(/^\/api\/admin\/students\/([^/]+)(\/invitations)?$/)
       const bankMatch = url.pathname.match(/^(\/api\/(?:admin\/categories|admin\/questions|categories))\/([^/]+)(\/questions|\/pipeline)?$/)
-      const template = bankMatch ? `${bankMatch[1]}/[id]${bankMatch[3] ?? ""}` : studentMatch ? `/api/admin/students/[studentId]${studentMatch[2] ?? ""}` : match ? `${match[1]}/[companyId]` : url.pathname
+      const attemptMatch = url.pathname.match(/^\/api\/me\/interview-attempts\/([^/]+)(?:\/(complete)|\/answers\/([^/]+)(\/submit)?)?$/)
+      const template = attemptMatch ? `/api/me/interview-attempts/[attemptId]${attemptMatch[2] ? "/complete" : attemptMatch[3] ? `/answers/[questionId]${attemptMatch[4] ?? ""}` : ""}` : bankMatch ? `${bankMatch[1]}/[id]${bankMatch[3] ?? ""}` : studentMatch ? `/api/admin/students/[studentId]${studentMatch[2] ?? ""}` : match ? `${match[1]}/[companyId]` : url.pathname
       const handler = routes.get(template) ?? missing
       if (routes.has(template)) route = template
       const isProbe = ["/api/health/live", "/api/health/ready"].includes(url.pathname) && request.method === "GET"
@@ -65,7 +66,7 @@ export default function createApp(transport: TransportConfig) {
         ...(noBody ? {} : upload ? { body: incomingUploadStream(request, response), duplex: "half" } : { body: bytes }),
       } as RequestInit)
       // Every exported dispatcher consults the actual request method, including OPTIONS/HEAD.
-      const result = await handler.GET(webRequest, { params: Promise.resolve(bankMatch ? { id: bankMatch[2] } : studentMatch ? { studentId: studentMatch[1] } : match ? { companyId: match[2] } : {}) })
+      const result = await handler.GET(webRequest, { params: Promise.resolve(attemptMatch ? { attemptId: attemptMatch[1], questionId: attemptMatch[3] } : bankMatch ? { id: bankMatch[2] } : studentMatch ? { studentId: studentMatch[1] } : match ? { companyId: match[2] } : {}) })
       if (upload && !request.readableEnded) {
         await webRequest.body?.cancel().catch(() => {})
       }

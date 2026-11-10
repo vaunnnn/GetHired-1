@@ -14,6 +14,14 @@ services:
         value: production
       - key: AUTH_ENABLED
         value: "true"
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-3-flash-preview
+      - key: GEMINI_REQUESTS_PER_MINUTE
+        value: "5"
+      - key: GEMINI_REQUESTS_PER_DAY
+        value: "20"
       - key: AUTH_TRUSTED_IP_HEADER
         value: x-gethired-client-ip
       - key: SUPABASE_JWT_ALGORITHMS

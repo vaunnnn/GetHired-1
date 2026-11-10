@@ -1,0 +1,78 @@
+{
+  "origin": "https://gethired-1.vercel.app",
+  "categoryId": "30415f51-8292-445d-8e5d-78807af89b8c",
+  "apiOrigin": "https://gethired-113w.onrender.com",
+  "deploymentRevisionEvidence": "User confirmed latest matching revisions deployed",
+  "startedAt": "2026-10-29T07:58:07.780Z",
+  "checks": [
+    "Six reviewed questions persisted through admin API; category activated after population",
+    "Student-safe snapshots; admin denied student attempt; premature completion blocked; start resumes same attempt",
+    "Draft persistence and unchanged-write stability",
+    "Stale write and blank submission rejected",
+    "Four real written evaluations and correct/incorrect MCQ grading",
+    "Answer locking and idempotent evaluation replay",
+    "Equal-weight score, immutable completion, detail retrieval and saved history",
+    "Test category deactivated and absent from student category list",
+    "Completed result remains readable after category deactivation"
+  ],
+  "evaluations": [
+    {
+      "type": "Introduction",
+      "format": "written",
+      "score": 100,
+      "durationMs": 6573
+    },
+    {
+      "type": "Situational",
+      "format": "written",
+      "score": 100,
+      "durationMs": 7399
+    },
+    {
+      "type": "Technical",
+      "format": "written",
+      "score": 100,
+      "durationMs": 8727
+    },
+    {
+      "type": "Technical",
+      "format": "multiple_choice",
+      "score": 100,
+      "durationMs": 2656
+    },
+    {
+      "type": "Coding",
+      "format": "multiple_choice",
+      "score": 0,
+      "durationMs": 2553
+    },
+    {
+      "type": "Candidate Questions",
+      "format": "written",
+      "score": 100,
+      "durationMs": 6467
+    }
+  ],
+  "browserVerification": "Pending: HTTP acceptance does not verify browser rendering, debounce, or refresh UI.",
+  "existingCategoryCount": 1,
+  "attemptId": "3fabc726-fce3-4c3a-bc31-7a8c7765a06a",
+  "overallScore": 83.33,
+  "httpAcceptance": "passed",
+  "categoryDeactivated": true,
+  "finishedAt": "2026-10-29T08:00:13.032Z",
+  "logout": [
+    {
+      "role": "student",
+      "status": 200
+    },
+    {
+      "role": "admin",
+      "status": 200
+    }
+  ],
+  "initialBankCategoryCount": 0,
+  "setupNotes": [
+    "Refreshed CSRF token after login binding rotation.",
+    "Fixed harness progress callback and cross-realm JSON assertions before creating the student attempt. Reused the same six-question category."
+  ]
+}

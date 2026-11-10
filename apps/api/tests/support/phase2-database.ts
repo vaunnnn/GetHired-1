@@ -15,4 +15,6 @@ export const migrations = [
   "202610130001_b5_onboarding.sql",
   "202610140001_b6_question_bank.sql",
   "202610260001_session_authorization.sql",
+  "202610270001_question_response_definitions.sql",
+  "202610270002_question_response_rules.sql",
 ]

@@ -11,10 +11,22 @@ const phase = { type: "object", additionalProperties: false, required: ["id", "l
   id: { ...str(1,40), pattern: "^[a-z][a-z-]*$" }, label: str(1,80), shortLabel: str(1,80), count: { type: "integer", minimum: 1, maximum: 5 }, types: { type: "array", minItems: 1, uniqueItems: true, items: { type: "string", enum: types } },
 } };
 const category = { name: str(1,120), description: str(0,2000), color: { type: "string", pattern: "^#[0-9a-fA-F]{6}$" }, bg: { type: "string", pattern: "^#[0-9a-fA-F]{6}$" }, status, phases: { type: "array", minItems: 1, maxItems: 8, items: ref("B6Phase") } };
-const question = { question: str(1,12000), type: { type: "string", enum: types }, hint: str(0,4000), feedback: str(0,12000), status };
+const question = { question: str(1,12000), type: { type: "string", enum: types }, hint: str(0,4000), feedback: { ...str(0,12000), description: "Private evaluation criteria: required for active written questions, empty for MCQs. MCQ explanations are prohibited." }, status, responseDefinition: ref("QuestionResponseDefinition") };
 const id = { type: "string", format: "uuid" };
 const object = (properties, required = Object.keys(properties)) => ({ type: "object", additionalProperties: false, properties, required });
 Object.assign(spec.components.schemas, {
+  QuestionOption: object({ id: { ...str(1,40), pattern: "^[a-z][a-z0-9_-]{0,39}$" }, text: str(1,1000) }),
+  QuestionResponseDefinition: {
+    description: "Single-correct-answer MCQs are allowed only for Technical, Situational, and Coding. Written is the default on create. Replace this complete object on PATCH; option IDs and trimmed case-insensitive labels must be unique.",
+    oneOf: [object({ format: { type: "string", enum: ["written"] } }), object({
+      format: { type: "string", enum: ["multiple_choice"] },
+      options: { type: "array", minItems: 2, maxItems: 6, items: ref("QuestionOption") },
+      correctOptionId: { ...str(1,40), description: "Must identify exactly one listed option. Admin/evaluator only." },
+    })],
+  },
+  PublicQuestionResponseDefinition: { oneOf: [object({ format: { type: "string", enum: ["written"] } }), object({
+    format: { type: "string", enum: ["multiple_choice"] }, options: { type: "array", minItems: 2, maxItems: 6, items: ref("QuestionOption") },
+  })] },
   B6Phase: phase,
   B6Category: object({ ...category, id, pipeline: { type: "string" } }),
   B6Question: object({ ...question, id }),
@@ -22,7 +34,7 @@ Object.assign(spec.components.schemas, {
   B6CategoryPatch: { ...object(category, []), minProperties: 1 },
   B6QuestionInput: object(question, ["question", "type", "hint", "feedback"]),
   B6QuestionPatch: { ...object(question, []), minProperties: 1 },
-  B6SelectedPhase: object({ id: str(1,40), label: str(1,80), shortLabel: str(1,80), questions: { type: "array", minItems: 1, maxItems: 5, items: object({ id, question: question.question, type: question.type, hint: question.hint }) } }),
+  B6SelectedPhase: object({ id: str(1,40), label: str(1,80), shortLabel: str(1,80), questions: { type: "array", minItems: 1, maxItems: 5, items: object({ id, question: question.question, type: question.type, hint: question.hint, responseDefinition: ref("PublicQuestionResponseDefinition") }) } }),
 });
 const operations = [
   ["/categories", "get", "B6Category", false, true],
@@ -61,7 +73,7 @@ collection.item.push({ name: "B6 question bank", description: "Use the existing 
     `pm.test('Expected success status', () => pm.response.to.have.status(${method === "post" ? 201 : 200}));`,
     "const body = pm.response.json();",
     "pm.test('Envelope has request ID and data', () => { pm.expect(body.requestId).to.be.a('string'); pm.expect(body).to.have.property('data'); });",
-    ...(!admin ? ["pm.test('No private rubric fields', () => pm.expect(JSON.stringify(body)).not.to.match(/\"feedback\"\\s*:/));"] : []),
+    ...(!admin ? ["pm.test('No private rubric or answer key fields', () => pm.expect(JSON.stringify(body)).not.to.match(/\"(feedback|correctOptionId)\"\\s*:/));"] : []),
     ...(method === "post" ? [`if (pm.response.code === 201) pm.collectionVariables.set('${schema === "B6Category" ? "categoryId" : "questionId"}', body.data.id);`] : []),
   ] } }],
 })) });

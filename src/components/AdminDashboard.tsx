@@ -6,8 +6,9 @@ import StudentRegistry from "./StudentRegistry";
 import CompanyCard from "./CompanyCard";
 import CategoryCard, { CategoryIcon } from "./CategoryCard";
 import { bankList, categoryView, questionView, type InterviewCategory, type InterviewQuestion } from "@/lib/interviews";
-import { DEFAULT_PHASES, QUESTION_TYPES, type Category, type Question, type PhaseConfig } from "@gethired/contracts";
+import { DEFAULT_PHASES, QUESTION_TYPES, MCQ_QUESTION_TYPES, type Category, type Question, type PhaseConfig } from "@gethired/contracts";
 import PipelineEditor from "./PipelineEditor";
+import QuestionResponseEditor from "./QuestionResponseEditor";
 
 import { apiClient } from "@/lib/api-client";
 import { companyView, type Company } from "@/lib/companies";
@@ -525,6 +526,8 @@ export default function AdminDashboard() {
     type: "Technical",
     hint: "",
     feedback: "",
+    responseDefinition: { format: "written" },
+    status: "active",
   });
 
   const [bankRevision, setBankRevision] = useState(0);
@@ -755,17 +758,21 @@ export default function AdminDashboard() {
   };
 
   const handleOpenAddQuestion = () => {
+    setBankError("");
     setEditingQuestionIdx(null);
     setQuestionForm({
       question: "",
       type: "Technical",
       hint: "",
       feedback: "",
+      responseDefinition: { format: "written" },
+      status: "active",
     });
     setIsQuestionModalOpen(true);
   };
 
   const handleOpenEditQuestion = (idx: number, q: InterviewQuestion) => {
+    setBankError("");
     setEditingQuestionIdx(idx);
     setQuestionForm({ ...q });
     setIsQuestionModalOpen(true);
@@ -775,8 +782,19 @@ export default function AdminDashboard() {
     e.preventDefault();
     if (!selectedCategoryForQuestions) return;
     const id = editingQuestionIdx === null ? undefined : questionsMap[selectedCategoryForQuestions.id]?.[editingQuestionIdx]?.id;
-    const { question, type, hint, feedback } = questionForm;
-    await bankWrite(id ? `/api/admin/questions/${id}` : `/api/admin/categories/${selectedCategoryForQuestions.id}/questions`, id ? "PATCH" : "POST", { question, type, hint, feedback }, () => setIsQuestionModalOpen(false));
+    const { question, type, hint, feedback, responseDefinition, status } = questionForm;
+    if (responseDefinition.format === "multiple_choice") {
+      const labels = responseDefinition.options.map(option => option.text.trim().toLowerCase());
+      if (labels.some(label => !label) || new Set(labels).size !== labels.length) {
+        setBankError("Enter a different, non-empty answer for each choice."); return;
+      }
+      if (!responseDefinition.options.some(option => option.id === responseDefinition.correctOptionId)) {
+        setBankError("Select one correct answer."); return;
+      }
+    } else if (status !== "inactive" && !feedback.trim()) {
+      setBankError("Add evaluation criteria before activating a written question."); return;
+    }
+    await bankWrite(id ? `/api/admin/questions/${id}` : `/api/admin/categories/${selectedCategoryForQuestions.id}/questions`, id ? "PATCH" : "POST", { question, type, hint, feedback, responseDefinition, status }, () => setIsQuestionModalOpen(false));
   };
 
   /* Filtered Data */
@@ -1068,7 +1086,8 @@ export default function AdminDashboard() {
                                 <span className="font-semibold text-slate-700">Hint:</span> {q.hint}
                               </div>
                             )}
-                            {q.feedback && (
+                            <p className="mt-2 text-xs font-semibold text-slate-500">{q.responseDefinition.format === "multiple_choice" ? "Multiple choice" : "Written response"}</p>
+                            {q.responseDefinition.format === "written" && q.feedback && (
                               <div className="mt-2 text-[12px] text-blue-700 bg-blue-50/50 p-3 rounded-xl border border-blue-100">
                                 <span className="font-semibold text-blue-900">AI Evaluation Rubric:</span> {q.feedback}
                               </div>
@@ -1540,7 +1559,8 @@ export default function AdminDashboard() {
                 <FormSelect
                   value={questionForm.type || "Technical"}
                   options={[...QUESTION_TYPES]}
-                  onChange={(val) => setQuestionForm({ ...questionForm, type: val as Question["type"] })}
+                  onChange={(val) => setQuestionForm({ ...questionForm, type: val as Question["type"],
+                    responseDefinition: (MCQ_QUESTION_TYPES as readonly string[]).includes(val) ? questionForm.responseDefinition : { format: "written" } })}
                 />
               </div>
 
@@ -1568,16 +1588,37 @@ export default function AdminDashboard() {
                 />
               </div>
 
-              <div>
-                <label className="block text-[12.5px] font-semibold text-slate-700 mb-1">AI Evaluation Rubric & Expected Key Points</label>
+              <QuestionResponseEditor
+                type={questionForm.type}
+                value={questionForm.responseDefinition}
+                onChange={responseDefinition => setQuestionForm({ ...questionForm, responseDefinition,
+                  feedback: responseDefinition.format === "multiple_choice" ? "" : questionForm.feedback })}
+              />
+
+              {questionForm.responseDefinition.format === "written" && <div>
+                <label htmlFor="question-rubric" className="block text-[12.5px] font-semibold text-slate-700 mb-1">Evaluation criteria & expected key points</label>
                 <textarea
+                  id="question-rubric"
+                  required={questionForm.status !== "inactive"}
+                  maxLength={12000}
                   rows={3}
                   placeholder="Explain what a strong response should cover for the AI to score..."
                   value={questionForm.feedback}
                   onChange={(e) => setQuestionForm({ ...questionForm, feedback: e.target.value })}
                   className="w-full border border-slate-200 rounded-xl p-3 text-[13.5px] outline-none focus:border-[#0066FF]"
                 />
-              </div>
+                <p className="mt-1 text-xs text-slate-500">Required for active written questions. Describe what a good answer must cover.</p>
+              </div>}
+
+              <label className="block text-[12.5px] font-semibold text-slate-700">
+                Question status
+                <select aria-label="Question status" value={questionForm.status ?? "active"}
+                  onChange={event => setQuestionForm({ ...questionForm, status: event.target.value as "active" | "inactive" })}
+                  className="mt-1 block w-full rounded-xl border border-slate-200 p-3 text-[13.5px]">
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive / draft</option>
+                </select>
+              </label>
 
               <div className="flex gap-3 pt-2">
                 <button

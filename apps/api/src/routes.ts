@@ -3,10 +3,12 @@ import { ApiError } from "./api/errors.js"
 import { companyRoutes } from "./modules/companies/routes.js"
 import { onboardingRoutes } from "./modules/onboarding/routes.js"
 import { bankRoutes } from "./modules/interviews/routes.js"
+import { attemptRoutes } from "./modules/interviews/attempt-routes.js"
 import { getAuthService, checkReadiness } from "./auth/runtime.js"
 
 export function createRoutes() {
   const routes = companyRoutes()
+  for (const [path, handler] of attemptRoutes()) routes.set(path, handler)
   for (const [path, handler] of bankRoutes()) routes.set(path, handler)
   for (const [path, handler] of onboardingRoutes()) routes.set(path, handler)
   routes.set("/api/health/ready", createApiRoute({
